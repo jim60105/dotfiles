@@ -83,6 +83,8 @@ Bundle 't9md/vim-choosewin'
 Bundle 'scrooloose/syntastic'
 " Paint css colors with the real color
 Bundle 'lilydjwg/colorizer'
+" Gvim colorscheme
+Bundle 'vim-scripts/Wombat'
 " Relative numbering of lines (0 is the current line)
 " (disabled by default because is very intrusive and can't be easily toggled
 " on/off. When the plugin is present, will always activate the relative 
@@ -96,8 +98,6 @@ Bundle 'lilydjwg/colorizer'
 Bundle 'IndexedSearch'
 " XML/HTML tags navigation
 Bundle 'matchit.zip'
-" Gvim colorscheme
-Bundle 'Wombat'
 " Yank history navigation
 Bundle 'YankRing.vim'
 
@@ -210,9 +210,19 @@ nmap ,wr :RecurGrepFast <cword><CR>
 if (&term =~? 'mlterm\|xterm\|xterm-256\|screen-256\|xterm-256color') || has('nvim')
 	let &t_Co = 256
 "    colorscheme fisa
+else
+    colorscheme wombat
 endif
 
-colorscheme wombat
+" colors for gvim
+if has('gui_running')
+    colorscheme wombat
+endif
+
+" font
+if has('gui_running')
+    set guifont=Hack:h12
+endif
 
 " when scrolling, keep cursor 3 lines away from screen border
 set scrolloff=3
@@ -438,3 +448,4 @@ set fileencodings=utf8,big5,gbk,latin1
 set fileencoding=utf8
 
 set noeb vb t_vb=
+let g:snipMate = { 'snippet_version' : 1 } 
