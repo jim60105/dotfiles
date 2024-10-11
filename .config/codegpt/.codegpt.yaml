@@ -1,0 +1,23 @@
+git:
+    diff_unified: 10
+    exclude_list: appsettings*.json
+    template_file: ""
+    template_string: ""
+openai:
+    frequency_penalty: "0"
+    headers: ""
+    max_tokens: 4096
+    model: gpt-4o
+    model_name: gpt-4o
+    org_id: ""
+    presence_penalty: "0"
+    provider: azure
+    proxy: ""
+    skip_verify: false
+    socks: ""
+    temperature: "0.7"
+    timeout: 300s
+    top_p: "1"
+output:
+    file: ""
+    lang: en
