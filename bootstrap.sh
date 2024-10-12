@@ -5,7 +5,7 @@ cd "$(dirname "${BASH_SOURCE}")"
 git pull origin master
 
 function installCodeGPT() {
-	gh run download --repo jim60105/CodeGPT -n amd64 -D /bin && sudo chmod 755 /bin/codegpt
+	gh run download --repo jim60105/CodeGPT -n amd64 -D ~/bin && sudo chmod 755 ~/bin/codegpt
 }
 
 rsync --exclude ".git/" \
