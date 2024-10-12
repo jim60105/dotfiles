@@ -16,4 +16,4 @@ rsync --exclude ".git/" \
 	--exclude "LICENSE" \
 	-avh --no-perms . ~
 installCodeGPT
-source ~/.bash_profile
+source ~/.profile
