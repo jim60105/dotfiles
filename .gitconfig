@@ -1,0 +1,7 @@
+[user]
+	name = CHEN, CHUN
+	email = jim60105@gmail.com
+[core]
+	autocrlf = false
+[init]
+	defaultBranch = master
