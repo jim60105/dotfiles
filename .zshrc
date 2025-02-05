@@ -57,23 +57,17 @@ zinit ice wait="0b" lucid
 zinit light b4b4r07/enhancd
 export ENHANCD_FILTER=fzf:fzy:peco
 
-# TAB COMPLETIONS
-zinit ice wait="0b" lucid blockf
-zinit light zsh-users/zsh-completions
-zstyle ':completion:*' completer _expand _complete _ignored _approximate
-zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
-zstyle ':completion:*' menu no
-zstyle ':completion:*' select-prompt '%SScrolling active: current selection at %p%s'
-zstyle ':completion:*:descriptions' format '[%d]'
-zstyle ':completion:*:processes' command 'ps -au$USER'
-zstyle ':completion:complete:*:options' sort false
-zstyle ':fzf-tab:complete:_zlua:*' query-string input
-zstyle ':completion:*:*:*:*:processes' command "ps -u $USER -o pid,user,comm,cmd -w -w"
-zstyle ':fzf-tab:complete:kill:argument-rest' extra-opts --preview=$extract'ps --pid=$in[(w)1] -o cmd --no-headers -w -w' --preview-window=down:3:wrap
-zstyle ':fzf-tab:complete:cd:*' fzf-preview 'ls $realpath'
-zstyle ':fzf-tab:*' use-fzf-default-opts yes
-zstyle ":completion:*:git-checkout:*" sort false
-zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
+# bat
+zinit ice wait"0" lucid from"gh-r" as"program" \
+    bpick"*x86_64-unknown-linux-gnu.tar.gz" \
+    extract"" \
+    mv"bat*/bat -> bat"
+zinit light sharkdp/bat
+
+# COMPLETIONS
+if [[ -r "${XDG_CACHE_HOME:-$HOME}/.zsh/completion.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME}/.zsh/completion.zsh"
+fi
 
 # SYNTAX HIGHLIGHTING
 zinit ice wait="0c" lucid atinit="zpcompinit;zpcdreplay"
