@@ -3,6 +3,10 @@ zinit light zsh-users/zsh-completions
 zinit ice mv="*.zsh -> _fzf" as="completion"
 zinit snippet 'https://github.com/junegunn/fzf/blob/master/shell/completion.zsh'
 zinit snippet 'https://github.com/junegunn/fzf/blob/master/shell/key-bindings.zsh'
+zinit ice lucid nocompile
+zinit load MenkeTechnologies/zsh-dotnet-completion
+zinit ice as"completion" mv"chezmoi.zsh -> _chezmoi"
+zinit snippet https://github.com/twpayne/chezmoi/blob/master/completions/chezmoi.zsh
 
 zstyle ':completion:*' completer _expand _complete _ignored _approximate
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
@@ -18,5 +22,3 @@ zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always $realpath'
 zstyle ':fzf-tab:*' fzf-flags --color=fg:1,fg+:2 --bind=tab:accept
 zstyle ":completion:*:git-checkout:*" sort false
 zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
-
-source ~/.zsh/completion/dotnet.zsh

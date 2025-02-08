@@ -1,0 +1,12 @@
+{{- $codespaces:= env "CODESPACES" | not | not -}}
+sourceDir = {{ .chezmoi.sourceDir | quote }}
+
+[edit]
+    command = "code"
+    args = ["--wait"]
+[data]
+    codespaces = {{ $codespaces }}
+    {{- if not $codespaces }}
+    {{- $gitsigningkey := promptStringOnce . "gitsigningkey" "Git signing key" }}
+    gitsigningkey = {{ $gitsigningkey | quote }}
+    {{- end }}

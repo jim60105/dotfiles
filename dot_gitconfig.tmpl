@@ -1,0 +1,33 @@
+{{- if not .codespaces -}}
+[user]
+	signingkey = {{ .gitsigningkey }}
+	name = CHEN, CHUN
+	email = jim60105@gmail.com
+{{- end }}
+[commit]
+	gpgsign = true
+[core]
+	autocrlf = false
+{{- if .codespaces }}
+	editor = code --wait
+{{- else }}
+	editor = vim
+{{- end }}
+[tag]
+	gpgsign = true
+	forceSignAnnotated = true
+{{- if eq .chezmoi.hostname "Jim-Fedora" }}
+[safe]
+	directory = /var/mnt/ssd/AI/docker-stable-diffusion-webui
+	directory = /var/mnt/ssd/AI/docker-stable-diffusion-webui/stable-diffusion-webui
+	directory = /var/mnt/ssd/AI/kohya_ss
+{{- end }}
+[init]
+	defaultBranch = master
+{{- if not .codespaces }}
+[gpg]
+	program = /usr/bin/gpg
+{{- end }}
+[credential]
+	helper = store
+	credentialStore = gpg

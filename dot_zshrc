@@ -117,6 +117,14 @@ export LANG='zh_TW.UTF-8'
 export LC_ALL='zh_TW.UTF-8'
 export XMODIFIERS=@im=fcitx
 
+if [[ -r "${XDG_CACHE_HOME:-$HOME}/.env" ]]; then
+  while IFS='=' read -r key value; do
+    if [[ ! "$key" =~ ^# && -n "$key" ]]; then
+      export "$key"="$value"
+    fi
+  done < "${XDG_CACHE_HOME:-$HOME}/.env"
+fi
+
 #########################################################################
 # FZF SETTINGS
 #########################################################################
