@@ -31,8 +31,11 @@ installChezmoi() {
 }
 
 installCodeGPT() {
-	gh run download --repo jim60105/CodeGPT -n amd64 -D ~/.local/bin && sudo chmod 755 ~/.local/bin/codegpt
+	gh run download --repo jim60105/CodeGPT -n amd64 -D /tmp/codegpt && \
+	mv -f /tmp/codegpt ~/.local/bin/codegpt && \
+	sudo chmod 755 ~/.local/bin/codegpt && \
+	rm -rf /tmp/codegpt
 }
 
 installCodeGPT
-exec installChezmoi
+installChezmoi
