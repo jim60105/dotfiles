@@ -1,0 +1,16 @@
+{
+  "ai:preset": "ai@azure-gpt4o",
+  "ai:maxtokens": 8192,
+  "ai:timeoutms": 600000,
+  "autoupdate:channel": "latest",
+  "autoupdate:enabled": false,
+  "editor:minimapenabled": true,
+  "telemetry:enabled": false,
+  "term:copyonselect": true,
+  "term:fontfamily": "Cascadia Mono",
+  "term:fontsize": 16,
+  "term:theme": "default-dark",
+  "window:nativetitlebar": false,
+  "window:showmenubar": false,
+  "window:reducedmotion": true
+}
