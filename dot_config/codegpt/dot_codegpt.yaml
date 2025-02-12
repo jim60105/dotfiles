@@ -4,6 +4,8 @@ git:
     template_file: ""
     template_string: ""
 openai:
+    base_url: "http://one-api.local/v1"
+    api_key: "sk-sEujWudiA01AcD5KB0E6407dFb2f44F591Cf425903DbA9F4"
     frequency_penalty: "0"
     headers: ""
     max_tokens: 4096
@@ -11,13 +13,13 @@ openai:
     model_name: gpt-4o
     org_id: ""
     presence_penalty: "0"
-    provider: azure
+    provider: openai
     proxy: ""
     skip_verify: false
     socks: ""
     temperature: "0.7"
-    timeout: 300s
-    top_p: "1"
+    timeout: 600s
+    top_p: "0.7"
 output:
     file: ""
     lang: en
