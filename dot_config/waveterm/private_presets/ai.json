@@ -1,0 +1,26 @@
+{
+  "ai@gpt-4o": {
+    "display:name": "GPT-4o",
+    "display:order": 0,
+    "ai:*": true,
+    "ai:model": "gpt-4o"
+  },
+  "ai@gpt-4o-mini": {
+    "display:name": "GPT-4o mini",
+    "display:order": 1,
+    "ai:*": true,
+    "ai:model": "gpt-4o-mini"
+  },
+  "ai@o1-mini": {
+    "display:name": "o1 mini",
+    "display:order": 2,
+    "ai:*": true,
+    "ai:model": "o1-mini"
+  },
+  "ai@deepseek-r1": {
+    "display:name": "DeepSeek-R1",
+    "display:order": 3,
+    "ai:*": true,
+    "ai:model": "DeepSeek-R1"
+  }
+}
