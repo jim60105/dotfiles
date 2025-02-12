@@ -7,7 +7,7 @@
   "editor:minimapenabled": true,
   "telemetry:enabled": false,
   "term:copyonselect": true,
-  "term:fontfamily": "Cascadia Mono",
+  "term:fontfamily": "Cascadia Code NF",
   "term:fontsize": 16,
   "term:theme": "default-dark",
   "window:nativetitlebar": false,
