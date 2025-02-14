@@ -9,6 +9,10 @@ zinit add-fpath "$HOME/.zsh/completion"
 zinit ice as"completion"
 zinit snippet https://github.com/eza-community/eza/blob/main/completions/zsh/_eza
 
+# ffmpeg
+zinit ice as"completion"
+zinit snippet https://github.com/zsh-users/zsh/blob/master/Completion/Unix/Command/_ffmpeg
+
 # dotnet
 zinit ice lucid nocompile
 zinit light MenkeTechnologies/zsh-dotnet-completion
@@ -17,11 +21,22 @@ zinit light MenkeTechnologies/zsh-dotnet-completion
 zinit ice as"completion" mv"chezmoi.zsh -> _chezmoi"
 zinit snippet https://github.com/twpayne/chezmoi/blob/master/completions/chezmoi.zsh
 
-# talosctl, kubectl, oc
+# yt-dlp
+zinit ice wait"0" lucid from"gh-r" as"completion" \
+    bpick"yt-dlp.tar.gz" \
+    extract"" \
+    mv"yt-dlp/completions/zsh/_yt-dlp -> _yt-dlp"
+zinit light yt-dlp/yt-dlp
+
+# talosctl, kubectl, oc, helm, docker, podman, skopeo
 zinit ice wait lucid atinit"
   [[ -x \$(command -v talosctl) ]] && talosctl completion zsh > \$HOME/.zsh/completion/_talosctl
   [[ -x \$(command -v kubectl) ]] && kubectl completion zsh > \$HOME/.zsh/completion/_kubectl
   [[ -x \$(command -v oc) ]] && oc completion zsh > \$HOME/.zsh/completion/_oc
+  [[ -x \$(command -v helm) ]] && helm completion zsh > \$HOME/.zsh/completion/_helm
+  [[ -x \$(command -v docker) ]] && docker completion zsh > \$HOME/.zsh/completion/_docker
+  [[ -x \$(command -v podman) ]] && podman completion zsh > \$HOME/.zsh/completion/_podman
+  [[ -x \$(command -v skopeo) ]] && skopeo completion zsh > \$HOME/.zsh/completion/_skopeo
 "
 zinit snippet /dev/null
 
