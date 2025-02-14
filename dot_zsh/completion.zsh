@@ -5,6 +5,10 @@ zinit wait lucid for \
 
 zinit add-fpath "$HOME/.zsh/completion"
 
+# eza
+zinit ice as"completion"
+zinit snippet https://github.com/eza-community/eza/blob/main/completions/zsh/_eza
+
 # dotnet
 zinit ice lucid nocompile
 zinit light MenkeTechnologies/zsh-dotnet-completion

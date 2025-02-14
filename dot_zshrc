@@ -67,6 +67,14 @@ zinit ice wait"0" lucid from"gh-r" as"program" \
     mv"bat*/bat -> bat"
 zinit light sharkdp/bat
 
+# eza
+zinit ice wait"0" lucid from"gh-r" as"program" \
+    bpick"eza_x86_64-unknown-linux-gnu.tar.gz" \
+    extract""
+zinit light eza-community/eza
+alias eza="eza -1 --color=always --icons=always"
+alias ls="eza"
+
 # SYNTAX HIGHLIGHTING
 zinit ice wait="0c" lucid atinit="zpcompinit;zpcdreplay"
 zinit light zdharma-continuum/fast-syntax-highlighting
