@@ -52,10 +52,6 @@ zinit light Aloxaf/fzf-tab
 ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=20
 zinit ice wait="0a" lucid atload="_zsh_autosuggest_start"
 zinit light zsh-users/zsh-autosuggestions
-# ENHANCD
-zinit ice wait="0b" lucid
-zinit light b4b4r07/enhancd
-export ENHANCD_FILTER=fzf:fzy:peco
 
 # bat
 zinit ice wait"0" lucid from"gh-r" as"program" \
