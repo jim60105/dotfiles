@@ -1,14 +1,27 @@
-zinit ice wait="0b" lucid blockf
-zinit light zsh-users/zsh-completions
-zinit ice mv="*.zsh -> _fzf" as="completion"
-zinit snippet 'https://github.com/junegunn/fzf/blob/master/shell/completion.zsh'
-zinit snippet 'https://github.com/junegunn/fzf/blob/master/shell/key-bindings.zsh'
+zinit wait lucid for \
+  atinit"zicompinit; zicdreplay"  \
+  blockf \
+    zsh-users/zsh-completions
+
+zinit add-fpath "$HOME/.zsh/completion"
+
+# dotnet
 zinit ice lucid nocompile
-zinit load MenkeTechnologies/zsh-dotnet-completion
+zinit light MenkeTechnologies/zsh-dotnet-completion
+
+# chezmoi
 zinit ice as"completion" mv"chezmoi.zsh -> _chezmoi"
 zinit snippet https://github.com/twpayne/chezmoi/blob/master/completions/chezmoi.zsh
 
-zstyle ':completion:*' completer _expand _complete _ignored _approximate
+# talosctl, kubectl, oc
+zinit ice wait lucid atinit"
+  [[ -x \$(command -v talosctl) ]] && talosctl completion zsh > \$HOME/.zsh/completion/_talosctl
+  [[ -x \$(command -v kubectl) ]] && kubectl completion zsh > \$HOME/.zsh/completion/_kubectl
+  [[ -x \$(command -v oc) ]] && oc completion zsh > \$HOME/.zsh/completion/_oc
+"
+zinit snippet /dev/null
+
+zstyle ':completion:*' completer _expand _complete _ignored
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
 zstyle ':completion:*' menu no
 zstyle ':completion:*' select-prompt '%SScrolling active: current selection at %p%s'
