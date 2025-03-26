@@ -17,10 +17,22 @@
     "ai:*": true,
     "ai:model": "o1-mini"
   },
-  "ai@deepseek-r1": {
-    "display:name": "DeepSeek-R1",
+  "ai@o3-mini": {
+    "display:name": "o3 mini",
     "display:order": 3,
     "ai:*": true,
+    "ai:model": "o3-mini"
+  },
+  "ai@deepseek-r1": {
+    "display:name": "DeepSeek-R1",
+    "display:order": 4,
+    "ai:*": true,
     "ai:model": "DeepSeek-R1"
+  },
+    "ai@deepseek-v3": {
+    "display:name": "DeepSeek-V3",
+    "display:order": 5,
+    "ai:*": true,
+    "ai:model": "DeepSeek-V3"
   }
 }
