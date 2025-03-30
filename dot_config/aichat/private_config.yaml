@@ -1,0 +1,9 @@
+# see https://github.com/sigoden/aichat/blob/main/config.example.yaml
+
+model: openai
+clients:
+- type: openai
+  api_base: http://one-api.local/v1
+  api_key: sk-ptkx18Jhorhk7bS89816B737B274476484Da2741B4D48e67
+  models:
+  - name: gpt-4o
