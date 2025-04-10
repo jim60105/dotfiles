@@ -1,0 +1,32 @@
+{
+    "stable-diffusion-webui" : {
+        "icon": "image",
+        "label": "sd-webui",
+        "description": "Start the stable diffuwion Web UI forge.",
+        "magnified": true,
+        "blockdef": {
+            "meta": {
+                "view": "term",
+                "controller": "cmd",
+                "cmd": "podman start -ia stable-diffusion-webui-forge",
+                "cmd:clearonstart": true,
+                "cmd:closeonexit": true
+            }
+        }
+    },
+    "upgrade-toolbox" : {
+        "icon": "refresh",
+        "label": "更新toolbx",
+        "description": "Upgrade all the toolbx.",
+        "magnified": false,
+        "blockdef": {
+            "meta": {
+                "view": "term",
+                "controller": "cmd",
+                "cmd": "podman pull quay.io/jim60105/toolbx:latest quay.io/jim60105/toolbx-vscode:latest quay.io/jim60105/toolbx-rustrover:latest quay.io/jim60105/toolbx-rider:latest quay.io/jim60105/toolbx-datagrip:latest quay.io/jim60105/toolbx-sourcegit:latest quay.io/jim60105/toolbx-video:latest quay.io/jim60105/toolbx-kubernetes:latest && toolbox rm -af && toolbox create -i quay.io/jim60105/toolbx:latest fedora-toolbox-41 && toolbox create -i quay.io/jim60105/toolbx-vscode:latest vscode && toolbox create -i quay.io/jim60105/toolbx-rustrover:latest rustrover && toolbox create -i quay.io/jim60105/toolbx-rider:latest rider && toolbox create -i quay.io/jim60105/toolbx-datagrip:latest datagrip && toolbox create -i quay.io/jim60105/toolbx-sourcegit:latest sourcegit && toolbox create -i quay.io/jim60105/toolbx-video:latest video && toolbox create -i quay.io/jim60105/toolbx-kubernetes:latest kubernetes",
+                "cmd:clearonstart": true,
+                "cmd:closeonexit": true
+            }
+        }
+    }
+}
