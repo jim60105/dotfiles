@@ -8,9 +8,9 @@ openai:
     api_key: "sk-sEujWudiA01AcD5KB0E6407dFb2f44F591Cf425903DbA9F4"
     frequency_penalty: "0"
     headers: ""
-    max_tokens: 4096
-    model: gpt-4o
-    model_name: gpt-4o
+    max_tokens: 32768
+    model: gpt-41-mini
+    model_name: gpt-41-mini
     org_id: ""
     presence_penalty: "0"
     provider: openai
