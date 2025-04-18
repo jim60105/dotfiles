@@ -1,10 +1,10 @@
 {
-  "ai:preset": "ai@gpt-4o",
+  "ai:preset": "ai@gpt-4.1",
   "ai:maxtokens": 8192,
   "ai:timeoutms": 600000,
   "ai:baseurl": "http://one-api.local/v1",
   "ai:apitoken": "sk-ptkx18Jhorhk7bS89816B737B274476484Da2741B4D48e67",
-  "ai:model": "gpt-4o",
+  "ai:model": "gpt-41",
   "autoupdate:channel": "latest",
   "autoupdate:enabled": false,
   "editor:minimapenabled": true,

@@ -1,27 +1,27 @@
 {
-  "ai@gpt-4o": {
-    "display:name": "GPT-4o",
+  "ai@gpt-4.1": {
+    "display:name": "GPT-4.1",
     "display:order": 0,
     "ai:*": true,
-    "ai:model": "gpt-4o"
+    "ai:model": "gpt-41"
   },
-  "ai@gpt-4o-mini": {
-    "display:name": "GPT-4o mini",
+  "ai@gpt-4.1-mini": {
+    "display:name": "GPT-4.1 mini",
     "display:order": 1,
     "ai:*": true,
-    "ai:model": "gpt-4o-mini"
+    "ai:model": "gpt-41-mini"
   },
-  "ai@o1-mini": {
-    "display:name": "o1 mini",
+  "ai@claude-3.7-sonnet": {
+    "display:name": "Claude 3.7 Sonnet",
     "display:order": 2,
     "ai:*": true,
-    "ai:model": "o1-mini"
+    "ai:model": "claude-3-7-sonnet-latest"
   },
-  "ai@o3-mini": {
-    "display:name": "o3 mini",
+  "ai@o4-mini": {
+    "display:name": "o4 mini",
     "display:order": 3,
     "ai:*": true,
-    "ai:model": "o3-mini"
+    "ai:model": "o4-mini"
   },
   "ai@deepseek-r1": {
     "display:name": "DeepSeek-R1",
@@ -30,9 +30,9 @@
     "ai:model": "DeepSeek-R1"
   },
     "ai@deepseek-v3": {
-    "display:name": "DeepSeek-V3",
+    "display:name": "DeepSeek-V3-0324",
     "display:order": 5,
     "ai:*": true,
-    "ai:model": "DeepSeek-V3"
+    "ai:model": "DeepSeek-V3-0324"
   }
 }
