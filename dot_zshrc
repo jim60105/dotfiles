@@ -84,7 +84,9 @@ zinit light jeffreytse/zsh-vi-mode
 
 # CodeGPT
 zinit ice wait"0" lucid as"null" id-as"codegpt-installer" \
-    atclone"curl -sSL https://raw.githubusercontent.com/appleboy/CodeGPT/main/install.sh | bash" \
+    atclone"curl -sSL https://raw.githubusercontent.com/appleboy/CodeGPT/main/install.sh | bash && \
+            rm -f $HOME/.local/bin/codegpt && \
+            ln -sf $HOME/.codegpt/bin/codegpt $HOME/.local/bin/codegpt" \
     atpull"false"
 zinit light zdharma-continuum/null
 
