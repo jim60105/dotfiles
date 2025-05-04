@@ -40,6 +40,12 @@ zinit ice wait lucid atinit"
 "
 zinit snippet /dev/null
 
+# codegpt
+zinit ice wait lucid atinit"
+  [[ -x \$(command -v codegpt) ]] && codegpt completion zsh > \$HOME/.zsh/completion/_codegpt
+"
+zinit snippet /dev/null
+
 zstyle ':completion:*' completer _expand _complete _ignored
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
 zstyle ':completion:*' menu no

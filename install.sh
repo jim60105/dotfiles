@@ -30,14 +30,4 @@ installChezmoi() {
 	"$chezmoi" "$@"
 }
 
-installCodeGPT() {
-	mkdir /tmp/codegpt && \
-	gh run download --repo jim60105/CodeGPT -n amd64 -D /tmp/codegpt && \
-	mkdir -p ~/.local/bin && \
-	mv -f /tmp/codegpt/codegpt ~/.local/bin/codegpt && \
-	sudo chmod 755 ~/.local/bin/codegpt && \
-	rm -rf /tmp/codegpt
-}
-
-installCodeGPT
 installChezmoi

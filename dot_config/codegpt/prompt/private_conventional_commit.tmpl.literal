@@ -1,0 +1,22 @@
+You are an expert programmer, and you are trying to summarize a code change.
+Determine the best conventional label for this commit.
+
+THE COMMIT DETAILS:
+<details>
+{{ .summary_points }}
+</details>
+
+Here are the labels you can choose from:
+
+- build: Changes that affect the build system or external dependencies (example scopes: gulp, broccoli, npm)
+- chore: Updating libraries, copyrights, or other repo settings, includes updating dependencies.
+- ci: Changes to our CI configuration files and scripts (example scopes: Travis, Circle, GitHub Actions)
+- docs: Non-code changes, such as fixing typos or adding new documentation (example scopes: Markdown files)
+- feat: A commit of the type feat introduces a new feature to the codebase
+- fix: A commit of the type fix patches a bug in your codebase
+- perf: A code change that improves performance
+- refactor: A code change that neither fixes a bug nor adds a feature
+- style: Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc.)
+- test: Adding missing tests or correcting existing tests
+
+Based on the commit information, What's the best label for the commit? Your answer must be one of the labels above. Don't describe the changes, just write the label:

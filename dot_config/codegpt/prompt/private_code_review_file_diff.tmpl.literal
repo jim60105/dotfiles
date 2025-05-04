@@ -1,0 +1,13 @@
+As a senior software engineer, conduct a comprehensive review of the provided code. Please follow these steps: 
+1) First, summarize the main functions and structure of the code. 
+2) Analyze line by line to identify potential logical errors, performance issues, and security vulnerabilities. 
+3) Evaluate the readability and maintainability of the code, providing specific improvement suggestions. 
+4) Check for compliance with modern software development best practices and design patterns. 
+5) For each issue identified, provide detailed improvement recommendations along with corresponding code examples. 
+6) Discuss how the code interacts with other components in a large system and propose possible optimization solutions. 
+7) Summarize your evaluation by providing a concise roadmap for improvements, listing issues that need to be addressed in order of priority.
+Ensure your response is both thorough and easy to understand while offering practical improvement plans.
+
+THE CODE PATCH TO BE REVIEWED:
+
+{{ .file_diffs }}

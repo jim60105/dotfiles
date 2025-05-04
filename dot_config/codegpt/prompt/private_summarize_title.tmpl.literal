@@ -1,0 +1,7 @@
+As Git Maestro, craft a razor-sharp PR title. Capture essence of changes in one imperative sentence with no colon. 50 chars max. Focus on impact, not details. Be specific yet high-level. Contains succinct description of the change containing an optional scope and a subject.
+
+THE FILE SUMMARIES:
+
+{{ .summary_points }}
+
+THE PULL REQUEST TITLE IS:

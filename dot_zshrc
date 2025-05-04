@@ -82,6 +82,12 @@ zinit light zdharma-continuum/fast-syntax-highlighting
 # ZSH-VI-MODE
 zinit light jeffreytse/zsh-vi-mode
 
+# CodeGPT
+zinit ice wait"0" lucid as"null" id-as"codegpt-installer" \
+    atclone"curl -sSL https://raw.githubusercontent.com/appleboy/CodeGPT/main/install.sh | bash" \
+    atpull"false"
+zinit light zdharma-continuum/null
+
 #########################################################################
 # HISTORY
 #########################################################################
