@@ -1,0 +1,51 @@
+# Browser-specific filter actions (auto mode only)
+# default - filter this app
+# bypass_https - do not apply HTTPS filtering to this app
+# bypass - do not filter internet traffic of this app
+# If HTTPS filtering is off, "default" and "bypass_https" do the same.
+# This file is included in the "apps" section of proxy.yaml.
+# See the "apps" section of proxy.yaml for the list of other apps and their settings
+- name: firefox
+  action: default
+- name: chrome
+  action: default
+- name: chromium
+  action: default
+- name: brave
+  action: default
+- name: vivaldi
+  action: default
+- name: librewolf
+  action: default
+- name: tor-browser
+  action: default
+- name: waterfox
+  action: default
+- name: opera
+  action: default
+- name: qutebrowser
+  action: default
+- name: midori
+  action: default
+- name: epiphany
+  action: default
+- name: falkon
+  action: default
+- name: icecat
+  action: default
+- name: basilisk
+  action: default
+- name: surf
+  action: default
+- name: netsurf
+  action: default
+- name: dillo
+  action: default
+- name: otter-browser
+  action: default
+- name: dooble
+  action: default
+- name: konqueror
+  action: default
+- name: iron
+  action: default

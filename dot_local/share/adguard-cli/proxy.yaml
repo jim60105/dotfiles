@@ -1,0 +1,172 @@
+
+# AdGuard CLI configuration file
+
+# Supported proxy modes are: manual, auto
+# In "auto" proxy mode AdGuard CLI will redirect apps' traffic into itself
+# In "manual" proxy mode, it will only be on the specified ports
+proxy_mode: 'auto'
+# Show useful hints after each command
+show_hints: false
+# Update channel: release, beta, nightly
+update_channel: 'release'
+# Help us to improve stability on AdGuard CLI by allowing to send crash reports to developers
+send_crash_reports: false
+# Allowed log levels are: info, debug
+log_level: 'info'
+
+# Manual proxy listen ports
+listen_ports:
+  # SOCKS5 proxy port. Use -1 to disable SOCKS5 manual proxy
+  socks5_proxy: 1081
+  # HTTP proxy port. Use -1 to disable HTTP manual proxy
+  http_proxy: 3129
+# if not localhost, authentication is required
+listen_address: '127.0.0.1'
+listen_auth:
+  enabled: false
+  username: 'admin'
+  password: 'admin'
+# Number of workers threads
+worker_threads: 4
+# Name of access.log file
+access_log_file: 'access.log'
+# If not null, bind outgoing connections to specified interface
+outbound_interface: null
+
+# Apply ad-blocking filters to requests
+ad_blocking_enabled: true
+# Add X-Adguard-Filtered and X-Adguard-Rule headers for debugging purposes
+adguard_headers_enabled: true
+
+# List of filter files. flm:// means that filters are managed by `adguard-cli filters`.
+# If you want to add custom filters, please use `adguard-cli filters` functionality for automatic updates.
+filters:
+  - 'flm://'
+  - 'user.txt'
+
+# HTTPS filtering is necessary for high-quality website filtering
+https_filtering:
+  enabled: true
+  # Directory of the certificates cache
+  certificates_cache: '.'
+  # Root certificate name
+  root_certificate_name: 'adguard'
+  # By default AdGuard does not filter sites with EV certificates, this setting enables it
+  filter_ev_certificates: true
+  # Enable TLS1.3 support
+  enable_tls13: true
+  # Enable OCSP checks for domains
+  ocsp_check_enabled: true
+  # Enforce Certificate Transparency Timestamps checks, like Chrome does
+  enforce_certificate_transparency: true
+  # Filter HTTP/3 (experimental)
+  http3_filtering_enabled: true
+  # File with the list of HTTPS exclusions
+  exclusions: 'https_exclusions.txt'
+
+# Browsing security settings
+safebrowsing:
+  enabled: true
+  send_anonymous_statistics: false
+
+# Tracking protection (stealthmode) settings
+stealthmode:
+  enabled: false
+  # Deletes third-party cookies after a set time; set to 0 to block completely
+  block_third_party_cookies: true
+  block_third_party_cookies_min: 180
+  # Deletes all cookies after a set time; set to 0 to block completely
+  block_first_party_cookies: false
+  block_first_party_cookies_min: 4320
+  # Prevents tracking by blocking ETag caching for third-party content
+  disable_third_party_cache: false
+  # Blocks "Authorization" header in third-party requests to prevent tracking
+  remove_x_client_data_header: false
+  # Send "Do not track" signals
+  send_do_not_track_signals: true
+  # Hide IP simply adds X-Forwarded-For header (deprecated since sites usually do not use it anymore)
+  hide_ip: false
+  custom_ip: '208.54.104.184'
+  # Block third-party Authorization header
+  block_third_party_authorization: false
+  # Hides referrer URL when navigating from the search engines
+  hide_search_queries: false
+  # Hides referrer URL in third-party requests
+  remove_referrer_from_third_party_requests: false
+  # Custom referrer URL for `hide_search_queries` and `remove_referrer_from_third_party_requests`.
+  # Empty means that referrer will be changed to origin
+  custom_referrer: ''
+  # Replaces or reduces User-Agent header
+  hide_user_agent: false
+  # Empty means that User-Agent will be reduced: extra information will be removed
+  custom_user_agent: ''
+  # Prevents IP leaks via WebRTC; may disrupt certain browser applications.
+  block_web_rtc: false
+  # Blocks browser push notifications from websites even when browser is inactive.
+  block_browser_push_api: false
+  # Prevents browser from sharing GPS data, protecting location privacy.
+  block_browser_location_api: false
+  # Blocks Flash Player plugin to reduce security vulnerabilities and load times.
+  block_browser_flash: false
+  # Disables Java plugins to prevent security risks; JavaScript remains enabled.
+  block_browser_java: false
+  # Protect from DPI
+  # Alters outgoing packet data to bypass DPI-based content filters and restrictions.
+  anti_dpi:
+    enabled: false
+    # Split ClientHello into two packets
+    # Size of the first fragment (1-1500), 0 to disable
+    client_hello_split_fragment_size: 1
+    # Split plain HTTP request into two packets
+    # Size of the first fragment (1-1500), 0 to disable
+    http_split_fragment_size: 1
+    # Split delay for `client_hello_split_fragment_size` and `http_split_fragment_size`
+    split_delay_ms: 20
+    # Swap some spaces in plain HTTP requests to trick DPI
+    http_space_juggling: true
+    # Make sure that ClientHello or first plain HTTP request in several packets in size
+    increase_first_packet_size: false
+
+# Outbound proxy settings
+outbound_proxy:
+  enabled: false
+  # Supported modes are HTTP, HTTPS, SOCKS4, SOCKS5
+  mode: 'HTTP'
+  host: 'localhost'
+  port: 3128
+  username: ''
+  password: ''
+  # Do not check certificate of HTTPS proxy
+  trust_any_certificate: false
+  # Use SOCKS5 proxy for UDP. If your SOCKS5 proxy does not support UDP, connection may break
+  udp_through_socks5_enabled: true
+
+# List of userscripts. Currently only AdGuard Extra is supported.
+userscripts:
+  - meta: 'userscripts/adguard-extra.meta.json'
+    content: 'userscripts/adguard-extra.user.js'
+
+# Write HTTP requests to the HAR file for debugging purposes
+har_writer:
+  enabled: false
+  location: '.'
+
+# Specify filter action for apps (auto mode only)
+# default - filter this app
+# bypass_https - do not apply HTTPS filtering to this app
+# bypass - do not filter internet traffic of this app
+# If HTTPS filtering is off, "default" and "bypass_https" do the same.
+# See browsers.yaml for the list of browsers and their settings
+# Wildcard should be last.
+apps:
+  - name: 'steam'
+    action: 'bypass_https'
+  - name: 'steamwebhelper'
+    action: 'bypass_https'
+  - include-list: browsers.yaml
+  - name: '*vpn*'
+    action: 'bypass'
+    # Don't proxy app traffic through outbound_proxy
+    skip_outbound_proxy: true
+  - name: '*'
+    action: 'bypass_https'

@@ -1,0 +1,46 @@
+! User filter
+
+! 白名單
+@@||liker.social^$important,document
+@@||liker.land^$important,document
+@@||themeforest.net^$important,document
+@@||www.myacg.com.tw^$important,document
+@@||localhost^$important,document
+@@||cashier.ecpay.com.tw^$important,document
+@@||unfair.spin-wheel.click^$important,document
+@@||clarity.microsoft.com^$important,document
+@@||sound-buttons.click^$important,document
+@@||www.reddit.com^$important,document
+@@||quay.io^$important,document
+@@||rol.redhat.com^$important,document
+@@||training-lms.redhat.com^$important,document
+@@||app.hackernoon.com^$important,document
+@@||s.techbang.com^$important,document
+
+! 封鎖 facebook 標籤頁
+facebook.com#?#li:has(> span > div > a[aria-label="Watch"])
+facebook.com#?#li:has(> span > div > a[href="/watch/?ref=tab"])
+facebook.com#?#li:has(> span > div > a[aria-label="Marketplace"])
+facebook.com#?#li:has(> span > div > a[href="/marketplace/?ref=app_tab"])
+facebook.com#?#li:has(> span > div > a[aria-label="遊戲"])
+facebook.com#?#li:has(> span > div > a[href="/gaming/"])
+facebook.com#?#li:has(> span > div > a[href="/gaming/?ref=games_tab"])
+facebook.com#?#li:has(> span > div > a[href="https://www.facebook.com/gaming/"])
+facebook.com#?#div[data-visualcompletion="ignore-dynamic"]:has(div[aria-label="video chats that people can join"])
+
+evernote.com###qa-ACCOUNT_LIMIT_IFRAME
+chan.sankakucomplex.com###has-mail-notice
+chan.sankakucomplex.com###sp1 > div
+zodgame.xyz##.pbn.bml.bm
+facemood.grtimed.com##[href^="https://www.dp369.net/"]
+facemood.grtimed.com##div.aa-wrap:nth-of-type(6)
+devpress.csdn.net###app > div.main > div.org-main-content:nth-child(2) > div.dp-layout-3.page-home-wrapper.cmp-mt-10:first-child > div.page-home-middle:first-child > div.article-detail.box-shadow-1 > div.main-content:nth-child(5) > div.user-desc.user-desc-fix:nth-child(4)
+talos.dev##div.container-fluid.td-outer:nth-child(2) > div.td-main:first-child > div.row.flex-xl-nowrap > main.col-12.col-md-9.col-xl-8.pl-md-5:last-child > div.version-banner.pageinfo.pageinfo-warning:first-child
+www.ettoday.net##body > #fb-root ~ *
+ettoday.net##body > div[style*="bottom: 0px"][style*="left: 0px"][style*="position: fixed"]
+chan.sankakucomplex.com###header > div.carousel.topbar-carousel:nth-child(2)
+chan.sankakucomplex.com##div.premium-carousel
+chan.sankakucomplex.com##div.ai-carousel
+chan.sankakucomplex.com## div.carousel.news-carousel
+chan.sankakucomplex.com## div.carousel.companion-carousel
+news.ltn.com.tw##div.softPush_notification
