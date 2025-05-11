@@ -159,6 +159,12 @@ har_writer:
 # See browsers.yaml for the list of browsers and their settings
 # Wildcard should be last.
 apps:
+  - name: 'pasta.avx2'
+    # Bypass podman container
+    action: 'bypass'
+  - name: 'com.docker.backend'
+    # Bypass docker container
+    action: 'bypass'
   - name: 'steam'
     action: 'bypass_https'
   - name: 'steamwebhelper'
