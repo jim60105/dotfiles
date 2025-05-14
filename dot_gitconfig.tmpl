@@ -1,9 +1,9 @@
-{{- if not .codespaces -}}
 [user]
+{{- if not .codespaces -}}
 	signingkey = {{ .gitsigningkey }}
+{{- end }}
 	name = CHEN, CHUN
 	email = jim60105@gmail.com
-{{- end }}
 [commit]
 	gpgsign = true
 [core]
