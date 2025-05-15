@@ -1,0 +1,6 @@
+[Desktop Entry]
+Exec=/home/jim60105/.config/autostart/start.sh
+Icon=application-x-shellscript
+Name=start.sh
+Type=Application
+X-KDE-AutostartScript=true
