@@ -71,9 +71,9 @@ safebrowsing:
 
 # Tracking protection (stealthmode) settings
 stealthmode:
-  enabled: false
+  enabled: true
   # Deletes third-party cookies after a set time; set to 0 to block completely
-  block_third_party_cookies: true
+  block_third_party_cookies: false
   block_third_party_cookies_min: 180
   # Deletes all cookies after a set time; set to 0 to block completely
   block_first_party_cookies: false
@@ -81,7 +81,7 @@ stealthmode:
   # Prevents tracking by blocking ETag caching for third-party content
   disable_third_party_cache: false
   # Blocks "Authorization" header in third-party requests to prevent tracking
-  remove_x_client_data_header: false
+  remove_x_client_data_header: true
   # Send "Do not track" signals
   send_do_not_track_signals: true
   # Hide IP simply adds X-Forwarded-For header (deprecated since sites usually do not use it anymore)
@@ -97,7 +97,7 @@ stealthmode:
   # Empty means that referrer will be changed to origin
   custom_referrer: ''
   # Replaces or reduces User-Agent header
-  hide_user_agent: false
+  hide_user_agent: true
   # Empty means that User-Agent will be reduced: extra information will be removed
   custom_user_agent: ''
   # Prevents IP leaks via WebRTC; may disrupt certain browser applications.
@@ -105,11 +105,11 @@ stealthmode:
   # Blocks browser push notifications from websites even when browser is inactive.
   block_browser_push_api: false
   # Prevents browser from sharing GPS data, protecting location privacy.
-  block_browser_location_api: false
+  block_browser_location_api: true
   # Blocks Flash Player plugin to reduce security vulnerabilities and load times.
-  block_browser_flash: false
+  block_browser_flash: true
   # Disables Java plugins to prevent security risks; JavaScript remains enabled.
-  block_browser_java: false
+  block_browser_java: true
   # Protect from DPI
   # Alters outgoing packet data to bypass DPI-based content filters and restrictions.
   anti_dpi:
