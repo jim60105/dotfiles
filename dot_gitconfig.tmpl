@@ -22,6 +22,7 @@
 	directory = /var/mnt/ssd/AI/docker-stable-diffusion-webui
 	directory = /var/mnt/ssd/AI/docker-stable-diffusion-webui/stable-diffusion-webui
 	directory = /var/mnt/ssd/AI/kohya_ss
+	directory = /var/mnt/ssd/AI/kohya_ss/sd-scripts
 {{- end }}
 [init]
 	defaultBranch = master
@@ -32,3 +33,5 @@
 [credential]
 	helper = store
 	credentialStore = gpg
+[credential "https://codeberg.org"]
+	provider = generic
