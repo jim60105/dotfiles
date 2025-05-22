@@ -92,6 +92,15 @@ atclone"command -v codegpt > /dev/null || { \
     }"
 zinit light zdharma-continuum/null
 
+# Rust
+zinit ice wait"0" lucid as"null" id-as"rust-installer" \
+    atclone"command -v rustup > /dev/null || { \
+        echo '安裝 Rust...' && \
+        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path && \
+        source $HOME/.cargo/env; \
+    }"
+zinit light zdharma-continuum/null
+
 #########################################################################
 # HISTORY
 #########################################################################
