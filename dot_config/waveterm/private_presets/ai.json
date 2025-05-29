@@ -12,10 +12,10 @@
     "ai:model": "gpt-41-mini"
   },
   "ai@claude-3.7-sonnet": {
-    "display:name": "Claude 3.7 Sonnet",
+    "display:name": "Claude Sonnet 4",
     "display:order": 2,
     "ai:*": true,
-    "ai:model": "claude-3-7-sonnet-latest"
+    "ai:model": "claude-sonnet-4-20250514"
   },
   "ai@o4-mini": {
     "display:name": "o4 mini",
@@ -34,5 +34,17 @@
     "display:order": 5,
     "ai:*": true,
     "ai:model": "DeepSeek-V3-0324"
+  },
+  "ai@grok-3": {
+    "display:name": "grok-3",
+    "display:order": 6,
+    "ai:*": true,
+    "ai:model": "grok-3"
+  },
+  "ai@grok-3-mini": {
+    "display:name": "grok-3-mini",
+    "display:order": 7,
+    "ai:*": true,
+    "ai:model": "grok-3-mini"
   }
 }
