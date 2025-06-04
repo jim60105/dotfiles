@@ -1,4 +1,4 @@
-{{- if not .codespaces -}}
+{{- if not .devcontainer -}}
 [user]
 	signingkey = {{ .gitsigningkey }}
 	name = CHEN, CHUN
@@ -8,7 +8,7 @@
 	gpgsign = true
 [core]
 	autocrlf = input
-{{- if .codespaces }}
+{{- if .devcontainer }}
 	editor = code --wait
 {{- else }}
 	editor = vim
@@ -26,7 +26,7 @@
 {{- end }}
 [init]
 	defaultBranch = master
-{{- if not .codespaces }}
+{{- if not .devcontainer }}
 [gpg]
 	program = /usr/bin/gpg
 {{- end }}
