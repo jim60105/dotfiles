@@ -30,25 +30,25 @@ zinit light yt-dlp/yt-dlp
 
 # talosctl, kubectl, oc, helm, docker, podman, skopeo
 zinit ice wait lucid atinit"
-  [[ -x \$(command -v talosctl) ]] && talosctl completion zsh > \$HOME/.zsh/completion/_talosctl
-  [[ -x \$(command -v kubectl) ]] && kubectl completion zsh > \$HOME/.zsh/completion/_kubectl
-  [[ -x \$(command -v oc) ]] && oc completion zsh > \$HOME/.zsh/completion/_oc
-  [[ -x \$(command -v helm) ]] && helm completion zsh > \$HOME/.zsh/completion/_helm
-  [[ -x \$(command -v docker) ]] && docker completion zsh > \$HOME/.zsh/completion/_docker
-  [[ -x \$(command -v podman) ]] && podman completion zsh > \$HOME/.zsh/completion/_podman
-  [[ -x \$(command -v skopeo) ]] && skopeo completion zsh > \$HOME/.zsh/completion/_skopeo
+  [[ -x \$(command -v talosctl) && ! -f \$HOME/.zsh/completion/_talosctl ]] && talosctl completion zsh > \$HOME/.zsh/completion/_talosctl
+  [[ -x \$(command -v kubectl) && ! -f \$HOME/.zsh/completion/_kubectl ]] && kubectl completion zsh > \$HOME/.zsh/completion/_kubectl
+  [[ -x \$(command -v oc) && ! -f \$HOME/.zsh/completion/_oc ]] && oc completion zsh > \$HOME/.zsh/completion/_oc
+  [[ -x \$(command -v helm) && ! -f \$HOME/.zsh/completion/_helm ]] && helm completion zsh > \$HOME/.zsh/completion/_helm
+  [[ -x \$(command -v docker) && ! -f \$HOME/.zsh/completion/_docker ]] && docker completion zsh > \$HOME/.zsh/completion/_docker
+  [[ -x \$(command -v podman) && ! -f \$HOME/.zsh/completion/_podman ]] && podman completion zsh > \$HOME/.zsh/completion/_podman
+  [[ -x \$(command -v skopeo) && ! -f \$HOME/.zsh/completion/_skopeo ]] && skopeo completion zsh > \$HOME/.zsh/completion/_skopeo
 "
 zinit snippet /dev/null
 
 # codegpt
 zinit ice wait lucid atinit"
-  [[ -x \$(command -v codegpt) ]] && codegpt completion zsh > \$HOME/.zsh/completion/_codegpt
+  [[ -x \$(command -v codegpt) && ! -f \$HOME/.zsh/completion/_codegpt ]] && codegpt completion zsh > \$HOME/.zsh/completion/_codegpt
 "
 zinit snippet /dev/null
 
 # codex-cli
 zinit ice wait lucid atinit"
-  [[ -x \$(command -v codex) ]] && codex completion zsh > \$HOME/.zsh/completion/_codex
+  [[ -x \$(command -v codex) && ! -f \$HOME/.zsh/completion/_codex ]] && codex completion zsh > \$HOME/.zsh/completion/_codex
 "
 zinit snippet /dev/null
 
