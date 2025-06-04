@@ -46,6 +46,12 @@ zinit ice wait lucid atinit"
 "
 zinit snippet /dev/null
 
+# codex-cli
+zinit ice wait lucid atinit"
+  [[ -x \$(command -v codex) ]] && codex completion zsh > \$HOME/.zsh/completion/_codex
+"
+zinit snippet /dev/null
+
 zstyle ':completion:*' completer _expand _complete _ignored
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
 zstyle ':completion:*' menu no
