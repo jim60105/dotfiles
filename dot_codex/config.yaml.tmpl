@@ -1,0 +1,12 @@
+{{- if eq .chezmoi.hostname "Jim-Fedora" -}}
+approvalMode: auto-edit
+fullAutoErrorMode: ask-user
+{{- else }}
+approvalMode: full-auto
+fullAutoErrorMode: ignore-and-continue
+{{- end }}
+notify: false
+providers:
+  name: "OpenAI"
+  baseURL: "http://one-api.local/v1"
+  envKey: "OPENAI_API_KEY"
