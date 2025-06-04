@@ -1,6 +1,8 @@
 {{- if not .devcontainer -}}
 [user]
+{{- if .gitsigningkey }}
 	signingkey = {{ .gitsigningkey }}
+{{- end }}
 	name = CHEN, CHUN
 	email = jim60105@gmail.com
 {{- end }}
