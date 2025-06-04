@@ -16,12 +16,12 @@ sandbox_permissions = [
 {{- end }}
 
 model = "codex-mini-latest"
-model_provider = "openai"
+model_provider = "one-api"
 model_reasoning_summary = "none"
 file_opener = "vscode-insiders"
 
-[model_providers.openai]
-name = "OpenAI"
+[model_providers.one-api]
+name = "Local AI APIM"
 base_url = "http://one-api.local/v1"
 env_key = "OPENAI_API_KEY"
 wire_api = "responses"
