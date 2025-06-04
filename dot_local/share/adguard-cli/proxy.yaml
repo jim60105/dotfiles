@@ -159,6 +159,9 @@ har_writer:
 # See browsers.yaml for the list of browsers and their settings
 # Wildcard should be last.
 apps:
+  - name: 'podman'
+    # Bypass podman
+    action: 'bypass'
   - name: 'pasta.avx2'
     # Bypass podman container
     action: 'bypass'
