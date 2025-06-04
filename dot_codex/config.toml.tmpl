@@ -1,0 +1,26 @@
+{{- if eq .chezmoi.hostname "Jim-Fedora" -}}
+approval_policy = "on-failure"
+sandbox_permissions = [
+    "disk-write-platform-user-temp-folder",
+    "disk-write-platform-global-temp-folder",
+    "disk-write-cwd",
+]
+{{- else }}
+approval_policy = "never"
+sandbox_permissions = [
+    "disk-full-read-access",
+    "disk-write-platform-user-temp-folder",
+    "disk-write-platform-global-temp-folder",
+    "disk-write-cwd",
+]
+{{- end }}
+
+model_provider = "openai"
+model_reasoning_summary = "none"
+file_opener = "vscode-insiders"
+
+[model_providers.openai]
+name = "OpenAI"
+base_url = "http://one-api.local/v1"
+env_key = "OPENAI_API_KEY"
+wire_api = "responses"
