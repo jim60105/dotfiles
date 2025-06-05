@@ -28,3 +28,9 @@ name = "Local AI APIM"
 base_url = "http://one-api.local/v1"
 env_key = "OPENAI_API_KEY"
 wire_api = "responses"
+
+[shell_environment_policy]
+# inherit can be "core" (default), "all", or "none"
+inherit = "core"
+# force-set / override values
+set = { GIT_AUTHOR_NAME = "🤖 Codex-CLI", GIT_AUTHOR_EMAIL = "codex-cli[bot]@users.noreply.github.com", GIT_COMMITTER_NAME = "🤖 Codex-CLI", GIT_COMMITTER_EMAIL = "codex-cli[bot]@users.noreply.github.com" }
