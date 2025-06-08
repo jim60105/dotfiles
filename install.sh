@@ -29,6 +29,7 @@ installChezmoi() {
 	"$chezmoi" "$@"
 	echo "Updating submodules..." >&2
 	git submodule update --init --recursive
+	"$chezmoi" apply --source="${script_path}"
 }
 
 installChezmoi
