@@ -27,6 +27,8 @@ installChezmoi() {
 
 	echo "Running 'chezmoi $*'" >&2
 	"$chezmoi" "$@"
+	echo "Updating submodules..." >&2
+	git submodule update --init --recursive
 }
 
 installChezmoi
