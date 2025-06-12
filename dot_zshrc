@@ -81,7 +81,6 @@ zinit ice wait"0" lucid from"gh-r" as"program" \
     extract"" \
     mv"ripgrep*/rg -> rg"
 zinit light burntSushi/ripgrep
-alias grep="rg -uuu"
 
 # SYNTAX HIGHLIGHTING
 zinit ice wait="0c" lucid atinit="zpcompinit;zpcdreplay"
