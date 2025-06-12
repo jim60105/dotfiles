@@ -16,6 +16,7 @@
 @@||training-lms.redhat.com^$important,document
 @@||app.hackernoon.com^$important,document
 @@||s.techbang.com^$important,document
+@@||challenges.cloudflare.com^$important
 
 ! 封鎖 facebook 標籤頁
 facebook.com#?#li:has(> span > div > a[aria-label="Watch"])
