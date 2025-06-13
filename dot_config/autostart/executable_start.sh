@@ -8,3 +8,6 @@ truncate -s 0 /home/jim60105/.local/share/adguard-cli/app.log
 adguard-cli start
 
 gpgconf --launch gpg-agent
+
+# This one is config with visudo NOPASSWD
+sudo nvidia-ctk cdi generate --output=/etc/cdi/nvidia.yaml
