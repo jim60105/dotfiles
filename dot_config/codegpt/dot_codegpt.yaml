@@ -9,17 +9,18 @@ openai:
     frequency_penalty: "0"
     headers: ""
     max_tokens: 32768
-    model: gpt-41
-    model_name: gpt-41
+    model: o4-mini
+    model_name: o4-mini
     org_id: ""
     presence_penalty: "0"
     provider: openai
     proxy: ""
     skip_verify: false
     socks: ""
-    temperature: "0.7"
+    temperature: "1"
     timeout: 600s
-    top_p: "0.7"
+    top_p: "1"
+    top_n: "1"
 output:
     file: ""
     lang: en
