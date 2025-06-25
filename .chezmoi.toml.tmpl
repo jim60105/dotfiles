@@ -7,6 +7,6 @@ sourceDir = {{ .chezmoi.sourceDir | quote }}
 [data]
     devcontainer = {{ $devcontainer }}
     {{- if not $devcontainer }}
-    {{- $gitsigningkey := promptStringOnce . "gitsigningkey" "Git signing key" }}
+    {{- $gitsigningkey := promptStringOnce . "gitsigningkey" "Git signing key" | default (env "GPG_SIGNING_KEY") }}
     gitsigningkey = {{ $gitsigningkey | quote }}
     {{- end }}

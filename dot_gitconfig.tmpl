@@ -1,11 +1,9 @@
-{{- if not .devcontainer -}}
 [user]
 {{- if .gitsigningkey }}
 	signingkey = {{ .gitsigningkey }}
 {{- end }}
 	name = CHEN, CHUN
 	email = jim60105@gmail.com
-{{- end }}
 [commit]
 	gpgsign = true
 [core]
@@ -25,6 +23,7 @@
 	directory = /var/mnt/ssd/AI/docker-stable-diffusion-webui/stable-diffusion-webui
 	directory = /var/mnt/ssd/AI/kohya_ss
 	directory = /var/mnt/ssd/AI/kohya_ss/sd-scripts
+	directory = /var/mnt/ssd/AI/docker-stable-diffusion-webui/data/extensions/civitai-shortcut-fork
 {{- end }}
 [init]
 	defaultBranch = master
@@ -39,3 +38,5 @@
 	provider = generic
 [pull]
 	rebase = true
+[push]
+	autoSetupRemote = true
