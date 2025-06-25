@@ -207,5 +207,5 @@ export PATH="$PNPM_HOME:$PATH"
 ##########################################################################
 # AI Local Environment Variables
 ##########################################################################
-export OPENAI_API_KEY="${OPENAI_API_KEY:-sk-ptkx18Jhorhk7bS89816B737B274476484Da2741B4D48e67}"
-export OPENAI_BASE_URL="${OPENAI_BASE_URL:-http://one-api.local/v1}"
+export OPENAI_BASE_URL={{ (env "OPENAI_BASE_URL") | default .openai_base_url | quote }}
+export OPENAI_API_KEY={{ (env "OPENAI_API_KEY") | default .openai_api_key | quote }}

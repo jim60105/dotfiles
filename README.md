@@ -12,7 +12,6 @@ For more information on how to personalize GitHub Codespaces with your own dotfi
 > This repository contains my personal configurations.  
 > Please fork it first and make your changes before applying them.  
 > Pay special attention to `.chezmoi.toml.tmpl` and `.gitconfig`.  
-> Note that my local APIM information is hardcoded throughout; search for `one-api.local` to find them.
 
 ```shell
 sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply $GITHUB_USERNAME

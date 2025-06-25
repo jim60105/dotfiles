@@ -1,6 +1,8 @@
 {{- $default_gitSigningKey := (env "GPG_SIGNING_KEY") | default "1A8867F6CDB0623A0999F463A0C4B928E0DCA4CF" }}
 {{- $default_name := "CHEN, CHUN" }}
 {{- $default_email := "jim60105@gmail.com" }}
+{{- $default_OPENAI_BASE_URL := "http://one-api.local/v1" }}
+{{- $default_OPENAI_API_KEY := "sk-ptkx18Jhorhk7bS89816B737B274476484Da2741B4D48e67" }}
 
 sourceDir = {{ .chezmoi.sourceDir | quote }}
 
@@ -10,6 +12,8 @@ sourceDir = {{ .chezmoi.sourceDir | quote }}
 [data]
     name = {{ $default_name | quote }}
     email = {{ $default_email | quote }}
+    openai_base_url = {{ $default_OPENAI_BASE_URL | quote }}
+    openai_api_key = {{ $default_OPENAI_API_KEY | quote }}
 
     {{- $devcontainer := or (env "REMOTE_CONTAINERS") (env "CODESPACES") | not | not }}
     {{- $codespaces := (env "CODESPACES") | not | not }}
