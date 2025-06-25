@@ -29,6 +29,19 @@ base_url = "http://one-api.local/v1"
 env_key = "OPENAI_API_KEY"
 wire_api = "responses"
 
+# GitHub MCP Server configuration via mcp-proxy
+[mcp_servers.github]
+command = "uvx"
+args = [
+    "mcp-proxy",
+    "--headers",
+    "X-MCP-Toolsets=issues,pull_requests",
+    "https://api.githubcopilot.com/mcp/"
+]
+{{- if .github_pat_for_mcp }}
+env = { "API_ACCESS_TOKEN" = {{ .github_pat_for_mcp | quote }} }
+{{- end }}
+
 [shell_environment_policy]
 # inherit can be "core" (default), "all", or "none"
 inherit = "core"
