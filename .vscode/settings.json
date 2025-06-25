@@ -3,7 +3,10 @@
         "blockf",
         "chezmoi",
         "codegpt",
+        "gpgsign",
         "nocompile",
+        "safecrlf",
+        "signingkey",
         "zinit"
     ]
 }

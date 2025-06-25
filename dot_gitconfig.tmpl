@@ -1,9 +1,9 @@
 [user]
-{{- if .gitsigningkey }}
-	signingkey = {{ .gitsigningkey }}
+{{- if and .gitSigningKey (not .codespaces) }}
+	signingkey = {{ .gitSigningKey }}
 {{- end }}
-	name = CHEN, CHUN
-	email = jim60105@gmail.com
+	name = {{ .name }}
+	email = {{ .email }}
 [commit]
 	gpgsign = true
 [core]

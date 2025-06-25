@@ -1,12 +1,25 @@
-{{- $devcontainer := or (env "REMOTE_CONTAINERS") (env "CODESPACES") | not | not -}}
+{{- $default_gitSigningKey := (env "GPG_SIGNING_KEY") | default "1A8867F6CDB0623A0999F463A0C4B928E0DCA4CF" }}
+{{- $default_name := "CHEN, CHUN" }}
+{{- $default_email := "jim60105@gmail.com" }}
+
 sourceDir = {{ .chezmoi.sourceDir | quote }}
 
 [edit]
-    command = "code"
+    command = "code-insiders"
     args = ["--wait"]
 [data]
+    name = {{ $default_name | quote }}
+    email = {{ $default_email | quote }}
+
+    {{- $devcontainer := or (env "REMOTE_CONTAINERS") (env "CODESPACES") | not | not }}
+    {{- $codespaces := (env "CODESPACES") | not | not }}
     devcontainer = {{ $devcontainer }}
+    codespaces = {{ $codespaces }}
+
+    {{- $gitSigningKey := "" }}
     {{- if not $devcontainer }}
-    {{- $gitsigningkey := promptStringOnce . "gitsigningkey" "Git signing key" | default (env "GPG_SIGNING_KEY") }}
-    gitsigningkey = {{ $gitsigningkey | quote }}
+    {{- $gitSigningKey = promptStringOnce . "gitSigningKey" "Git signing key" | default $default_gitSigningKey }}
+    {{- else if not $codespaces }}
+    {{- $gitSigningKey = $default_gitSigningKey }}
     {{- end }}
+    gitSigningKey = {{ $gitSigningKey | quote }}
