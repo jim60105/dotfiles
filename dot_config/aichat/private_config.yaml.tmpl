@@ -4,8 +4,8 @@ model: one-api:gpt-41
 clients:
 - type: openai-compatible
   name: one-api
-  api_base: {{ (env "OPENAI_BASE_URL") | default .openai_base_url }}
-  api_key: {{ (env "OPENAI_API_KEY") | default .openai_api_key }}
+  api_base: {{ (env "OPENAI_BASE_URL") | default .openaiBaseUrl }}
+  api_key: {{ (env "OPENAI_API_KEY") | default .openaiApiKey }}
   models:
   - name: gpt-41
   - name: claude-3-7-sonnet-latest

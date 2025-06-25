@@ -1,8 +1,8 @@
-{{- $default_gitSigningKey := (env "GPG_SIGNING_KEY") | default "1A8867F6CDB0623A0999F463A0C4B928E0DCA4CF" }}
-{{- $default_name := "CHEN, CHUN" }}
-{{- $default_email := "jim60105@gmail.com" }}
-{{- $default_OPENAI_BASE_URL := "http://one-api.local/v1" }}
-{{- $default_OPENAI_API_KEY := "sk-ptkx18Jhorhk7bS89816B737B274476484Da2741B4D48e67" }}
+{{- $default_gitSigningKey := (env "GPG_SIGNING_KEY") | default "1A8867F6CDB0623A0999F463A0C4B928E0DCA4CF" -}}
+{{- $default_name := "CHEN, CHUN" -}}
+{{- $default_email := "jim60105@gmail.com" -}}
+{{- $default_OPENAI_BASE_URL := "http://one-api.local/v1" -}}
+{{- $default_OPENAI_API_KEY := "sk-ptkx18Jhorhk7bS89816B737B274476484Da2741B4D48e67" -}}
 
 sourceDir = {{ .chezmoi.sourceDir | quote }}
 
@@ -17,16 +17,16 @@ sourceDir = {{ .chezmoi.sourceDir | quote }}
 
     name = {{ $default_name | quote }}
     email = {{ $default_email | quote }}
-    openai_base_url = {{ $default_OPENAI_BASE_URL | quote }}
-    openai_api_key = {{ $default_OPENAI_API_KEY | quote }}
+    openaiBaseUrl = {{ $default_OPENAI_BASE_URL | quote }}
+    openaiApiKey = {{ $default_OPENAI_API_KEY | quote }}
 
-    {{- $github_pat_for_mcp := "" }}
+    {{- $githubPatForMcp := "" }}
     {{- if not $devcontainer }}
-    {{- $github_pat_for_mcp = promptStringOnce . "github_pat_for_mcp" "GitHub PAT for MCP" | default (env "GITHUB_TOKEN") }}
+    {{- $githubPatForMcp = promptStringOnce . "githubPatForMcp" "GitHub PAT for MCP" | default (env "GITHUB_TOKEN") }}
     {{- else }}
-    {{- $github_pat_for_mcp = (env "GITHUB_TOKEN") }}
+    {{- $githubPatForMcp = (env "GITHUB_TOKEN") }}
     {{- end }}
-    github_pat_for_mcp = {{ $github_pat_for_mcp | quote }}
+    githubPatForMcp = {{ $githubPatForMcp | quote }}
 
     {{- $gitSigningKey := "" }}
     {{- if not $devcontainer }}

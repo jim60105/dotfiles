@@ -4,8 +4,8 @@ git:
     template_file: ""
     template_string: ""
 openai:
-    base_url: {{ (env "OPENAI_BASE_URL") | default .openai_base_url | quote }}
-    api_key: {{ (env "OPENAI_API_KEY") | default .openai_api_key | quote }}
+    base_url: {{ (env "OPENAI_BASE_URL") | default .openaiBaseUrl | quote }}
+    api_key: {{ (env "OPENAI_API_KEY") | default .openaiApiKey | quote }}
     frequency_penalty: "0"
     headers: ""
     max_tokens: 32768

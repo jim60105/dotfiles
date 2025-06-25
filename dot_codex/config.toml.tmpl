@@ -38,8 +38,8 @@ args = [
     "X-MCP-Toolsets=issues,pull_requests",
     "https://api.githubcopilot.com/mcp/"
 ]
-{{- if .github_pat_for_mcp }}
-env = { "API_ACCESS_TOKEN" = {{ .github_pat_for_mcp | quote }} }
+{{- if .githubPatForMcp }}
+env = { "API_ACCESS_TOKEN" = {{ .githubPatForMcp | quote }} }
 {{- end }}
 
 [shell_environment_policy]
