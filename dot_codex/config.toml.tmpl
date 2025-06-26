@@ -31,38 +31,40 @@ writable_roots = [
 network_access = false  # Like read-only, this also defaults to false and can be omitted.
 {{- end }}
 
-{{ if .githubPatForMcp -}}
-# GitHub MCP Server with write access
-[mcp_servers.github-sudo]
-command = "uvx"
-args = [
-    "mcp-proxy",
-    "--headers",
-    "X-MCP-Toolsets",
-    "issues,pull_requests",
-    "--transport",
-    "streamablehttp",
-    "https://api.githubcopilot.com/mcp/"
-]
-env = { "API_ACCESS_TOKEN" = {{ .githubPatForMcp | quote }} }
-
-# GitHub MCP Server with read-only access
-[mcp_servers.github-ro]
-command = "uvx"
-args = [
-    "mcp-proxy",
-    "--headers",
-    "X-MCP-Readonly",
-    "true",
-    "--headers",
-    "X-MCP-Toolsets",
-    "repos,users",
-    "--transport",
-    "streamablehttp",
-    "https://api.githubcopilot.com/mcp/"
-]
-env = { "API_ACCESS_TOKEN" = {{ .githubPatForMcp | quote }} }
-{{- end }}
+# GitHub MCP Server is unable to function due to this issue:
+# https://github.com/openai/codex/issues/1289
+## {{ if .githubPatForMcp -}}
+## # GitHub MCP Server with write access
+## [mcp_servers.github-sudo]
+## command = "uvx"
+## args = [
+##     "mcp-proxy",
+##     "--headers",
+##     "X-MCP-Toolsets",
+##     "issues,pull_requests",
+##     "--transport",
+##     "streamablehttp",
+##     "https://api.githubcopilot.com/mcp/"
+## ]
+## env = { "API_ACCESS_TOKEN" = {{ .githubPatForMcp | quote }} }
+## 
+## # GitHub MCP Server with read-only access
+## [mcp_servers.github-ro]
+## command = "uvx"
+## args = [
+##     "mcp-proxy",
+##     "--headers",
+##     "X-MCP-Readonly",
+##     "true",
+##     "--headers",
+##     "X-MCP-Toolsets",
+##     "repos,users",
+##     "--transport",
+##     "streamablehttp",
+##     "https://api.githubcopilot.com/mcp/"
+## ]
+## env = { "API_ACCESS_TOKEN" = {{ .githubPatForMcp | quote }} }
+## {{- end }}
 
 [shell_environment_policy]
 # inherit can be "core" (default), "all", or "none"
