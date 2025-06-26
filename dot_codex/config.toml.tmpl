@@ -67,7 +67,13 @@ network_access = false  # Like read-only, this also defaults to false and can be
 ## {{- end }}
 
 [shell_environment_policy]
+{{ if .devcontainer -}}
 # inherit can be "core" (default), "all", or "none"
+inherit = "all"
+ignore_default_excludes = true
+{{- else -}}
 inherit = "core"
+{{- end }}
+
 # force-set / override values
 set = { GIT_AUTHOR_NAME = "🤖 Codex-CLI", GIT_AUTHOR_EMAIL = "codex-cli[bot]@users.noreply.github.com", GIT_COMMITTER_NAME = "CHEN, CHUN", GIT_COMMITTER_EMAIL = "jim60105@gmail.com", GIT_CONFIG_COUNT="1", GIT_CONFIG_KEY_0="commit.gpgsign", GIT_CONFIG_VALUE_0="false" }
