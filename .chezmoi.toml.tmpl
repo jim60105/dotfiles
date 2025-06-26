@@ -22,9 +22,9 @@ sourceDir = {{ .chezmoi.sourceDir | quote }}
 
     {{- $githubPatForMcp := "" }}
     {{- if not $devcontainer }}
-    {{- $githubPatForMcp = promptStringOnce . "githubPatForMcp" "GitHub PAT for MCP" | default (env "GITHUB_TOKEN") }}
+    {{- $githubPatForMcp = promptStringOnce . "githubPatForMcp" "GitHub PAT for MCP" | default (env "GH_TOKEN") }}
     {{- else }}
-    {{- $githubPatForMcp = (env "GITHUB_TOKEN") }}
+    {{- $githubPatForMcp = (env "GH_TOKEN") }}
     {{- end }}
     githubPatForMcp = {{ $githubPatForMcp | quote }}
 
