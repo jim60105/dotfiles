@@ -23,7 +23,22 @@
             "meta": {
                 "view": "term",
                 "controller": "cmd",
-                "cmd": "podman pull quay.io/jim60105/toolbx:latest quay.io/jim60105/toolbx-vscode:latest quay.io/jim60105/toolbx-rustrover:latest quay.io/jim60105/toolbx-rider:latest quay.io/jim60105/toolbx-datagrip:latest quay.io/jim60105/toolbx-sourcegit:latest quay.io/jim60105/toolbx-video:latest quay.io/jim60105/toolbx-kubernetes:latest && toolbox rm -af && toolbox create -i quay.io/jim60105/toolbx:latest fedora-toolbox-42 && toolbox create -i quay.io/jim60105/toolbx-vscode:latest vscode && toolbox create -i quay.io/jim60105/toolbx-rustrover:latest rustrover && toolbox create -i quay.io/jim60105/toolbx-rider:latest rider && toolbox create -i quay.io/jim60105/toolbx-datagrip:latest datagrip && toolbox create -i quay.io/jim60105/toolbx-sourcegit:latest sourcegit && toolbox create -i quay.io/jim60105/toolbx-video:latest video && toolbox create -i quay.io/jim60105/toolbx-kubernetes:latest kubernetes",
+                "cmd": "podman pull ghcr.io/jim60105/toolbx:latest ghcr.io/jim60105/toolbx-vscode:latest ghcr.io/jim60105/toolbx-rustrover:latest ghcr.io/jim60105/toolbx-rider:latest ghcr.io/jim60105/toolbx-datagrip:latest ghcr.io/jim60105/toolbx-sourcegit:latest ghcr.io/jim60105/toolbx-video:latest ghcr.io/jim60105/toolbx-kubernetes:latest && toolbox rm -af && toolbox create -i ghcr.io/jim60105/toolbx:latest fedora-toolbox-42 && toolbox create -i ghcr.io/jim60105/toolbx-vscode:latest vscode && toolbox create -i ghcr.io/jim60105/toolbx-rustrover:latest rustrover && toolbox create -i ghcr.io/jim60105/toolbx-rider:latest rider && toolbox create -i ghcr.io/jim60105/toolbx-datagrip:latest datagrip && toolbox create -i ghcr.io/jim60105/toolbx-sourcegit:latest sourcegit && toolbox create -i ghcr.io/jim60105/toolbx-video:latest video && toolbox create -i ghcr.io/jim60105/toolbx-kubernetes:latest kubernetes",
+                "cmd:clearonstart": true,
+                "cmd:closeonexit": true
+            }
+        }
+    },
+    "upgrade-vscode" : {
+        "icon": "refresh",
+        "label": "更新 VSCode",
+        "description": "Upgrade VSCode toolbx.",
+        "magnified": false,
+        "blockdef": {
+            "meta": {
+                "view": "term",
+                "controller": "cmd",
+                "cmd": "podman pull ghcr.io/jim60105/toolbx:latest ghcr.io/jim60105/toolbx-vscode:latest && toolbox rm -f fedora-toolbox-42 vscode && toolbox create -i ghcr.io/jim60105/toolbx:latest fedora-toolbox-42 && toolbox create -i ghcr.io/jim60105/toolbx-vscode:latest vscode",
                 "cmd:clearonstart": true,
                 "cmd:closeonexit": true
             }
