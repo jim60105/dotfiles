@@ -209,3 +209,10 @@ export PATH="$PNPM_HOME:$PATH"
 ##########################################################################
 export OPENAI_BASE_URL={{ (env "OPENAI_BASE_URL") | default .openaiBaseUrl | quote }}
 export OPENAI_API_KEY={{ (env "OPENAI_API_KEY") | default .openaiApiKey | quote }}
+
+{{ if eq .chezmoi.hostname "Jim-Fedora" -}}
+##########################################################################
+# Image Dataset Preparation Tools
+##########################################################################
+export PATH="$PATH:/home/jim60105/repos/image-dataset-prep-tools/"
+{{- end -}}
