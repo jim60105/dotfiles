@@ -108,6 +108,13 @@ zinit ice wait"0" lucid as"null" id-as"rust-installer" \
     }"
 zinit light zdharma-continuum/null
 
+# ShellSpec
+zinit ice wait"0" lucid from"gh-r" as"program" \
+    bpick"shellspec-dist.tar.gz" \
+    extract"" \
+    pick"shellspec"
+zinit light shellspec/shellspec
+
 #########################################################################
 # HISTORY
 #########################################################################
