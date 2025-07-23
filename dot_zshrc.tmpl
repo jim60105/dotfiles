@@ -115,6 +115,14 @@ zinit ice wait"0" lucid from"gh-r" as"program" \
     pick"shellspec/shellspec"
 zinit light shellspec/shellspec
 
+# Zola
+# https://www.getzola.org/documentation/getting-started/installation/#from-source
+zinit ice wait"0" lucid from"gh-r" as"program" \
+    bpick"*-x86_64-unknown-linux-musl.tar.gz" \
+    extract"" \
+    pick"zola"
+zinit light getzola/zola
+
 #########################################################################
 # HISTORY
 #########################################################################
