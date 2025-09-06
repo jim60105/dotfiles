@@ -1,0 +1,8 @@
+{
+    "version": "2.1.1",
+    "autoload": {
+        "ELECOM TrackBall Mouse DEFT Pro TrackBall": "default",
+        "DEFT Pro TrackBall": "default",
+        "AT Translated Set 2 keyboard": "default"
+    }
+}

@@ -1,0 +1,67 @@
+[
+    {
+        "input_combination": [
+            {
+                "type": 1,
+                "code": 279,
+                "origin_hash": "fc0f94f59a4cdebcb2c07850347a1fec"
+            }
+        ],
+        "target_uinput": "keyboard",
+        "output_symbol": "modify(Super_L, key(d))",
+        "name": "Desktop",
+        "mapping_type": "key_macro"
+    },
+    {
+        "input_combination": [
+            {
+                "type": 1,
+                "code": 277,
+                "origin_hash": "fc0f94f59a4cdebcb2c07850347a1fec"
+            }
+        ],
+        "target_uinput": "keyboard",
+        "output_symbol": "KEY_HOME",
+        "name": "Home",
+        "mapping_type": "key_macro"
+    },
+    {
+        "input_combination": [
+            {
+                "type": 1,
+                "code": 278,
+                "origin_hash": "fc0f94f59a4cdebcb2c07850347a1fec"
+            }
+        ],
+        "target_uinput": "mouse",
+        "output_symbol": "BTN_MIDDLE",
+        "name": "Middle",
+        "mapping_type": "key_macro"
+    },
+    {
+        "input_combination": [
+            {
+                "type": 1,
+                "code": 275,
+                "origin_hash": "fc0f94f59a4cdebcb2c07850347a1fec"
+            }
+        ],
+        "target_uinput": "keyboard",
+        "output_symbol": "key(KEY_PAGEDOWN)",
+        "name": "Page Down",
+        "mapping_type": "key_macro"
+    },
+    {
+        "input_combination": [
+            {
+                "type": 1,
+                "code": 276,
+                "origin_hash": "fc0f94f59a4cdebcb2c07850347a1fec"
+            }
+        ],
+        "target_uinput": "keyboard",
+        "output_symbol": "key(KEY_PAGEUP)",
+        "name": "Page Up",
+        "mapping_type": "key_macro"
+    }
+]
