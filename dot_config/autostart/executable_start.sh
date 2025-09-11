@@ -5,9 +5,9 @@ truncate -s 0 /home/jim60105/.local/share/adguard-cli/proxy.log
 truncate -s 0 /home/jim60105/.local/share/adguard-cli/proxy.log.*
 truncate -s 0 /home/jim60105/.local/share/adguard-cli/app.log
 
-adguard-cli start
+adguard-cli start > /dev/null
 
 gpgconf --launch gpg-agent
 
 # This one is config with visudo NOPASSWD
-sudo nvidia-ctk cdi generate --output=/etc/cdi/nvidia.yaml
+sudo nvidia-ctk cdi generate --output=/etc/cdi/nvidia.yaml > /dev/null 2>&1
