@@ -82,6 +82,13 @@ zinit ice wait"0" lucid from"gh-r" as"program" \
     mv"ripgrep*/rg -> rg"
 zinit light burntSushi/ripgrep
 
+# codex-cli
+zinit ice wait"0" lucid from"gh-r" as"program" \
+    bpick"*x86_64-unknown-linux-musl.tar.gz" \
+    extract"" \
+    mv"codex-x86_64-unknown-linux-musl -> codex"
+zinit light openai/codex
+
 # SYNTAX HIGHLIGHTING
 zinit ice wait="0c" lucid atinit="zpcompinit;zpcdreplay"
 zinit light zdharma-continuum/fast-syntax-highlighting
