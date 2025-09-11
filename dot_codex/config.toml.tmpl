@@ -6,11 +6,15 @@ approval_policy = "on-failure"
 sandbox_mode = "workspace-write"
 {{- end }}
 
-model = "codex-mini-latest"
-model_provider = "one-api"
-model_reasoning_summary = "none"
+preferred_auth_method = "chatgpt"
+# preferred_auth_method = "apikey"
+
+model_reasoning_summary = "auto"
 # model_reasoning_effort = "none"
 file_opener = "vscode-insiders"
+
+# model = "codex-mini-latest"
+# model_provider = "one-api"
 
 [model_providers.one-api]
 name = "Local AI APIM"
@@ -27,7 +31,7 @@ writable_roots = [
 ]
 # Allow the command being run inside the sandbox to make outbound network
 # requests. Disabled by default.
-network_access = false
+network_access = true
 
 # GitHub MCP Server is unable to function due to this issue:
 # https://github.com/openai/codex/issues/1289
