@@ -24,6 +24,9 @@
 	directory = /var/mnt/ssd/AI/kohya_ss
 	directory = /var/mnt/ssd/AI/kohya_ss/sd-scripts
 	directory = /var/mnt/ssd/AI/docker-stable-diffusion-webui/data/extensions/civitai-shortcut-fork
+{{- else if eq .chezmoi.hostname "CHT-Dell-XPS" }}
+[safe]
+	directory = directory = /var/mnt/CHT-Kingston/*
 {{- end }}
 [init]
 	defaultBranch = master
