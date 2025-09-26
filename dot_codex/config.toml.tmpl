@@ -10,11 +10,10 @@ preferred_auth_method = "chatgpt"
 # preferred_auth_method = "apikey"
 
 model_reasoning_summary = "auto"
+model_reasoning_summary_format = "experimental"
 # model_reasoning_effort = "none"
 file_opener = "vscode-insiders"
-
-# model = "codex-mini-latest"
-# model_provider = "one-api"
+model = "gpt-5-codex"
 
 [model_providers.one-api]
 name = "Local AI APIM"
@@ -26,47 +25,45 @@ wire_api = "responses"
 [sandbox_workspace_write]
 # By default, only the cwd for the Codex session will be writable (and $TMPDIR
 # on macOS), but you can specify additional writable folders in this array.
-writable_roots = [
-    "/tmp",
-]
+writable_roots = ["/tmp"]
 # Allow the command being run inside the sandbox to make outbound network
 # requests. Disabled by default.
 network_access = true
 
 # GitHub MCP Server is unable to function due to this issue:
 # https://github.com/openai/codex/issues/1289
-## {{ if .githubPatForMcp -}}
-## # GitHub MCP Server with write access
-## [mcp_servers.github-sudo]
-## command = "uvx"
-## args = [
-##     "mcp-proxy",
-##     "--headers",
-##     "X-MCP-Toolsets",
-##     "issues,pull_requests",
-##     "--transport",
-##     "streamablehttp",
-##     "https://api.githubcopilot.com/mcp/"
-## ]
-## env = { "API_ACCESS_TOKEN" = {{ .githubPatForMcp | quote }} }
-## 
-## # GitHub MCP Server with read-only access
-## [mcp_servers.github-ro]
-## command = "uvx"
-## args = [
-##     "mcp-proxy",
-##     "--headers",
-##     "X-MCP-Readonly",
-##     "true",
-##     "--headers",
-##     "X-MCP-Toolsets",
-##     "repos,users",
-##     "--transport",
-##     "streamablehttp",
-##     "https://api.githubcopilot.com/mcp/"
-## ]
-## env = { "API_ACCESS_TOKEN" = {{ .githubPatForMcp | quote }} }
-## {{- end }}
+{{ if .githubPatForMcp -}}
+# GitHub MCP Server with write access
+[mcp_servers.github-sudo]
+command = "uvx"
+args = [
+    "mcp-proxy",
+    "--headers",
+    "X-MCP-Toolsets",
+    "issues,pull_requests",
+    "--transport",
+    "streamablehttp",
+    "https://api.githubcopilot.com/mcp/"
+]
+env = { "API_ACCESS_TOKEN" = {{ .githubPatForMcp | quote }} }
+
+# GitHub MCP Server with read-only access
+[mcp_servers.github-ro]
+command = "uvx"
+args = [
+    "mcp-proxy",
+    "--headers",
+    "X-MCP-Readonly",
+    "true",
+    "--headers",
+    "X-MCP-Toolsets",
+    "repos,users",
+    "--transport",
+    "streamablehttp",
+    "https://api.githubcopilot.com/mcp/"
+]
+env = { "API_ACCESS_TOKEN" = {{ .githubPatForMcp | quote }} }
+{{- end }}
 
 [shell_environment_policy]
 {{ if .devcontainer -}}
