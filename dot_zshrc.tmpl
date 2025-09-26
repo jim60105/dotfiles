@@ -82,6 +82,12 @@ zinit ice wait"0" lucid from"gh-r" as"program" \
     mv"ripgrep*/rg -> rg"
 zinit light burntSushi/ripgrep
 
+# marp-cli
+zinit ice wait"0" lucid from"gh-r" as"program" \
+    bpick"*linux.tar.gz" \
+    extract""
+zinit light marp-team/marp-cli
+
 # codex-cli
 zinit ice wait"0" lucid from"gh-r" as"program" \
     bpick"*x86_64-unknown-linux-musl.tar.gz" \
