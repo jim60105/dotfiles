@@ -12,4 +12,4 @@ Development progress for this project is systematically tracked within the `.git
 
 Your report must include a detailed account of the work performed, encompassing all relevant code modifications and corresponding test outcomes.
 
-You will implement the plan step by step, following the instructions provided in the `plans/` directory. Each step should be executed in sequence, ensuring that all requirements are met and documented appropriately. The plan I need you to implement is:
+You will implement the plan step by step, following the instructions provided in the `plans/` directory. Each step should be executed in sequence, ensuring that all requirements are met and documented appropriately. The plan I need you to implement is: $ARGUMENTS
