@@ -13,6 +13,8 @@ update_channel: 'release'
 send_crash_reports: false
 # Allowed log levels are: info, debug
 log_level: 'info'
+# show protection status notification
+show_notifications: false
 
 # Manual proxy listen ports
 listen_ports:
@@ -37,6 +39,8 @@ outbound_interface: null
 ad_blocking_enabled: true
 # Add X-Adguard-Filtered and X-Adguard-Rule headers for debugging purposes
 adguard_headers_enabled: true
+# Enables filters based on the query language and system locale
+auto_enable_language_filters: true
 
 # List of filter files. flm:// means that filters are managed by `adguard-cli filters`.
 # If you want to add custom filters, please use `adguard-cli filters` functionality for automatic updates.
