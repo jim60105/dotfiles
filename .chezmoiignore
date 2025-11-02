@@ -6,3 +6,6 @@ install.sh
 {{- if ne .chezmoi.hostname "Jim-T480" }}
 .config/mpv/mpv.conf
 {{- end }}
+{{- if ne .chezmoi.hostname "Jim-Fedora" }}
+.local/bin/brave-browser
+{{- end }}
