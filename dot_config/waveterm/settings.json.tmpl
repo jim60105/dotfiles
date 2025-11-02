@@ -1,10 +1,10 @@
 {
-  "ai:preset": "ai@gpt-4.1",
-  "ai:maxtokens": 0,
-  "ai:timeoutms": 600000,
-  "ai:baseurl": {{ (env "OPENAI_BASE_URL") | default .openaiBaseUrl | quote }},
   "ai:apitoken": {{ (env "OPENAI_API_KEY") | default .openaiApiKey | quote }},
+  "ai:baseurl": {{ (env "OPENAI_BASE_URL") | default .openaiBaseUrl | quote }},
+  "ai:maxtokens": 0,
   "ai:model": "gpt-41",
+  "ai:preset": "ai@gpt-4.1",
+  "ai:timeoutms": 600000,
   "autoupdate:channel": "latest",
   "autoupdate:enabled": false,
   "editor:minimapenabled": true,
@@ -14,6 +14,6 @@
   "term:fontsize": 16,
   "term:theme": "default-dark",
   "window:nativetitlebar": false,
-  "window:showmenubar": false,
-  "window:reducedmotion": true
+  "window:reducedmotion": true,
+  "window:showmenubar": false
 }
