@@ -11,13 +11,17 @@
 @@||clarity.microsoft.com^$important,document
 @@||sound-buttons.click^$important,document
 @@||www.reddit.com^$important,document
-@@||quay.io^$important,document
 @@||rol.redhat.com^$important,document
 @@||training-lms.redhat.com^$important,document
 @@||app.hackernoon.com^$important,document
 @@||s.techbang.com^$important,document
 @@||challenges.cloudflare.com^$important
 @@||discord.com^$important
+@@||cloudfront.hls.ttvnw.net^$important
+@@||playlist.ttvnw.net^$important
+@@||ghcr.io^$important
+@@||quay.io^$important
+@@||docker.io^$important
 
 ! 封鎖 facebook 標籤頁
 facebook.com#?#li:has(> span > div > a[aria-label="Watch"])

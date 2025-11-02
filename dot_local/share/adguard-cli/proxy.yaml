@@ -164,18 +164,21 @@ har_writer:
 # Wildcard should be last.
 apps:
   - name: 'podman'
-    # Bypass podman
     action: 'bypass'
   - name: 'pasta.avx2'
-    # Bypass podman container
     action: 'bypass'
   - name: 'com.docker.backend'
-    # Bypass docker container
     action: 'bypass'
   - name: 'steam'
     action: 'bypass_https'
   - name: 'steamwebhelper'
     action: 'bypass_https'
+  - name: 'chronyd'
+    action: 'bypass'
+  - name: 'wakatime-cli-linux-amd64'
+    action: 'bypass'
+  - name: 'adguard-cli'
+    action: 'bypass'
   - include-list: browsers.yaml
   - name: '*vpn*'
     action: 'bypass'
