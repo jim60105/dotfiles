@@ -13,39 +13,39 @@
   action: default
 - name: brave
   action: default
-- name: vivaldi
-  action: default
-- name: librewolf
-  action: default
-- name: tor-browser
-  action: default
-- name: waterfox
-  action: default
-- name: opera
-  action: default
-- name: qutebrowser
-  action: default
-- name: midori
-  action: default
-- name: epiphany
-  action: default
-- name: falkon
-  action: default
-- name: icecat
-  action: default
-- name: basilisk
-  action: default
-- name: surf
-  action: default
-- name: netsurf
-  action: default
-- name: dillo
-  action: default
-- name: otter-browser
-  action: default
-- name: dooble
-  action: default
-- name: konqueror
-  action: default
-- name: iron
-  action: default
+# - name: vivaldi
+#   action: default
+# - name: librewolf
+#   action: default
+# - name: tor-browser
+#   action: default
+# - name: waterfox
+#   action: default
+# - name: opera
+#   action: default
+# - name: qutebrowser
+#   action: default
+# - name: midori
+#   action: default
+# - name: epiphany
+#   action: default
+# - name: falkon
+#   action: default
+# - name: icecat
+#   action: default
+# - name: basilisk
+#   action: default
+# - name: surf
+#   action: default
+# - name: netsurf
+#   action: default
+# - name: dillo
+#   action: default
+# - name: otter-browser
+#   action: default
+# - name: dooble
+#   action: default
+# - name: konqueror
+#   action: default
+# - name: iron
+#   action: default
