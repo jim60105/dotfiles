@@ -1,11 +1,19 @@
-README.md
-LICENSE
-.gitattributes
 .env
+.gitattributes
+.gitmodules
 install.sh
+LICENSE
+README.md
 {{- if ne .chezmoi.hostname "Jim-T480" }}
-.config/mpv/mpv.conf
+.config/mpv
 {{- end }}
 {{- if .devcontainer }}
 .local/bin/brave-browser
+.config/autostart
+.config/input-remapper-2
+.config/kitty
+.config/mpv
+.config/plasma-workspace
+.config/waveterm
+.local/share/adguard-cli
 {{- end }}
