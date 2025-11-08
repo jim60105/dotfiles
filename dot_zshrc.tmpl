@@ -103,14 +103,11 @@ zinit light zdharma-continuum/fast-syntax-highlighting
 zinit light jeffreytse/zsh-vi-mode
 
 # CodeGPT
-zinit ice wait"0" lucid as"null" id-as"codegpt-installer" \
-atclone"command -v codegpt > /dev/null || { \
-        echo '安裝 CodeGPT...' && \
-        curl -sSL https://raw.githubusercontent.com/appleboy/CodeGPT/main/install.sh | bash && \
-        rm -f $HOME/.local/bin/codegpt && \
-        ln -sf $HOME/.codegpt/bin/codegpt $HOME/.local/bin/codegpt; \
-    }"
-zinit light zdharma-continuum/null
+zinit ice wait"0" lucid from"gh-r" as"program" \
+    bpick"*-linux-amd64.xz" \
+    extract"" \
+    mv"*-linux-amd64 -> codegpt"
+zinit light appleboy/CodeGPT
 
 # Rust
 zinit ice wait"0" lucid as"null" id-as"rust-installer" \
