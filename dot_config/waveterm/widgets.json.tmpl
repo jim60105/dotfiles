@@ -9,7 +9,7 @@
             "meta": {
                 "view": "term",
                 "controller": "cmd",
-                "cmd": "podman compose -f /var/mnt/ssd/AI/docker-stable-diffusion-webui/docker-compose.forge.yml up",
+                "cmd": "if podman container exists stable-diffusion-webui-forge; then podman start -ia stable-diffusion-webui-forge; else podman compose -f /var/mnt/ssd/AI/docker-stable-diffusion-webui/docker-compose.forge.yml up; fi",
                 "cmd:clearonstart": true,
                 "cmd:closeonexit": true
             }
