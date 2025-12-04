@@ -50,3 +50,6 @@ chan.sankakucomplex.com##div.ai-carousel
 chan.sankakucomplex.com## div.carousel.news-carousel
 chan.sankakucomplex.com## div.carousel.companion-carousel
 news.ltn.com.tw##div.softPush_notification
+
+! Twitch
+www.twitch.tv##div.player-overlay-background
