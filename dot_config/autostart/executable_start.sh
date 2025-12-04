@@ -10,4 +10,4 @@ adguard-cli start > /dev/null
 gpgconf --launch gpg-agent
 
 # This one is config with visudo NOPASSWD
-sudo nvidia-ctk cdi generate --output=/etc/cdi/nvidia.yaml > /dev/null 2>&1
+sudo nvidia-ctk cdi generate --output=/etc/cdi/nvidia.yaml --mode=auto > /dev/null 2>&1
