@@ -1,13 +1,11 @@
 # see https://github.com/sigoden/aichat/blob/main/config.example.yaml
 
-model: one-api:gpt-41
+model: one-api:gpt-5.2
 clients:
 - type: openai-compatible
   name: one-api
   api_base: {{ (env "OPENAI_BASE_URL") | default .openaiBaseUrl }}
   api_key: {{ (env "OPENAI_API_KEY") | default .openaiApiKey }}
   models:
-  - name: gpt-41
-  - name: claude-3-7-sonnet-latest
-  - name: DeepSeek-V3-0324
-  - name: o4-mini
+  - name: gpt-5.2
+  - name: anthropic/claude-sonnet-4.5
