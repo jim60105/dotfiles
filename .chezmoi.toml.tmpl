@@ -1,7 +1,7 @@
 {{- $default_gitSigningKey := (env "GPG_SIGNING_KEY") | default "CC11C96C6CF2463D011A33BC04F7C18D00F3E621" -}}
 {{- $default_name := "Jim Chen" -}}
 {{- $default_email := "Jim@ChenJ.im" -}}
-{{- $default_OPENAI_BASE_URL := "http://one-api.local/v1" -}}
+{{- $default_OPENAI_BASE_URL := "http://one-api.internal/v1" -}}
 {{- $default_OPENAI_API_KEY := "sk-ptkx18Jhorhk7bS89816B737B274476484Da2741B4D48e67" -}}
 
 sourceDir = {{ .chezmoi.sourceDir | quote }}
