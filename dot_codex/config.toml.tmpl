@@ -7,19 +7,12 @@ sandbox_mode = "workspace-write"
 {{- end }}
 
 preferred_auth_method = "chatgpt"
-# preferred_auth_method = "apikey"
 
 model_reasoning_summary = "auto"
 model_reasoning_summary_format = "experimental"
 # model_reasoning_effort = "none"
 file_opener = "vscode-insiders"
-model = "gpt-5.1-codex-max"
-
-[model_providers.one-api]
-name = "Local AI APIM"
-base_url = "http://one-api.internal/v1"
-env_key = "OPENAI_API_KEY"
-wire_api = "responses"
+model = "gpt-5.2-codex"
 
 # Extra settings that only apply when `sandbox = "workspace-write"`.
 [sandbox_workspace_write]
@@ -30,39 +23,18 @@ writable_roots = ["/tmp"]
 # requests. Disabled by default.
 network_access = true
 
-# GitHub MCP Server is unable to function due to this issue:
-# https://github.com/openai/codex/issues/1289
 {{ if .githubPatForMcp -}}
 # GitHub MCP Server with write access
 [mcp_servers.github-sudo]
-command = "uvx"
-args = [
-    "mcp-proxy",
-    "--headers",
-    "X-MCP-Toolsets",
-    "issues,pull_requests",
-    "--transport",
-    "streamablehttp",
-    "https://api.githubcopilot.com/mcp/"
-]
-env = { "API_ACCESS_TOKEN" = {{ .githubPatForMcp | quote }} }
+url = "https://api.githubcopilot.com/mcp/"
+bearer_token_env_var = "GH_TOKEN"
+http_headers = { "X-MCP-Toolsets" = "issues,pull_requests" }
 
 # GitHub MCP Server with read-only access
 [mcp_servers.github-ro]
-command = "uvx"
-args = [
-    "mcp-proxy",
-    "--headers",
-    "X-MCP-Readonly",
-    "true",
-    "--headers",
-    "X-MCP-Toolsets",
-    "repos,users",
-    "--transport",
-    "streamablehttp",
-    "https://api.githubcopilot.com/mcp/"
-]
-env = { "API_ACCESS_TOKEN" = {{ .githubPatForMcp | quote }} }
+url = "https://api.githubcopilot.com/mcp/"
+bearer_token_env_var = "GH_TOKEN"
+http_headers = { "X-MCP-Readonly" = "true", "X-MCP-Toolsets" = "repos,actions" }
 {{- end }}
 
 [shell_environment_policy]
@@ -75,4 +47,4 @@ inherit = "core"
 {{- end }}
 
 # force-set / override values
-set = { GIT_AUTHOR_NAME = "Codex-CLI", GIT_AUTHOR_EMAIL = "bot@ChenJ.im", GIT_COMMITTER_NAME = "Jim Chen", GIT_COMMITTER_EMAIL = "Jim@ChenJ.im", GH_PROMPT_DISABLED = "true", GH_NO_UPDATE_NOTIFIER = "true", GH_NO_EXTENSION_UPDATE_NOTIFIER = "true" }
+set = { GIT_AUTHOR_NAME = "Codex-CLI", GIT_AUTHOR_EMAIL = "bot@ChenJ.im", GIT_COMMITTER_NAME = "Jim Chen", GIT_COMMITTER_EMAIL = "Jim@ChenJ.im", GH_PROMPT_DISABLED = "true", GH_NO_UPDATE_NOTIFIER = "true", GH_NO_EXTENSION_UPDATE_NOTIFIER = "true", GH_TOKEN = {{ .githubPatForMcp | quote }} }
