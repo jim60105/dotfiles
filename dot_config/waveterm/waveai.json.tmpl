@@ -1,0 +1,29 @@
+{
+  "gpt-5.2": {
+    "display:name": "GPT-5.2",
+    "display:order": 0,
+    "ai:apitype": "openai-responses",
+    "ai:model": "gpt-5.2",
+    "ai:capabilities": ["tools", "images", "pdfs"],
+    "ai:endpoint": "{{ (env "OPENAI_BASE_URL") | default .openaiBaseUrl }}/responses",
+    "ai:apitoken": {{ (env "OPENAI_API_KEY") | default .openaiApiKey | quote }}
+  },
+  "gpt-5-mini": {
+    "display:name": "GPT-5 mini",
+    "display:order": 1,
+    "ai:apitype": "openai-responses",
+    "ai:model": "gpt-5-mini",
+    "ai:capabilities": ["tools", "images", "pdfs"],
+    "ai:endpoint": "{{ (env "OPENAI_BASE_URL") | default .openaiBaseUrl }}/responses",
+    "ai:apitoken": {{ (env "OPENAI_API_KEY") | default .openaiApiKey | quote }}
+  },
+  "claude-sonnet-4.5": {
+    "display:name": "Claude Sonnet 4.5",
+    "display:order": 2,
+    "ai:apitype": "openai-chat",
+    "ai:model": "anthropic/claude-sonnet-4.5",
+    "ai:capabilities": ["tools", "images", "pdfs"],
+    "ai:endpoint": "{{ (env "OPENAI_BASE_URL") | default .openaiBaseUrl }}/chat/completions",
+    "ai:apitoken": {{ (env "OPENAI_API_KEY") | default .openaiApiKey | quote }}
+  }
+}

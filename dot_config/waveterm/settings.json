@@ -1,6 +1,4 @@
 {
-  "ai:apitoken": {{ (env "OPENAI_API_KEY") | default .openaiApiKey | quote }},
-  "ai:baseurl": {{ (env "OPENAI_BASE_URL") | default .openaiBaseUrl | quote }},
   "ai:maxtokens": 0,
   "ai:model": "gpt-5.2",
   "ai:preset": "ai@gpt-5.2",
@@ -15,5 +13,7 @@
   "term:theme": "default-dark",
   "window:nativetitlebar": false,
   "window:reducedmotion": true,
-  "window:showmenubar": false
+  "window:showmenubar": false,
+  "waveai:defaultmode": "gpt-5.2",
+  "waveai:showcloudmodes": false
 }
