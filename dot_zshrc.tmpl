@@ -95,6 +95,12 @@ zinit ice wait"0" lucid from"gh-r" as"program" \
     mv"codex-x86_64-unknown-linux-musl -> codex"
 zinit light openai/codex
 
+# copilot-cli
+zinit ice wait"0" lucid from"gh-r" as"program" \
+    bpick"*-linux-x64.tar.gz" \
+    extract""
+zinit light github/copilot-cli
+
 # SYNTAX HIGHLIGHTING
 zinit ice wait="0c" lucid atinit="zpcompinit;zpcdreplay"
 zinit light zdharma-continuum/fast-syntax-highlighting
