@@ -46,6 +46,12 @@ zinit ice wait lucid atinit"
 "
 zinit snippet /dev/null
 
+# opencode
+zinit ice wait lucid atinit"
+  [[ -x \$(command -v opencode) && ! -f \$HOME/.zsh/completion/_opencode ]] && opencode completion > \$HOME/.zsh/completion/_opencode
+"
+zinit snippet /dev/null
+
 # Note: Rust version currently does not support zsh completion.
 # # codex-cli
 # zinit ice wait lucid atinit"
