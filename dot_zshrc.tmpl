@@ -101,6 +101,12 @@ zinit ice wait"0" lucid from"gh-r" as"program" \
     extract""
 zinit light github/copilot-cli
 
+# opencode
+zinit ice wait"0" lucid from"gh-r" as"program" \
+    bpick"opencode-linux-x64.tar.gz" \
+    extract""
+zinit light anomalyco/opencode
+
 # SYNTAX HIGHLIGHTING
 zinit ice wait="0c" lucid atinit="zpcompinit;zpcdreplay"
 zinit light zdharma-continuum/fast-syntax-highlighting
