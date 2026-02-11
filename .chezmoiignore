@@ -4,6 +4,7 @@
 install.sh
 LICENSE
 README.md
+**/.git
 {{- if ne .chezmoi.hostname "Jim-T480" }}
 .config/mpv
 {{- end }}
