@@ -12,8 +12,9 @@ model_reasoning_summary = "auto"
 model_reasoning_summary_format = "experimental"
 # model_reasoning_effort = "none"
 file_opener = "vscode-insiders"
-model = "gpt-5.2-codex"
+model = "gpt-5.3-codex"
 personality = "pragmatic"
+model_reasoning_effort = "high"
 
 # Extra settings that only apply when `sandbox = "workspace-write"`.
 [sandbox_workspace_write]
@@ -49,3 +50,6 @@ inherit = "core"
 
 # force-set / override values
 set = { GIT_AUTHOR_NAME = "Codex-CLI", GIT_AUTHOR_EMAIL = "bot@ChenJ.im", GIT_COMMITTER_NAME = "Jim Chen", GIT_COMMITTER_EMAIL = "Jim@ChenJ.im", GH_PROMPT_DISABLED = "true", GH_NO_UPDATE_NOTIFIER = "true", GH_NO_EXTENSION_UPDATE_NOTIFIER = "true", GH_TOKEN = {{ .githubPatForMcp | quote }} }
+
+[notice.model_migrations]
+"gpt-5.1-codex-max" = "gpt-5.2-codex"
