@@ -3,7 +3,7 @@ zinit wait lucid for \
   blockf \
     zsh-users/zsh-completions
 
-zinit add-fpath "$HOME/.zsh/completion"
+zinit add-fpath "$HOME/.zsh/completions"
 
 # eza
 zinit ice as"completion"
@@ -30,32 +30,32 @@ zinit light yt-dlp/yt-dlp
 
 # talosctl, kubectl, oc, helm, docker, podman, skopeo
 zinit ice wait lucid atinit"
-  [[ -x \$(command -v talosctl) && ! -f \$HOME/.zsh/completion/_talosctl ]] && talosctl completion zsh > \$HOME/.zsh/completion/_talosctl
-  [[ -x \$(command -v kubectl) && ! -f \$HOME/.zsh/completion/_kubectl ]] && kubectl completion zsh > \$HOME/.zsh/completion/_kubectl
-  [[ -x \$(command -v oc) && ! -f \$HOME/.zsh/completion/_oc ]] && oc completion zsh > \$HOME/.zsh/completion/_oc
-  [[ -x \$(command -v helm) && ! -f \$HOME/.zsh/completion/_helm ]] && helm completion zsh > \$HOME/.zsh/completion/_helm
-  [[ -x \$(command -v docker) && ! -f \$HOME/.zsh/completion/_docker ]] && docker completion zsh > \$HOME/.zsh/completion/_docker
-  [[ -x \$(command -v podman) && ! -f \$HOME/.zsh/completion/_podman ]] && podman completion zsh > \$HOME/.zsh/completion/_podman
-  [[ -x \$(command -v skopeo) && ! -f \$HOME/.zsh/completion/_skopeo ]] && skopeo completion zsh > \$HOME/.zsh/completion/_skopeo
+  [[ -x \$(command -v talosctl) && ! -f \$HOME/.zsh/completions/_talosctl ]] && talosctl completion zsh > \$HOME/.zsh/completions/_talosctl
+  [[ -x \$(command -v kubectl) && ! -f \$HOME/.zsh/completions/_kubectl ]] && kubectl completion zsh > \$HOME/.zsh/completions/_kubectl
+  [[ -x \$(command -v oc) && ! -f \$HOME/.zsh/completions/_oc ]] && oc completion zsh > \$HOME/.zsh/completions/_oc
+  [[ -x \$(command -v helm) && ! -f \$HOME/.zsh/completions/_helm ]] && helm completion zsh > \$HOME/.zsh/completions/_helm
+  [[ -x \$(command -v docker) && ! -f \$HOME/.zsh/completions/_docker ]] && docker completion zsh > \$HOME/.zsh/completions/_docker
+  [[ -x \$(command -v podman) && ! -f \$HOME/.zsh/completions/_podman ]] && podman completion zsh > \$HOME/.zsh/completions/_podman
+  [[ -x \$(command -v skopeo) && ! -f \$HOME/.zsh/completions/_skopeo ]] && skopeo completion zsh > \$HOME/.zsh/completions/_skopeo
 "
 zinit snippet /dev/null
 
 # codegpt
 zinit ice wait lucid atinit"
-  [[ -x \$(command -v codegpt) && ! -f \$HOME/.zsh/completion/_codegpt ]] && codegpt completion zsh > \$HOME/.zsh/completion/_codegpt
+  [[ -x \$(command -v codegpt) && ! -f \$HOME/.zsh/completions/_codegpt ]] && codegpt completion zsh > \$HOME/.zsh/completions/_codegpt
 "
 zinit snippet /dev/null
 
 # opencode
 zinit ice wait lucid atinit"
-  [[ -x \$(command -v opencode) && ! -f \$HOME/.zsh/completion/_opencode ]] && opencode completion > \$HOME/.zsh/completion/_opencode
+  [[ -x \$(command -v opencode) && ! -f \$HOME/.zsh/completions/_opencode ]] && opencode completion > \$HOME/.zsh/completions/_opencode
 "
 zinit snippet /dev/null
 
 # Note: Rust version currently does not support zsh completion.
 # # codex-cli
 # zinit ice wait lucid atinit"
-#   [[ -x \$(command -v codex) && ! -f \$HOME/.zsh/completion/_codex ]] && codex completion zsh > \$HOME/.zsh/completion/_codex
+#   [[ -x \$(command -v codex) && ! -f \$HOME/.zsh/completions/_codex ]] && codex completion zsh > \$HOME/.zsh/completions/_codex
 # "
 # zinit snippet /dev/null
 
