@@ -1,53 +1,53 @@
 {
 {{- if eq .chezmoi.hostname "Jim-Fedora" }}
-    "stable-diffusion-webui" : {
-        "icon": "image",
-        "label": "sd-webui",
-        "description": "Start the stable diffuwion Web UI forge.",
-        "magnified": true,
-        "blockdef": {
-            "meta": {
-                "view": "term",
-                "controller": "cmd",
-                "cmd": "if podman container exists stable-diffusion-webui-forge; then podman start -ia stable-diffusion-webui-forge; else podman compose -f /var/mnt/ssd/AI/docker-stable-diffusion-webui/docker-compose.forge.yml up; fi",
-                "cmd:clearonstart": true,
-                "cmd:closeonexit": true
-            }
-        }
-    },
-{{- end }}
-    "upgrade-toolbox" : {
-        "icon": "refresh",
-        "label": "更新toolbx",
-        "description": "Upgrade all the toolbx.",
-        "magnified": false,
-        "blockdef": {
-            "meta": {
-                "view": "term",
-                "controller": "cmd",
-{{- if eq .chezmoi.hostname "Jim-Fedora" }}
-                "cmd": "podman pull ghcr.io/jim60105/toolbx:latest ghcr.io/jim60105/toolbx-vscode:latest ghcr.io/jim60105/toolbx-rustrover:latest ghcr.io/jim60105/toolbx-rider:latest ghcr.io/jim60105/toolbx-datagrip:latest ghcr.io/jim60105/toolbx-sourcegit:latest ghcr.io/jim60105/toolbx-video:latest ghcr.io/jim60105/toolbx-kubernetes:latest && toolbox rm -af && toolbox create -i ghcr.io/jim60105/toolbx:latest fedora-toolbox-43 && toolbox create -i ghcr.io/jim60105/toolbx-vscode:latest vscode && toolbox create -i ghcr.io/jim60105/toolbx-rustrover:latest rustrover && toolbox create -i ghcr.io/jim60105/toolbx-rider:latest rider && toolbox create -i ghcr.io/jim60105/toolbx-datagrip:latest datagrip && toolbox create -i ghcr.io/jim60105/toolbx-sourcegit:latest sourcegit && toolbox create -i ghcr.io/jim60105/toolbx-video:latest video && toolbox create -i ghcr.io/jim60105/toolbx-kubernetes:latest kubernetes",
-{{- else }}
-                "cmd": "podman pull ghcr.io/jim60105/toolbx:latest ghcr.io/jim60105/toolbx-vscode:latest ghcr.io/jim60105/toolbx-sourcegit:latest ghcr.io/jim60105/toolbx-video:latest ghcr.io/jim60105/toolbx-kubernetes:latest && toolbox rm -af && toolbox create -i ghcr.io/jim60105/toolbx:latest fedora-toolbox-43 && toolbox create -i ghcr.io/jim60105/toolbx-vscode:latest vscode && toolbox create -i ghcr.io/jim60105/toolbx-sourcegit:latest sourcegit && toolbox create -i ghcr.io/jim60105/toolbx-video:latest video && toolbox create -i ghcr.io/jim60105/toolbx-kubernetes:latest kubernetes",
-{{- end }}
-                "cmd:clearonstart": true,
-                "cmd:closeonexit": true
-            }
-        }
-    },
-    "upgrade-vscode" : {
-        "icon": "refresh",
-        "label": "更新 VSCode",
-        "description": "Upgrade VSCode toolbx.",
-        "magnified": false,
-        "blockdef": {
-            "meta": {
-                "view": "term",
-                "controller": "cmd",
-                "cmd": "podman pull ghcr.io/jim60105/toolbx:latest ghcr.io/jim60105/toolbx-vscode:latest && toolbox rm -f fedora-toolbox-43 vscode && toolbox create -i ghcr.io/jim60105/toolbx:latest fedora-toolbox-43 && toolbox create -i ghcr.io/jim60105/toolbx-vscode:latest vscode",
-                "cmd:clearonstart": true,
-                "cmd:closeonexit": true
-            }
-        }
+  "stable-diffusion-webui": {
+    "icon": "image",
+    "label": "sd-webui",
+    "description": "Start the stable diffuwion Web UI forge.",
+    "magnified": true,
+    "blockdef": {
+      "meta": {
+        "view": "term",
+        "controller": "cmd",
+        "cmd": "if podman container exists stable-diffusion-webui-forge-neo; then podman start -ia stable-diffusion-webui-forge-neo; else podman compose -f /var/mnt/ssd/AI/docker-stable-diffusion-webui/docker-compose.forge-neo.yml up; fi",
+        "cmd:clearonstart": true,
+        "cmd:closeonexit": true
+      }
     }
+  },
+{{- end }}
+  "upgrade-toolbox": {
+    "icon": "refresh",
+    "label": "更新toolbx",
+    "description": "Upgrade all the toolbx.",
+    "magnified": false,
+    "blockdef": {
+      "meta": {
+        "view": "term",
+        "controller": "cmd",
+{{- if eq .chezmoi.hostname "Jim-Fedora" }}
+        "cmd": "podman pull ghcr.io/jim60105/toolbx:latest ghcr.io/jim60105/toolbx-vscode:latest ghcr.io/jim60105/toolbx-rustrover:latest ghcr.io/jim60105/toolbx-rider:latest ghcr.io/jim60105/toolbx-datagrip:latest ghcr.io/jim60105/toolbx-sourcegit:latest ghcr.io/jim60105/toolbx-video:latest ghcr.io/jim60105/toolbx-kubernetes:latest && toolbox rm -af && toolbox create -i ghcr.io/jim60105/toolbx:latest fedora-toolbox-43 && toolbox create -i ghcr.io/jim60105/toolbx-vscode:latest vscode && toolbox create -i ghcr.io/jim60105/toolbx-rustrover:latest rustrover && toolbox create -i ghcr.io/jim60105/toolbx-rider:latest rider && toolbox create -i ghcr.io/jim60105/toolbx-datagrip:latest datagrip && toolbox create -i ghcr.io/jim60105/toolbx-sourcegit:latest sourcegit && toolbox create -i ghcr.io/jim60105/toolbx-video:latest video && toolbox create -i ghcr.io/jim60105/toolbx-kubernetes:latest kubernetes",
+{{- else }}
+        "cmd": "podman pull ghcr.io/jim60105/toolbx:latest ghcr.io/jim60105/toolbx-vscode:latest ghcr.io/jim60105/toolbx-sourcegit:latest ghcr.io/jim60105/toolbx-video:latest ghcr.io/jim60105/toolbx-kubernetes:latest && toolbox rm -af && toolbox create -i ghcr.io/jim60105/toolbx:latest fedora-toolbox-43 && toolbox create -i ghcr.io/jim60105/toolbx-vscode:latest vscode && toolbox create -i ghcr.io/jim60105/toolbx-sourcegit:latest sourcegit && toolbox create -i ghcr.io/jim60105/toolbx-video:latest video && toolbox create -i ghcr.io/jim60105/toolbx-kubernetes:latest kubernetes",
+{{- end }}
+        "cmd:clearonstart": true,
+        "cmd:closeonexit": true
+      }
+    }
+  },
+  "upgrade-vscode": {
+    "icon": "refresh",
+    "label": "更新 VSCode",
+    "description": "Upgrade VSCode toolbx.",
+    "magnified": false,
+    "blockdef": {
+      "meta": {
+        "view": "term",
+        "controller": "cmd",
+        "cmd": "podman pull ghcr.io/jim60105/toolbx:latest ghcr.io/jim60105/toolbx-vscode:latest && toolbox rm -f fedora-toolbox-43 vscode && toolbox create -i ghcr.io/jim60105/toolbx:latest fedora-toolbox-43 && toolbox create -i ghcr.io/jim60105/toolbx-vscode:latest vscode",
+        "cmd:clearonstart": true,
+        "cmd:closeonexit": true
+      }
+    }
+  }
 }

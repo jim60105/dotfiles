@@ -5,6 +5,9 @@
 # In "auto" proxy mode AdGuard CLI will redirect apps' traffic into itself
 # In "manual" proxy mode, it will only be on the specified ports
 proxy_mode: 'auto'
+# Filtered ports for Linux auto-proxy mode (format: "80:5221,5300:49151" or "80,443,8080")
+# Default filtered ports 80-5221 and 5300-49151
+filtered_ports: '80:5221,5300:49151'
 # Show useful hints after each command
 show_hints: false
 # Update channel: release, beta, nightly
@@ -67,6 +70,42 @@ https_filtering:
   http3_filtering_enabled: true
   # File with the list of HTTPS exclusions
   exclusions: 'https_exclusions.txt'
+  # Secure DNS filtering - filters DoH/DoT requests through local DNS proxy
+  # Requires dns_filtering to be enabled
+  # Modes: 'off' - disabled, 'transparent' - filter without redirect, 'redirect' - redirect to DNS proxy
+  # 'transparent' mode filters DNS queries inline without changing their destination
+  # 'redirect' mode redirects all secure DNS traffic to the local DNS proxy (forces using configured upstream)
+  filter_secure_dns_mode: 'transparent'
+  # Encrypted Client Hello (ECH) support - enables ECH for better privacy
+  # Requires dns_filtering to be enabled
+  encrypted_client_hello: false
+
+# DNS filtering settings
+dns_filtering:
+  enabled: false
+  # DNS upstream to be used in DNS filtering.
+  # It can be string "default", IP address, https://, tls://, quic://, sdns:// or h3:// url
+  # See https://adguard-dns.io/kb/general/dns-providers/ for the list of recommended resolvers.
+  upstream: default
+  # Fallback DNS servers (used when primary upstream fails or for specific domains)
+  # Can be "default" (uses system DNS) or space-separated list of DNS servers
+  # Example: fallbacks: default 1.1.1.1
+  fallbacks: default
+  # Bootstrap DNS servers (used to resolve upstream domain names)
+  # Can be "default" (uses system DNS IPs) or space-separated list of:
+  # - IP addresses (e.g., 8.8.8.8, 2001:4860:4860::8888)
+  # - DNS URLs with resolved IP addresses (e.g., tls://1.1.1.1, https://8.8.8.8/dns-query)
+  # Note: Hostnames are NOT allowed, only resolved IP addresses
+  # Example: bootstraps: default 8.8.8.8 tls://1.1.1.1
+  bootstraps: default
+  # List of user filters which are reread on every start. Embedded and installed filters are
+  # managed through `adguard-cli dns filters` commands.
+  filters:
+    - 'dns_user.txt'
+  # Block ECH by removing 'ech' parameter from SVCB/HTTPS DNS records
+  # Most browsers auto-detect HTTPS filtering and disable ECH themselves
+  # Enable this only for problematic browsers that don't auto-detect
+  block_ech: false
 
 # Browsing security settings
 safebrowsing:
