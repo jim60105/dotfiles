@@ -269,6 +269,18 @@ zinit ice wait"0" lucid as"null" id-as"nvm-installer" \
     atload'[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"; [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"'
 zinit light zdharma-continuum/null
 
+##########################################################################
+# OpenSpec
+##########################################################################
+zinit ice wait"0" lucid as"null" id-as"openspec-installer" \
+    atclone"if command -v pnpm > /dev/null; then \
+        pnpm add -g @fission-ai/openspec@latest; \
+    elif command -v npm > /dev/null; then \
+        npm install -g @fission-ai/openspec@latest; \
+    fi" \
+    atpull"%atclone"
+zinit light zdharma-continuum/null
+
 {{ if eq .chezmoi.hostname "Jim-Fedora" -}}
 ##########################################################################
 # Image Dataset Preparation Tools
