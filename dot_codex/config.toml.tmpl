@@ -12,9 +12,9 @@ model_reasoning_summary = "auto"
 model_reasoning_summary_format = "experimental"
 # model_reasoning_effort = "none"
 file_opener = "vscode-insiders"
-model = "gpt-5.3-codex"
+model = "gpt-5.2-codex"
 personality = "pragmatic"
-model_reasoning_effort = "high"
+model_reasoning_effort = "xhigh"
 
 # Extra settings that only apply when `sandbox = "workspace-write"`.
 [sandbox_workspace_write]
@@ -53,3 +53,4 @@ set = { GIT_AUTHOR_NAME = "Codex-CLI", GIT_AUTHOR_EMAIL = "bot@ChenJ.im", GIT_CO
 
 [notice.model_migrations]
 "gpt-5.1-codex-max" = "gpt-5.2-codex"
+"gpt-5.3-codex" = "gpt-5.4"
