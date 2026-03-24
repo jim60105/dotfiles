@@ -1,7 +1,7 @@
 {
   "ai:maxtokens": 0,
-  "ai:model": "gpt-5.2",
-  "ai:preset": "ai@gpt-5.2",
+  "ai:model": "gpt-5.4",
+  "ai:preset": "ai@gpt-5.4",
   "ai:timeoutms": 600000,
   "autoupdate:channel": "latest",
   "autoupdate:enabled": false,
@@ -14,6 +14,6 @@
   "window:nativetitlebar": false,
   "window:reducedmotion": true,
   "window:showmenubar": false,
-  "waveai:defaultmode": "gpt-5.2",
+  "waveai:defaultmode": "gpt-5.4",
   "waveai:showcloudmodes": false
 }
