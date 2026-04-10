@@ -1,7 +1,31 @@
-zinit wait lucid for \
-  atinit"zicompinit; zicdreplay"  \
-  blockf \
-    zsh-users/zsh-completions
+() {
+  local zinit_completions_dir="$HOME/.local/share/zinit/completions"
+  local -a zinit_completion_links zcompdump_files
+  local -i zinit_removed_links=0
+  local zinit_completion_link
+
+  if [[ -d "$zinit_completions_dir" ]]; then
+    zinit_completion_links=("$zinit_completions_dir"/_*(N@))
+    for zinit_completion_link in "${zinit_completion_links[@]}"; do
+      if [[ ! -e "$zinit_completion_link" ]]; then
+        command rm -f -- "$zinit_completion_link"
+        zinit_removed_links=1
+      fi
+    done
+  fi
+
+  if (( zinit_removed_links )); then
+    # Rebuild completion dump if stale completion links were removed.
+    zcompdump_files=(
+      "${ZDOTDIR:-$HOME}"/.zcompdump(N)
+      "${ZDOTDIR:-$HOME}"/.zcompdump-*(N)
+    )
+    (( ${#zcompdump_files[@]} )) && command rm -f -- "${zcompdump_files[@]}"
+  fi
+}
+
+zinit wait lucid blockf for \
+  zsh-users/zsh-completions
 
 zinit add-fpath "$HOME/.zsh/completions"
 
