@@ -3,6 +3,7 @@
   "ai:model": "gpt-5.4",
   "ai:preset": "ai@gpt-5.4",
   "ai:timeoutms": 600000,
+  "app:tabbar": "top",
   "autoupdate:channel": "latest",
   "autoupdate:enabled": false,
   "editor:minimapenabled": true,
@@ -11,9 +12,9 @@
   "term:fontfamily": "Cascadia Code NF",
   "term:fontsize": 16,
   "term:theme": "default-dark",
+  "waveai:defaultmode": "gpt-5.4",
+  "waveai:showcloudmodes": false,
   "window:nativetitlebar": false,
   "window:reducedmotion": true,
-  "window:showmenubar": false,
-  "waveai:defaultmode": "gpt-5.4",
-  "waveai:showcloudmodes": false
+  "window:showmenubar": false
 }
