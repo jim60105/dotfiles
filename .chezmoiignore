@@ -2,10 +2,12 @@
 AGENTS.md
 .gitattributes
 .gitmodules
+.gitignore
 install.sh
 LICENSE
 README.md
 **/.git
+tmp/**
 {{- if ne .chezmoi.hostname "Jim-T480" }}
 .config/mpv
 {{- end }}
