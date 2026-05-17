@@ -107,6 +107,14 @@ zinit ice wait"0" lucid from"gh-r" as"program" \
     extract""
 zinit light anomalyco/opencode
 
+# neovim (pick preserves the full extracted tree; nvim resolves runtime via realpath)
+zinit ice wait"0" lucid from"gh-r" as"program" \
+    bpick"nvim-linux-x86_64.tar.gz" \
+    extract"" \
+    pick"nvim-linux-x86_64/bin/nvim"
+zinit light neovim/neovim
+alias vim="nvim"
+
 # SYNTAX HIGHLIGHTING
 zinit ice wait="0c" lucid atinit="zpcompinit;zpcdreplay"
 zinit light zdharma-continuum/fast-syntax-highlighting
