@@ -1,4 +1,19 @@
 return {
+  -- snacks.nvim: show hidden/dot files by default in the explorer
+  {
+    "folke/snacks.nvim",
+    opts = {
+      picker = {
+        sources = {
+          explorer = {
+            hidden = true,
+            ignored = true,
+          },
+        },
+      },
+    },
+  },
+
   -- nvim-colorizer: paint CSS colors with real color (replaces lilydjwg/colorizer)
   {
     "norcalli/nvim-colorizer.lua",

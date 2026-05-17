@@ -98,6 +98,10 @@ When editing `.tmpl` files, preserve existing Go template conditionals (`{{- if 
 │   ├── containers/             # Podman containers.conf
 │   ├── kitty/                  # Kitty terminal emulator
 │   ├── mpv/                    # mpv media player
+│   ├── nvim/                   # Neovim config (LazyVim framework)
+│   │   ├── init.lua            # Entry point → loads config.lazy
+│   │   ├── lua/config/         # Options, keymaps, autocmds, lazy.nvim bootstrap
+│   │   └── lua/plugins/        # Plugin specs: editor, coding, copilot, ui
 │   ├── autostart/              # Desktop autostart scripts
 │   ├── input-remapper-2/       # Input device remapping presets
 │   ├── plasma-workspace/       # KDE Plasma env/shutdown hooks
@@ -122,7 +126,7 @@ When editing `.tmpl` files, preserve existing Go template conditionals (`{{- if 
 - **Shell:** ZSH with [Zinit](https://github.com/zdharma-continuum/zinit) plugin manager
 - **Theme:** Powerlevel10k (classic powerline style)
 - **Key plugins:** fzf, fzf-tab, zsh-autosuggestions, fast-syntax-highlighting, zsh-vi-mode
-- **CLI tools installed via Zinit:** bat, eza, ripgrep, marp-cli, codex-cli, copilot-cli, opencode, deno, shellspec, zola, codegpt
+- **CLI tools installed via Zinit:** bat, eza, ripgrep, neovim, marp-cli, codex-cli, copilot-cli, opencode, deno, shellspec, zola, codegpt
 - **Locale:** `zh_TW.UTF-8` (Traditional Chinese)
 
 ### Git Configuration
@@ -131,6 +135,18 @@ When editing `.tmpl` files, preserve existing Go template conditionals (`{{- if 
 - Default branch: `master`
 - Pull strategy: rebase
 - Push: `autoSetupRemote = true`
+
+### Neovim Configuration
+
+- **Framework:** [LazyVim](https://www.lazyvim.org/) with [lazy.nvim](https://github.com/folke/lazy.nvim) package manager
+- **Config location:** `dot_config/nvim/` → `~/.config/nvim/`
+- **Colorscheme:** Catppuccin Mocha
+- **File picker:** fzf-lua (LazyVim extra, uses fzf instead of fd/telescope)
+- **Terminal:** toggleterm.nvim (`Ctrl+\` to toggle floating terminal)
+- **AI:** GitHub Copilot via `github/copilot.vim`
+- **Extras enabled:** yanky (yank history), mini-move (drag blocks), fzf (picker)
+- **Migrated from:** legacy Vim config (`dot_vimrc`) — see `tmp/migration_report.md` for plugin mapping details
+- **Lua config files:** `lua/config/options.lua` (vim options), `lua/config/keymaps.lua` (key mappings), `lua/config/autocmds.lua` (autocommands), `lua/plugins/*.lua` (plugin specs)
 
 ### Copilot-Prompt Submodule
 
