@@ -25,6 +25,13 @@ return {
     },
   },
 
+  -- markview.nvim: Markdown/HTML/LaTeX/Typst/YAML previewer
+  -- Do not lazy-load: plugin handles its own lazy loading internally
+  {
+    "OXY2DEV/markview.nvim",
+    lazy = false,
+  },
+
   -- toggleterm.nvim: terminal in neovim (replaces rosenfeld/conque-term)
   {
     "akinsho/toggleterm.nvim",

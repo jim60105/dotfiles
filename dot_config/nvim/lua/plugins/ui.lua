@@ -9,11 +9,21 @@ return {
     },
   },
 
+  {
+    "AlexvZyl/nordic.nvim",
+    name = "nordic",
+    lazy = false,
+    priority = 1000,
+    config = function()
+      require("nordic").load()
+    end,
+  },
+
   -- Set catppuccin as the default colorscheme
   {
     "LazyVim/LazyVim",
     opts = {
-      colorscheme = "catppuccin",
+      colorscheme = "nordic",
     },
   },
 }
