@@ -11,6 +11,9 @@ tmp/**
 {{- if ne .chezmoi.hostname "Jim-T480" }}
 .config/mpv
 {{- end }}
+{{- if ne .chezmoi.hostname "Jim-Fedora" }}
+.local/bin/start-sd-webui
+{{- end }}
 {{- if .devcontainer }}
 .local/bin/brave-browser
 .config/autostart
