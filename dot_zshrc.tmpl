@@ -115,6 +115,12 @@ zinit ice wait"0" lucid from"gh-r" as"program" \
 zinit light neovim/neovim
 alias vim="nvim"
 
+# lazygit
+zinit ice wait"0" lucid from"gh-r" as"program" \
+    bpick"lazygit_*_linux_x86_64.tar.gz" \
+    extract""
+zinit light jesseduffield/lazygit
+
 # SYNTAX HIGHLIGHTING
 zinit ice wait="0c" lucid atinit="zpcompinit;zpcdreplay"
 zinit light zdharma-continuum/fast-syntax-highlighting
