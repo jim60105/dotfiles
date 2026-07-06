@@ -8,7 +8,7 @@ description: >-
     unit of work, or when stuck after repeated failures. Stateless: each
     invocation must be sent a fully self-contained message.
 mode: subagent
-model: pioneer/gpt-5.4
+model: openai/gpt-5.4
 permission:
   edit: deny
   webfetch: deny

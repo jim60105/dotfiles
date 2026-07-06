@@ -1,42 +1,4 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "provider": {
-    "pioneer": {
-      "npm": "@ai-sdk/openai-compatible",
-      "name": "Pioneer AI",
-      "options": {
-        "baseURL": "https://api.pioneer.ai/v1"
-      },
-      "models": {
-        "claude-opus-4-8": {
-          "name": "Claude Opus 4.8",
-          "variants": {
-            "max": {
-              "reasoningEffort": "max"
-            },
-            "high": {
-              "reasoningEffort": "high"
-            }
-          }
-        },
-        "claude-sonnet-4-6": {
-          "name": "Claude Sonnet 4.6",
-          "variants": {
-            "max": {
-              "reasoningEffort": "max"
-            },
-            "high": {
-              "reasoningEffort": "high"
-            }
-          }
-        },
-        "deepseek-ai/DeepSeek-V4-Pro": {
-          "name": "DeepSeek V4 Pro"
-        },
-        "gpt-5.4": {
-          "name": "Gpt 5.4"
-        }
-      }
-    }
-  }
+  "provider": {}
 }
