@@ -26,6 +26,13 @@ set -eu
 RED='\033[0;31m'
 RESET='\033[0m'
 
+COMPOSE_FILE=""
+{{- if eq .chezmoi.hostname "Jim-Fedora" }}
+COMPOSE_FILE="/var/mnt/ssd/AI/docker-stable-diffusion-webui/docker-compose.forge-neo.yml"
+{{- else if eq .chezmoi.hostname "CHT-4000-Ada" }}
+COMPOSE_FILE="/var/home/jim60105/repos/docker-stable-diffusion-webui/docker-compose.forge-neo.yml"
+{{- end }}
+
 if ! command -v podman >/dev/null 2>&1; then
     echo "${RED}ERROR: podman is required but not installed${RESET}" >&2
     exit 1
@@ -34,7 +41,11 @@ fi
 if podman container exists stable-diffusion-webui-forge-neo; then
     podman start -ia stable-diffusion-webui-forge-neo
 else
+    if [[ -z "$COMPOSE_FILE" ]]; then
+        echo "${RED}ERROR: No docker-compose file configured for host: $(hostname)${RESET}" >&2
+        exit 1
+    fi
     podman compose \
-        -f /var/mnt/ssd/AI/docker-stable-diffusion-webui/docker-compose.forge-neo.yml \
+        -f "$COMPOSE_FILE" \
         up
 fi
