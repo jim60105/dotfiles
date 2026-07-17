@@ -1,4 +1,5 @@
 ---
+name: Rubber Duck Reviewer
 description: >-
     Independent Rubber Duck Reviewer that critiques plans and implementations to
     surface blocking correctness bugs, security risks, integration breakages,
@@ -8,13 +9,8 @@ description: >-
     API contracts, security-sensitive logic), after completing a self-contained
     unit of work, or when stuck after repeated failures. Stateless: each
     invocation must be sent a fully self-contained message.
-mode: subagent
-model: openai/gpt-5.4
-permission:
-  edit: deny
-  webfetch: deny
-  websearch: deny
-  skill: deny
+tools: Read, Grep, Glob, Bash
+model: sonnet
 ---
 # Rubber Duck Agent — System Instruction
 
