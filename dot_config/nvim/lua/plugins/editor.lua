@@ -46,4 +46,52 @@ return {
       },
     },
   },
+
+  -- 1. Diffview: Fork / SourceTree style Visual Diff & File History
+  {
+    "sindrets/diffview.nvim",
+    cmd = { "DiffviewOpen", "DiffviewClose", "DiffviewToggleFiles", "DiffviewFocusFiles", "DiffviewFileHistory" },
+    keys = {
+      { "<leader>gd", "<cmd>DiffviewOpen<cr>", desc = "Diffview Open (Project Diff)" },
+      { "<leader>gh", "<cmd>DiffviewFileHistory %<cr>", desc = "Diffview File History (Current File)" },
+    },
+  },
+
+  -- 2. Neogit: Buffer-native Git status & commit workflow
+  {
+    "NeogitOrg/neogit",
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+      "sindrets/diffview.nvim",
+      "nvim-telescope/telescope.nvim",
+    },
+    opts = {
+      integrations = {
+        diffview = true,
+        telescope = true,
+      },
+    },
+    cmd = "Neogit",
+    keys = {
+      { "<leader>gn", "<cmd>Neogit<cr>", desc = "Neogit Status Panel" },
+    },
+  },
+
+  -- 3. Grug-far: VSCode-style interactive global search and replace
+  {
+    "MagicDuck/grug-far.nvim",
+    opts = { headerMaxWidth = 80 },
+    cmd = "GrugFar",
+    keys = {
+      {
+        "<leader>sr",
+        function()
+          require("grug-far").open()
+        end,
+        mode = { "n", "v" },
+        desc = "Search and Replace (grug-far)",
+      },
+    },
+  },
 }
+
