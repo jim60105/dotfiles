@@ -1,14 +1,46 @@
 {
     "$schema": "https://opencode.ai/config.json",
+
     "provider": {
         "openrouter": {
             "models": {
                 "deepseek/deepseek-v4-flash-0731:nitro": {
                     "id": "deepseek/deepseek-v4-flash-0731:nitro",
-                    "name": "DeepSeek: DeepSeek V4 Flash 0731 (nitro)"
+                    "name": "DeepSeek: DeepSeek V4 Flash 0731 (nitro)",
+                    "variants": {
+                        "off": {
+                            "reasoning": {
+                                "enabled": false
+                            }
+                        },
+
+                        "low": {
+                            "reasoning": {
+                                "effort": "low"
+                            }
+                        },
+
+                        "medium": {
+                            "disabled": true
+                        },
+
+                        "high": {
+                            "reasoning": {
+                                "effort": "high"
+                            }
+                        },
+
+                        "max": {
+                            "reasoning": {
+                                "effort": "xhigh"
+                            }
+                        }
+                    }
                 }
             }
         }
     },
+
+    "model": "openrouter/deepseek/deepseek-v4-flash-0731:nitro",
     "small_model": "openrouter/deepseek/deepseek-v4-flash-0731:nitro"
 }
