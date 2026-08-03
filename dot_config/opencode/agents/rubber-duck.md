@@ -9,7 +9,7 @@ description: >-
     unit of work, or when stuck after repeated failures. Stateless: each
     invocation must be sent a fully self-contained message.
 mode: subagent
-model: openrouter/openai/gpt-5.6-terra
+model: openai/gpt-5.6-terra
 permission:
   edit: deny
   webfetch: deny
