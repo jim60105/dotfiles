@@ -37,7 +37,7 @@ done
 # Toolbox definitions: name → image
 typeset -A toolbox_map
 toolbox_map=(
-    fedora-toolbox-43 ghcr.io/jim60105/toolbx:latest
+    fedora-toolbox-44 ghcr.io/jim60105/toolbx:latest
     vscode            ghcr.io/jim60105/toolbx-vscode:latest
     sourcegit         ghcr.io/jim60105/toolbx-sourcegit:latest
     video             ghcr.io/jim60105/toolbx-video:latest

@@ -16,7 +16,7 @@
 # ==================================================================
 #
 # Pull the latest base and VSCode toolbox images, remove the existing
-# fedora-toolbox-43 and vscode toolboxes, and recreate them.
+# fedora-toolbox-44 and vscode toolboxes, and recreate them.
 #
 # Usage: upgrade-vscode
 
@@ -40,10 +40,10 @@ podman pull \
     ghcr.io/jim60105/toolbx-vscode:latest
 
 echo "${YELLOW}Removing existing toolboxes...${RESET}"
-toolbox rm -f fedora-toolbox-43 vscode
+toolbox rm -f fedora-toolbox-44 vscode
 
 echo "${YELLOW}Recreating toolboxes...${RESET}"
-toolbox create -i ghcr.io/jim60105/toolbx:latest        fedora-toolbox-43
+toolbox create -i ghcr.io/jim60105/toolbx:latest        fedora-toolbox-44
 toolbox create -i ghcr.io/jim60105/toolbx-vscode:latest vscode
 
 echo "${GRAY}Done.${RESET}"
