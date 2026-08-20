@@ -19,18 +19,26 @@
                     },
 
                     "options": {
-                        "reasoningEffort": "xhigh"
+                        "reasoningEffort": "medium"
                     },
 
                     "variants": {
+                        "off": {
+                            "extraBody": {
+                                "chat_template_kwargs": {
+                                    "enable_thinking": false,
+                                    "preserve_thinking": false
+                                }
+                            }
+                        },
                         "low": {
                             "reasoningEffort": "low"
                         },
                         "medium": {
                             "reasoningEffort": "medium"
                         },
-                        "xhigh": {
-                            "reasoningEffort": "xhigh"
+                        "high": {
+                            "reasoningEffort": "high"
                         }
                     }
                 }
