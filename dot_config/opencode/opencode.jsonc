@@ -41,6 +41,37 @@
                             "reasoningEffort": "high"
                         }
                     }
+                },
+                "qwen3.8-flash-next": {
+                    "name": "Qwen3.8 Flash Next",
+                    "limit": {
+                        "context": 262144,
+                        "output": 32768
+                    },
+
+                    "options": {
+                        "reasoningEffort": "medium"
+                    },
+
+                    "variants": {
+                        "off": {
+                            "extraBody": {
+                                "chat_template_kwargs": {
+                                    "enable_thinking": false,
+                                    "preserve_thinking": false
+                                }
+                            }
+                        },
+                        "low": {
+                            "reasoningEffort": "low"
+                        },
+                        "medium": {
+                            "reasoningEffort": "medium"
+                        },
+                        "high": {
+                            "reasoningEffort": "high"
+                        }
+                    }
                 }
             }
         }
