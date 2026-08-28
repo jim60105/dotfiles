@@ -68,8 +68,8 @@
                         "medium": {
                             "reasoningEffort": "medium"
                         },
-                        "high": {
-                            "reasoningEffort": "high"
+                        "xhigh": {
+                            "reasoningEffort": "xhigh"
                         }
                     }
                 }
