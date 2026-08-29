@@ -1,6 +1,6 @@
 modelRoles:
-  rubber_duck: openai/gpt-5.6-terra
-  smol: pro6000/qwen3.8-flash-next:low
+  rubber_duck: openai-codex/gpt-5.6-terra:medium
+  smol: google-antigravity/gemini-3.7-flash:medium
   default: pro6000/qwen3.8-flash-next:medium
 shellPath: /bin/zsh
 bashInterceptor:
@@ -63,7 +63,7 @@ disabledProviders:
   - windsurf
   - vscode
 theme:
-  dark: dark-nord
+  dark: dark-slate
 symbolPreset: nerd
 composer:
   shape: band
@@ -75,7 +75,7 @@ display:
   cacheMissMarker: true
   showTurnTime: true
   showTokenUsage: true
-showHardwareCursor: true
+showHardwareCursor: false
 task:
   showResolvedModelBadge: true
   isolation:
