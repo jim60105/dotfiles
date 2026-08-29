@@ -76,6 +76,12 @@ zinit ice wait lucid atinit"
 "
 zinit snippet /dev/null
 
+# oh-my-pi
+zinit ice wait lucid atinit"
+  [[ -x \$(command -v omp) && ! -f \$HOME/.zsh/completions/_omp ]] && omp completions zsh > \$HOME/.zsh/completions/_omp
+"
+zinit snippet /dev/null
+
 # Note: Rust version currently does not support zsh completion.
 # # codex-cli
 # zinit ice wait lucid atinit"

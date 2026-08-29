@@ -126,7 +126,7 @@ When editing `.tmpl` files, preserve existing Go template conditionals (`{{- if 
 - **Shell:** ZSH with [Zinit](https://github.com/zdharma-continuum/zinit) plugin manager
 - **Theme:** Powerlevel10k (classic powerline style)
 - **Key plugins:** fzf, fzf-tab, zsh-autosuggestions, fast-syntax-highlighting, zsh-vi-mode
-- **CLI tools installed via Zinit:** bat, eza, ripgrep, neovim, marp-cli, codex-cli, copilot-cli, opencode, deno, shellspec, zola, codegpt
+- **CLI tools installed via Zinit:** bat, eza, ripgrep, neovim, marp-cli, codex-cli, copilot-cli, opencode, oh-my-pi, deno, shellspec, zola, codegpt
 - **Locale:** `zh_TW.UTF-8` (Traditional Chinese)
 
 ### Git Configuration

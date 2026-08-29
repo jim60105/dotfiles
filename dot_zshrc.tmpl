@@ -107,6 +107,13 @@ zinit ice wait"0" lucid from"gh-r" as"program" \
     extract""
 zinit light anomalyco/opencode
 
+# oh-my-pi
+zinit ice wait"0" lucid from"gh-r" as"program" \
+    bpick"omp-linux-x64" \
+    mv"omp-linux-x64 -> omp" \
+    pick"omp"
+zinit light can1357/oh-my-pi
+
 # neovim (pick preserves the full extracted tree; nvim resolves runtime via realpath)
 zinit ice wait"0" lucid from"gh-r" as"program" \
     bpick"nvim-linux-x86_64.tar.gz" \
