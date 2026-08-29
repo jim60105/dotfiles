@@ -107,7 +107,9 @@ When editing `.tmpl` files, preserve existing Go template conditionals (`{{- if 
 │   ├── plasma-workspace/       # KDE Plasma env/shutdown hooks
 │   └── waveterm/               # WaveTerm AI terminal config
 ├── dot_codex/                  # OpenAI Codex CLI config and prompt templates
+├── dot_omp/                    # Oh My Pi (omp) config, models, agents, and extensions
 ├── dot_agents/
+│   ├── symlink_AGENTS.md       # Symlink pointing to copilot-prompt/AGENTS.md
 │   └── symlink_skills          # Symlink pointing to copilot-prompt/skills
 ├── dot_local/
 │   ├── bin/                    # User-local executables

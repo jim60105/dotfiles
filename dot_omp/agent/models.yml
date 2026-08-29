@@ -1,0 +1,51 @@
+providers:
+  pro6000:
+    baseUrl: http://PRO6000.internal:8888/v1
+    api: openai-completions
+    auth: none
+
+    models:
+      - id: qwen3.8-27b
+        name: Qwen3.8 27B
+        reasoning: true
+        contextWindow: 262144
+        maxTokens: 32768
+
+        thinking:
+          mode: effort
+          efforts:
+            - low
+            - medium
+            - high
+          defaultLevel: medium
+
+        compat:
+          # 對應目前 OpenCode off variant 使用的
+          # chat_template_kwargs.enable_thinking。
+          thinkingFormat: qwen-chat-template
+
+          # low/medium/high 同時傳 reasoning_effort。
+          supportsReasoningEffort: true
+
+          # 不讓 OMP 因 local Qwen heuristic
+          # 自動加入 preserve_thinking: true。
+          qwenPreserveThinking: false
+
+      - id: qwen3.8-flash-next
+        name: Qwen3.8 Flash Next
+        reasoning: true
+        contextWindow: 262144
+        maxTokens: 32768
+
+        thinking:
+          mode: effort
+          efforts:
+            - low
+            - medium
+            - xhigh
+          defaultLevel: medium
+
+        compat:
+          thinkingFormat: qwen-chat-template
+          supportsReasoningEffort: true
+          qwenPreserveThinking: false
