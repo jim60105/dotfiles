@@ -1,0 +1,10 @@
+{
+  "name": "omp-plugins",
+  "private": true,
+  "dependencies": {
+    "@mporenta/pi-claude-code": "npm:@mporenta/pi-claude-code@^0.2.5",
+    "@yusukeshib/pi-stash": "npm:@yusukeshib/pi-stash@^0.3.1",
+    "pi-nvim": "npm:pi-nvim@^0.2.4",
+    "pi-rewind": "npm:pi-rewind@^0.5.0"
+  }
+}
