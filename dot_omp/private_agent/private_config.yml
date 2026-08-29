@@ -62,3 +62,41 @@ disabledProviders:
   - cursor
   - windsurf
   - vscode
+theme:
+  dark: dark-nord
+symbolPreset: nerd
+composer:
+  shape: band
+terminal:
+  showProgress: true
+tui:
+  textSizing: true
+display:
+  cacheMissMarker: true
+  showTurnTime: true
+  showTokenUsage: true
+showHardwareCursor: true
+task:
+  showResolvedModelBadge: true
+  isolation:
+    mode: auto
+    commits: generic
+proseOnlyThinking: true
+tier:
+  openai: none
+doubleEscapeAction: tree
+edit:
+  mode: hashline
+bash:
+  enabled: true
+checkpoint:
+  enabled: false
+tools:
+  xdev: true
+dev:
+  autoqa: false
+commands:
+  enableClaudeUser: false
+  enableClaudeProject: false
+  enableOpencodeUser: false
+  enableOpencodeProject: false
