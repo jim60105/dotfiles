@@ -1,0 +1,64 @@
+modelRoles:
+  rubber_duck: openai/gpt-5.6-terra
+  smol: pro6000/qwen3.8-flash-next:low
+  default: pro6000/qwen3.8-flash-next:medium
+shellPath: /bin/zsh
+bashInterceptor:
+  enabled: true
+providers:
+  webSearchOrder:
+    - gemini
+    - perplexity
+    - anthropic
+    - codex
+    - xai
+    - zai
+    - exa
+    - tinyfish
+    - jina
+    - kagi
+    - tavily
+    - firecrawl
+    - brave
+    - kimi
+    - parallel
+    - synthetic
+    - searxng
+    - startpage
+    - duckduckgo
+    - ecosia
+    - google
+    - mojeek
+    - public
+setupVersion: 2
+skills:
+  ignoredSkills:
+    - add-artifact-attestations-to-workflow
+    - api-security
+    - bruno-api-testing
+    - create-new-wiki-page
+    - doc-coauthoring
+    - docsify
+    - documentation-writer
+    - docx
+    - drawio-diagrams-enhanced
+    - image-generator-sd-webui
+    - image-prompt-builder-nl
+    - pdf
+    - pptx
+    - press-release-writer
+    - python-security
+    - rewrite-meeting-audio-transcription
+    - rewrite-rustdoc
+    - skill-creator
+    - typescript-security
+    - xlsx
+disabledProviders:
+  - claude
+  - claude-plugins
+  - codex
+  - gemini
+  - opencode
+  - cursor
+  - windsurf
+  - vscode
