@@ -89,6 +89,10 @@ edit:
   mode: hashline
   modelVariants:
     deepseek/deepseek-v4-flash-0731: apply_patch
+  fuzzyMatch: false
+  enforceSeenLines: true
+  blackbox:
+    enabled: true
 bash:
   enabled: true
 checkpoint:
@@ -104,3 +108,9 @@ commands:
   enableOpencodeProject: false
 todo:
   reminders: false
+astGrep:
+  enabled: true
+read:
+  renderMarkdown: true
+lsp:
+  diagnosticsOnEdit: true
