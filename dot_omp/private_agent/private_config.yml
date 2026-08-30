@@ -1,10 +1,12 @@
 modelRoles:
   rubber_duck: openai-codex/gpt-5.6-terra:medium
-  smol: google-antigravity/gemini-3.7-flash:medium
-  default: pro6000/qwen3.8-flash-next:medium
+  advisor: openai-codex/gpt-5.6-terra:medium
+  tiny: google-antigravity/gemini-3.7-flash:minimal
+  smol: google-antigravity/gemini-3.7-flash
+  default: pro6000/qwen3.8-flash-next:low
 shellPath: /bin/zsh
 bashInterceptor:
-  enabled: true
+  enabled: false
 providers:
   webSearchOrder:
     - gemini
@@ -36,9 +38,7 @@ skills:
     - add-artifact-attestations-to-workflow
     - api-security
     - bruno-api-testing
-    - create-new-wiki-page
     - doc-coauthoring
-    - docsify
     - documentation-writer
     - docx
     - drawio-diagrams-enhanced
@@ -50,7 +50,6 @@ skills:
     - python-security
     - rewrite-meeting-audio-transcription
     - rewrite-rustdoc
-    - skill-creator
     - typescript-security
     - xlsx
 disabledProviders:
@@ -63,7 +62,7 @@ disabledProviders:
   - windsurf
   - vscode
 theme:
-  dark: dark-slate
+  dark: dark-taiga
 symbolPreset: nerd
 composer:
   shape: band
@@ -75,6 +74,7 @@ display:
   cacheMissMarker: true
   showTurnTime: true
   showTokenUsage: true
+  shimmer: kitt
 showHardwareCursor: false
 task:
   showResolvedModelBadge: true
@@ -87,10 +87,12 @@ tier:
 doubleEscapeAction: tree
 edit:
   mode: hashline
+  modelVariants:
+    deepseek/deepseek-v4-flash-0731: apply_patch
 bash:
   enabled: true
 checkpoint:
-  enabled: false
+  enabled: true
 tools:
   xdev: true
 dev:
@@ -100,3 +102,5 @@ commands:
   enableClaudeProject: false
   enableOpencodeUser: false
   enableOpencodeProject: false
+todo:
+  reminders: false
