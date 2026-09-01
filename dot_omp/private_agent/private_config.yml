@@ -72,9 +72,10 @@ tui:
   textSizing: true
 display:
   cacheMissMarker: true
-  showTurnTime: true
+  showTurnTime: false
   showTokenUsage: true
   shimmer: kitt
+  hideToolActivity: false
 showHardwareCursor: false
 task:
   showResolvedModelBadge: true
@@ -86,13 +87,14 @@ tier:
   openai: none
 doubleEscapeAction: tree
 edit:
-  mode: hashline
+  mode: apply_patch
   modelVariants:
     deepseek/deepseek-v4-flash-0731: apply_patch
   fuzzyMatch: false
   enforceSeenLines: true
   blackbox:
     enabled: true
+  streamingAbort: true
 bash:
   enabled: true
 checkpoint:
@@ -107,10 +109,21 @@ commands:
   enableOpencodeUser: false
   enableOpencodeProject: false
 todo:
-  reminders: false
+  reminders: true
+  remindersMax: 3
 astGrep:
   enabled: true
 read:
   renderMarkdown: true
 lsp:
   diagnosticsOnEdit: true
+tasks:
+  todoClearDelay: 60
+readLineNumbers: true
+statusLine:
+  transparent: false
+  contextLine: percentage
+  compactThinkingLevel: false
+  sessionAccent: true
+  preset: default
+  showHookStatus: true

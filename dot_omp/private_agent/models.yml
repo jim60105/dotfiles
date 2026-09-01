@@ -11,6 +11,12 @@ providers:
         contextWindow: 262144
         maxTokens: 32768
 
+        cost:
+          input: 0
+          output: 0
+          cacheRead: 0
+          cacheWrite: 0
+
         thinking:
           mode: effort
           efforts:
@@ -20,15 +26,8 @@ providers:
           defaultLevel: medium
 
         compat:
-          # 對應目前 OpenCode off variant 使用的
-          # chat_template_kwargs.enable_thinking。
           thinkingFormat: qwen-chat-template
-
-          # low/medium/high 同時傳 reasoning_effort。
           supportsReasoningEffort: true
-
-          # 不讓 OMP 因 local Qwen heuristic
-          # 自動加入 preserve_thinking: true。
           qwenPreserveThinking: false
 
       - id: qwen3.8-flash-next
@@ -37,12 +36,18 @@ providers:
         contextWindow: 262144
         maxTokens: 32768
 
+        cost:
+          input: 0
+          output: 0
+          cacheRead: 0
+          cacheWrite: 0
+
         thinking:
           mode: effort
           efforts:
             - low
             - medium
-            - xhigh
+            - high
           defaultLevel: medium
 
         compat:
