@@ -3,7 +3,7 @@ modelRoles:
   advisor: openai-codex/gpt-5.6-terra:medium
   tiny: google-antigravity/gemini-3.7-flash:minimal
   smol: google-antigravity/gemini-3.7-flash
-  default: pro6000/qwen3.8-flash-next:low
+  default: pro6000/qwen3.8-flash-next:medium
 shellPath: /bin/zsh
 bashInterceptor:
   enabled: false
@@ -85,7 +85,7 @@ task:
 proseOnlyThinking: true
 tier:
   openai: none
-doubleEscapeAction: tree
+doubleEscapeAction: rewind
 edit:
   mode: apply_patch
   modelVariants:
