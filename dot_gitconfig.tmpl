@@ -5,12 +5,7 @@
 	name = {{ .name }}
 	email = {{ .email }}
 [commit]
-{{- if env "WSL_DISTRO_NAME" }}
-	# No GPG keyring/pinentry in WSL until keys are imported; sign commits from the host.
-	gpgsign = false
-{{- else }}
 	gpgsign = true
-{{- end }}
 [core]
 	autocrlf = input
 {{- if .devcontainer }}
@@ -20,9 +15,6 @@
 {{- end }}
 	safecrlf = warn
 [tag]
-{{- if env "WSL_DISTRO_NAME" }}
-	gpgsign = false
-{{- end }}
 	forceSignAnnotated = true
 {{- if eq .chezmoi.hostname "Jim-Fedora" }}
 [safe]
@@ -41,8 +33,13 @@
 [gpg]
 	program = /usr/bin/gpg
 [credential]
+{{- if env "WSL_DISTRO_NAME" }}
+    helper = /mnt/c/Program\\ Files\\ \\(x86\\)/Git\\ Credential\\ Manager/git-credential-manager.exe
+    credentialStore = wincredman
+{{- else }}
 	helper = store
 	credentialStore = gpg
+{{- end }}
 {{- end }}
 [credential "https://codeberg.org"]
 	provider = generic
