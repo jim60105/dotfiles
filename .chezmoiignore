@@ -12,7 +12,17 @@ tmp/**
 .config/mpv
 {{- end }}
 {{- if ne .chezmoi.hostname "Jim-Fedora" }}
-.local/bin/start-sd-webui
+.local/bin/start-sd-webui.zsh
+{{- end }}
+{{- if env "WSL_DISTRO_NAME" }}
+.config/autostart
+.config/input-remapper-2
+.config/kitty
+.config/mpv
+.config/plasma-workspace
+.local/bin/brave-browser
+.local/bin/upgrade-toolbox.zsh
+.local/bin/upgrade-vscode.zsh
 {{- end }}
 {{- if .devcontainer }}
 .local/bin/brave-browser

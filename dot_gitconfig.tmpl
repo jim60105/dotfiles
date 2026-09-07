@@ -5,7 +5,12 @@
 	name = {{ .name }}
 	email = {{ .email }}
 [commit]
+{{- if env "WSL_DISTRO_NAME" }}
+	# No GPG keyring/pinentry in WSL until keys are imported; sign commits from the host.
+	gpgsign = false
+{{- else }}
 	gpgsign = true
+{{- end }}
 [core]
 	autocrlf = input
 {{- if .devcontainer }}
@@ -15,7 +20,9 @@
 {{- end }}
 	safecrlf = warn
 [tag]
-	gpgsign = true
+{{- if env "WSL_DISTRO_NAME" }}
+	gpgsign = false
+{{- end }}
 	forceSignAnnotated = true
 {{- if eq .chezmoi.hostname "Jim-Fedora" }}
 [safe]
