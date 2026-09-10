@@ -54,3 +54,5 @@ providers:
           thinkingFormat: qwen-chat-template
           supportsReasoningEffort: true
           qwenPreserveThinking: false
+          extraBody:
+            thinking_token_budget: 2048
