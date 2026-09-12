@@ -96,13 +96,27 @@ unmerged_into_primary() {
     return 0
 }
 
+# tree_has <ref> <path> — true if <ref> contains <path>.
+tree_has() {
+    git -C "$ROOT" cat-file -e "$1:$2" 2>/dev/null
+}
+
+# archived_on <ref> <slug> — true if <ref> carries an archive dir for the slug.
+archived_on() {
+    # Archive dir is either <slug> or <date>-<slug>; full-line match on both.
+    git -C "$ROOT" ls-tree --name-only "$1:openspec/changes/archive/" 2>/dev/null \
+        | grep -qxE -- "$2|.*-$2"
+}
+
 # tasks_state <slug> -> checked | unchecked | missing, read from the feature
-# ref when it exists (the worker's truth), else HEAD.
+# ref when it exists (the worker's truth), else the primary ref. Never HEAD:
+# the root checkout may sit on some other change's branch.
 tasks_state() {
     ch="$1"
-    ref=HEAD
     if branch_exists "feat/$ch"; then
         ref="feat/$ch"
+    else
+        ref="$PRIMARY"
     fi
     if ! out=$(git_at show "$ref:openspec/changes/$ch/tasks.md"); then
         echo missing
@@ -117,28 +131,12 @@ tasks_state() {
     fi
 }
 
-# archived_dir_for <slug> -> matching dated archive dir, empty if none.
-archived_dir_for() {
-    for d in "$ROOT"/openspec/changes/archive/*-"$1" "$ROOT"/openspec/changes/archive/"$1"; do
-        if [ -e "$d" ]; then
-            printf '%s\n' "$d"
-            return
-        fi
-    done
-}
-
-# phase_of <slug> -> derived phase, or empty for an unknown change.
+# phase_of <slug> -> derived phase, or empty for an unknown change. Pure refs:
+# the root checkout's current branch never influences the answer.
 phase_of() {
     ch="$1"
-    if [ -d "$ROOT/openspec/changes/$ch" ]; then
-        if [ "$(tasks_state "$ch")" = checked ]; then
-            echo tasks-complete
-        else
-            echo proposed
-        fi
-        return
-    fi
-    if [ -n "$(archived_dir_for "$ch")" ]; then
+    # 1. Merged states: archive dir on the primary ref.
+    if archived_on "$PRIMARY" "$ch"; then
         if unmerged_into_primary "feat/$ch"; then
             echo archived-unmerged
         else
@@ -146,24 +144,26 @@ phase_of() {
         fi
         return
     fi
-    if branch_exists "feat/$ch"; then
-        # Proposal-on-branch: os-propose writes artifacts on feat/<ch>, so the
-        # change dir may not exist in the root checkout at all.
-        if git -C "$ROOT" cat-file -e "feat/$ch:openspec/changes/$ch" 2>/dev/null; then
-            if [ "$(tasks_state "$ch")" = checked ]; then
-                echo tasks-complete
-            else
-                echo proposed
-            fi
-            return
+    # 2. Archived on the feature ref but not yet merged (os-archive commits the
+    # archive there before rebase+merge): the recoverable crash state.
+    if branch_exists "feat/$ch" && archived_on "feat/$ch" "$ch"; then
+        echo archived-unmerged
+        return
+    fi
+    # 3. Active change: dir on the primary ref (proposals land on master) or on
+    # the feature ref (pre-merge archive moved it; still in flight).
+    if tree_has "$PRIMARY" "openspec/changes/$ch" || { branch_exists "feat/$ch" && tree_has "feat/$ch" "openspec/changes/$ch"; }; then
+        if [ "$(tasks_state "$ch")" = checked ]; then
+            echo tasks-complete
+        else
+            echo proposed
         fi
-        # Orphan branch: no active dir, no archive dir, no proposal on the
-        # branch, but an unmerged feat/<ch> remains (crash between the archive
-        # commit and its merge). Recovery is still rebase+merge.
-        if unmerged_into_primary "feat/$ch"; then
-            echo archived-unmerged
-            return
-        fi
+        return
+    fi
+    # 4. Orphan branch: nothing on any ref, but an unmerged feat/<ch> remains.
+    if unmerged_into_primary "feat/$ch"; then
+        echo archived-unmerged
+        return
     fi
 }
 
@@ -190,29 +190,29 @@ state_line() {
 # ==================================================================
 
 report_all() {
-    # Active changes.
-    for d in "$ROOT"/openspec/changes/*; do
-        [ -d "$d" ] || continue
-        ch=${d##*/}
-        if [ "$ch" != archive ]; then
-            ph=$(phase_of "$ch")
-            if [ -n "$ph" ]; then
-                state_line "$ch" "$ph"
-            fi
-        fi
-    done
-    # feat/* branches not backed by a root change dir: catch proposal-on-branch,
-    # archived, and archived-unmerged states via the same derivation phase_of
-    # uses (a raw unmerged check would mislabel a branch-only proposal).
-    : >"$TMPFILE"
-    git_at for-each-ref --format='%(refname:short)' refs/heads/feat/ >"$TMPFILE" || true
+    # Enumerate change slugs from refs (never the root working tree, which may
+    # sit on any branch). Seed the set from the primary ref, then add every
+    # slug a feat/* branch carries, de-duplicated.
+    seen=$TMPFILE
+    : >"$seen"
+    : >"$WTFILE"
+    git_at ls-tree --name-only "$PRIMARY:openspec/changes/" >"$WTFILE" 2>/dev/null || true
+    while IFS= read -r ch; do
+        [ -n "$ch" ] || continue
+        [ "$ch" = archive ] && continue
+        grep -qxF -- "$ch" "$seen" || { printf '%s\n' "$ch" >>"$seen"; }
+    done <"$WTFILE"
+    git_at for-each-ref --format='%(refname:short)' refs/heads/feat/ >"$WTFILE" || true
     while IFS= read -r br; do
         [ -n "$br" ] || continue
         ch=${br#feat/}
-        [ -d "$ROOT/openspec/changes/$ch" ] && continue
+        grep -qxF -- "$ch" "$seen" || { printf '%s\n' "$ch" >>"$seen"; }
+    done <"$WTFILE"
+    while IFS= read -r ch; do
+        [ -n "$ch" ] || continue
         ph=$(phase_of "$ch")
         [ -n "$ph" ] && state_line "$ch" "$ph"
-    done <"$TMPFILE"
+    done <"$seen"
 }
 
 # ==================================================================

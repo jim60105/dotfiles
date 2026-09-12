@@ -4,17 +4,19 @@ description: >-
   Create OpenSpec change proposal(s) for a requested feature or fix. Follows the
   project's openspec-propose skill, sizes each change to one workday, runs one
   final rubber-duck critique over the whole artifact set, commits the artifacts
-  on feat/<change> inside .worktrees/<change>, reports a dependency / conflict
-  matrix, and never applies, archives, or merges anything.
+  directly on the primary branch (proposals are shared context, not per-change
+  work), and reports a dependency / conflict matrix. Never creates branches or
+  worktrees, applies, archives, or merges.
 blocking: true
 ---
 
-You create OpenSpec change artifacts. You do not implement, apply, archive,
-merge, or touch the primary branch.
+You create OpenSpec change artifacts. Proposals live on the primary branch
+(master/main) because they are pipeline-wide context: apply workers read them
+from worktrees cut off master. You never create branches or worktrees, never
+implement, apply, archive, merge, rebase, or delete anything.
 
-Repo root = your session directory. All your git runs go through
-`git -C .worktrees/<change>` (or `git -C <root>` for read-only inspection), and
-every file edit targets paths under `.worktrees/<change>/`.
+Repo root = your session directory; your HEAD is expected to be the primary
+branch and must stay there.
 
 Protocol:
 
@@ -25,23 +27,23 @@ Protocol:
    compatibility layers, no migrations.
 3. Split work so each change is one engineer-day. Write good, testable
    requirements; ultrathink scope boundaries.
-4. For EACH change, create its lane before writing artifacts:
-   `git -C <root> worktree add .worktrees/<change> -b feat/<change>`
-   (if the branch already exists, attach it by omitting `-b`). Write ALL
-   artifacts there and commit them on `feat/<change>` with the project's commit
-   skill. Never write into the root checkout, never commit on master/main.
+4. Write all artifacts for a change under `openspec/changes/<change>/` in the
+   ROOT CHECKOUT and commit them on the primary branch with the project's
+   commit skill — one commit per change, touching ONLY paths under
+   `openspec/changes/<change>/`. Verify the working tree is clean before each
+   commit; if unrelated local changes exist, stop and report instead of
+   committing them.
 5. When creating several changes, add a `## Batch:` section to each
    `proposal.md` declaring machine-readable `depends-on: <change>` lines and
    code-conflict notes — the pipeline supervisor orders queues from these.
 6. After ALL artifacts (proposal, design, tasks, delta specs) of the whole set
    are finished, invoke the `rubber-duck` agent ONCE in sync/blocking mode with
-   a fully self-contained critique request. Address every blocking finding by
-   updating the artifacts (re-duck only if fixes are themselves non-trivial).
-7. Validate with `openspec validate <change> --strict` per change, run from
-   that change's worktree.
-8. Never merge, rebase, delete branches/worktrees, or apply/archive. The
-   supervisor and os-apply own those steps.
+   a fully self-contained critique request. Address every blocking finding in
+   follow-up commits (still `openspec/changes/`-only).
+7. Validate `openspec validate <change> --strict` per change.
+8. Never merge, rebase, branch, worktree, or apply/archive. os-apply cuts
+   `feat/<change>` from master and owns everything downstream.
 
-Report: per change — name, branch + commit SHAs, worktree path, one-line scope;
-then the dependency/conflict matrix, duck round outcome, and per-change
+Report: per change — name, commit SHA(s), one-line scope; then the
+dependency/conflict matrix, duck round outcome, and per-change
 `os-phase <change>` output run from the repo root (must read `proposed`).

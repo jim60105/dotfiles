@@ -19,8 +19,6 @@ import { join } from "node:path";
  *  L2 destructive cleanup of UNMERGED feat/* work: branch -D <feat/* unmerged>,
  *     worktree remove --force <worktree whose branch is unmerged>,
  *     git reset --hard at the primary root while any feat/* is unmerged;
- *  L3 direct `git commit` while HEAD is the primary branch (everything goes
- *     through a feature branch), except merge continuations (MERGE_HEAD set).
  *
  * Every block reason points at `os-phase --all` as the state oracle.
  */
@@ -123,14 +121,6 @@ function evaluate(cmd: string, cwd: string): string | null {
     // L1: merge into primary without --no-ff (includes --ff-only = the incident shape).
     if (/\bgit\b/.test(seg) && /(?:^|\s)merge(?:\s|$)/.test(seg) && !/--no-ff\b/.test(seg)) {
       if (PRIMARY[head] && PRIMARY[headBranch(segRoot)]) return `L1: merging into ${head} requires --no-ff (OpenSpec pipeline topology).`;
-    }
-
-    // L3: direct commit on primary branch, except a merge continuation.
-    if (/\bgit\b/.test(seg) && /(?:^|\s)commit(?:\s|$)/.test(seg) && PRIMARY[head]) {
-      const gitDir = sh(segRoot, ["rev-parse", "--git-dir"]);
-      const mergeHead = gitDir ? existsSync(join(segRoot, gitDir, "MERGE_HEAD")) : false;
-      if (!mergeHead && !existsSync(join(segRoot, ".git", "MERGE_HEAD")))
-        return `L3: direct commit on ${head} is not allowed here; land changes via feat/<change> + merge --no-ff.`;
     }
 
     // L2a: branch -D on an unmerged feat/*
