@@ -1,0 +1,276 @@
+#!/bin/sh
+# Copyright (C) 2026 Jim Chen <Jim@ChenJ.im>, licensed under GPL-3.0-or-later
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+# ==================================================================
+#
+# os-phase — derive OpenSpec change lifecycle state from git refs.
+#
+# State is a property of REFS, never of a working tree, so the supervisor (on
+# master) and workers (in .worktrees/<change>) always derive the same truth.
+#
+# Phases (per active change, slug == openspec/changes/<slug>):
+#   proposed          tasks.md has unchecked boxes (or no tasks.md yet)
+#   tasks-complete    every tasks.md box checked (NOT proof of implementation;
+#                     os-archive re-verifies against the delta specs)
+#   archived-unmerged the change dir is gone (archived) but feat/<slug> is not
+#                     merged into the primary ref; recovery = rebase+merge only
+#   archived          archived and no unmerged feat/<slug> remains
+#
+# Usage:
+#   os-phase <change>                 print one state line for the change
+#   os-phase --all                    active changes + unmerged/archive states
+#   os-phase <change> --require <p>   exit 3 unless the derived phase == <p>
+#   os-phase --help
+#
+# Output contract (machine-readable, no color on stdout):
+#   change=<slug> phase=<p> primary=<ref> branch=<feat/slug|none> worktree=<path|none>
+#
+# Exit codes: 0 ok | 2 usage / not an OpenSpec repo / unknown change | 3 required-phase mismatch
+#
+# Environment: OS_PHASE_PRIMARY overrides the primary branch (default master,
+# then main). Scope: default OpenSpec layout + feat/<slug> convention; custom
+# schema stores are NOT supported.
+#
+# Portable POSIX sh only — every shell running this script must agree on the
+# derived state (worker shells vary), so no arrays, [[ ]], or process
+# substitution.
+
+# ==================================================================
+# Utility functions
+# ==================================================================
+
+RED='\033[0;31m'; YELLOW='\033[1;33m'; RESET='\033[0m'
+
+die() {
+    printf "${RED}ERROR: %s${RESET}\n" "$*" >&2
+    exit 2
+}
+
+warn() {
+    printf "${YELLOW}WARN: %s${RESET}\n" "$*" >&2
+}
+
+usage() {
+    sed -n '/^# Usage:/,/^# Exit codes:/p' "$script_path" | sed 's/^# \{0,1\}//'
+}
+
+require_git() {
+    if ! command -v git >/dev/null 2>&1; then
+        printf "${RED}ERROR: git is required but not installed${RESET}\n" >&2
+        exit 2
+    fi
+}
+
+# git_at <args...> — run git at the derived repo root, trimmed, empty on failure.
+git_at() {
+    git -C "$ROOT" "$@" 2>/dev/null | tr -d '\r' || true
+}
+
+# ==================================================================
+# State derivation (refs only — never a working tree)
+# ==================================================================
+
+branch_exists() {
+    git -C "$ROOT" rev-parse --verify -q "$1" >/dev/null 2>&1
+}
+
+# unmerged_into_primary <branch> — true if the branch exists and is not an
+# ancestor of the primary ref.
+unmerged_into_primary() {
+    branch_exists "$1" || return 1
+    if git -C "$ROOT" merge-base --is-ancestor "$1" "$PRIMARY" >/dev/null 2>&1; then
+        return 1
+    fi
+    return 0
+}
+
+# tasks_state <slug> -> checked | unchecked | missing, read from the feature
+# ref when it exists (the worker's truth), else HEAD.
+tasks_state() {
+    ch="$1"
+    ref=HEAD
+    if branch_exists "feat/$ch"; then
+        ref="feat/$ch"
+    fi
+    if ! out=$(git_at show "$ref:openspec/changes/$ch/tasks.md"); then
+        echo missing
+        return
+    fi
+    if printf '%s\n' "$out" | grep -qE '^[[:space:]]*[-*][[:space:]]+\[ \]'; then
+        echo unchecked
+    elif printf '%s\n' "$out" | grep -qE '^[[:space:]]*[-*][[:space:]]+\[[xX]\]'; then
+        echo checked
+    else
+        echo missing
+    fi
+}
+
+# archived_dir_for <slug> -> matching dated archive dir, empty if none.
+archived_dir_for() {
+    for d in "$ROOT"/openspec/changes/archive/*-"$1" "$ROOT"/openspec/changes/archive/"$1"; do
+        if [ -e "$d" ]; then
+            printf '%s\n' "$d"
+            return
+        fi
+    done
+}
+
+# phase_of <slug> -> derived phase, or empty for an unknown change.
+phase_of() {
+    ch="$1"
+    if [ -d "$ROOT/openspec/changes/$ch" ]; then
+        if [ "$(tasks_state "$ch")" = checked ]; then
+            echo tasks-complete
+        else
+            echo proposed
+        fi
+        return
+    fi
+    if [ -n "$(archived_dir_for "$ch")" ]; then
+        if unmerged_into_primary "feat/$ch"; then
+            echo archived-unmerged
+        else
+            echo archived
+        fi
+        return
+    fi
+    # Orphan branch: no active dir, no archive dir, but an unmerged feat/<ch>
+    # remains (crash between the archive commit and its merge — the archive
+    # commit lives only on the feature ref). Recovery is still rebase+merge.
+    if unmerged_into_primary "feat/$ch"; then
+        echo archived-unmerged
+        return
+    fi
+}
+
+# state_line <slug> <phase> — the machine-readable output contract.
+state_line() {
+    ch="$1" ph="$2" wt="" br=none
+    # ShellCheck disabled=SC3045: printf redir to a file needs open mode; this
+    # script never runs as root (workers run as the checkout owner).
+    # shellcheck disable=SC3045
+    # Own temp file: state_line may run INSIDE report_all's read loop, which
+    # iterates over a different temp file — sharing one path corrupts the loop.
+    : >"$WTFILE"
+    git_at worktree list --porcelain >"$WTFILE" || true
+    wt=$(sed -n "s|^worktree \(.*$ch\)$|\\1|p" "$WTFILE" | sed -n '1p')
+    if branch_exists "feat/$ch"; then
+        br="feat/$ch"
+    fi
+    printf 'change=%s phase=%s primary=%s branch=%s worktree=%s\n' \
+        "$ch" "$ph" "$PRIMARY" "$br" "${wt:-none}"
+}
+
+# ==================================================================
+# Queries
+# ==================================================================
+
+report_all() {
+    # Active changes.
+    for d in "$ROOT"/openspec/changes/*; do
+        [ -d "$d" ] || continue
+        ch=${d##*/}
+        if [ "$ch" != archive ]; then
+            ph=$(phase_of "$ch")
+            if [ -n "$ph" ]; then
+                state_line "$ch" "$ph"
+            fi
+        fi
+    done
+    # feat/* branches: catch archived-unmerged orphans not covered above.
+    : >"$TMPFILE"
+    git_at for-each-ref --format='%(refname:short)' refs/heads/feat/ >"$TMPFILE" || true
+    while IFS= read -r br; do
+        [ -n "$br" ] || continue
+        ch=${br#feat/}
+        if [ ! -d "$ROOT/openspec/changes/$ch" ]; then
+            if unmerged_into_primary "$br"; then
+                state_line "$ch" archived-unmerged
+            elif [ -n "$(archived_dir_for "$ch")" ]; then
+                state_line "$ch" archived
+            fi
+        fi
+    done <"$TMPFILE"
+}
+
+# ==================================================================
+# Main
+# ==================================================================
+
+main() {
+    require_git
+
+    if [ "${1:-}" = "--help" ]; then
+        usage
+        exit 0
+    fi
+
+    ROOT=$(git rev-parse --show-toplevel 2>/dev/null) || ROOT=""
+    if [ -z "$ROOT" ]; then
+        die "not a git repository"
+    fi
+    if [ ! -d "$ROOT/openspec/changes" ]; then
+        die "no openspec/changes under $ROOT (not an OpenSpec repo)"
+    fi
+
+    PRIMARY="${OS_PHASE_PRIMARY:-}"
+    if [ -z "$PRIMARY" ]; then
+        if branch_exists master; then
+            PRIMARY=master
+        elif branch_exists main; then
+            PRIMARY=main
+        else
+            die "no master/main ref found (set OS_PHASE_PRIMARY)"
+        fi
+    fi
+
+    TMPFILE=$(mktemp)
+    WTFILE=$(mktemp)
+    trap 'rm -f "$TMPFILE" "$WTFILE"' EXIT INT TERM
+
+    if [ "${1:-}" = "--all" ]; then
+        report_all
+        exit 0
+    fi
+
+    if [ "$#" -lt 1 ]; then
+        usage >&2
+        exit 2
+    fi
+    ch="$1"
+    shift
+
+    ph=$(phase_of "$ch")
+    if [ -z "$ph" ]; then
+        die "unknown change '$ch'"
+    fi
+
+    state_line "$ch" "$ph"
+    if [ "${1:-}" = "--require" ]; then
+        if [ -z "${2:-}" ]; then
+            die "--require needs a phase argument"
+        fi
+        if [ "$2" != "$ph" ]; then
+            exit 3
+        fi
+    elif [ -n "${1:-}" ]; then
+        warn "ignoring extra argument(s): $*"
+    fi
+    exit 0
+}
+
+# $0 is the script path at top level in POSIX sh.
+script_path=$0
+main "$@"
