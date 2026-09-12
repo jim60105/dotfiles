@@ -1,12 +1,13 @@
 modelRoles:
   rubber_duck: openai-codex/gpt-5.6-terra:medium
   advisor: openai-codex/gpt-5.6-terra:medium
-  tiny: google-antigravity/gemini-3.7-flash:minimal
-  smol: google-antigravity/gemini-3.7-flash
-  default: pro6000/qwen3.8-flash-next:medium
+  tiny: google-antigravity/gemini-3.8-flash:minimal
+  smol: pro6000/qwen3.8-flash-next:low
+  default: pro6000/qwen3.8-flash-next:low
+  slow: pro6000/qwen3.8-flash-next:low
 shellPath: /bin/zsh
 bashInterceptor:
-  enabled: false
+  enabled: true
 providers:
   webSearchOrder:
     - gemini
@@ -42,8 +43,6 @@ skills:
     - documentation-writer
     - docx
     - drawio-diagrams-enhanced
-    - image-generator-sd-webui
-    - image-prompt-builder-nl
     - pdf
     - pptx
     - press-release-writer
@@ -79,9 +78,14 @@ display:
 showHardwareCursor: false
 task:
   showResolvedModelBadge: true
+  agentModelOverrides:
+    task: pro6000/qwen3.8-flash-next:low
+    scout: pro6000/qwen3.8-flash-next:low
+    sonic: pro6000/qwen3.8-flash-next:low
+    reviewer: pro6000/qwen3.8-flash-next:low
   isolation:
-    mode: auto
     commits: generic
+    enabled: true
 proseOnlyThinking: true
 tier:
   openai: none
@@ -110,7 +114,8 @@ commands:
   enableOpencodeProject: false
 todo:
   reminders: true
-  remindersMax: 3
+  remindersMax: 1
+  enabled: true
 astGrep:
   enabled: true
 read:
@@ -127,3 +132,22 @@ statusLine:
   sessionAccent: true
   preset: default
   showHookStatus: true
+isolation:
+  backend: auto
+worktree:
+  clone: true
+compaction:
+  methodOrder:
+    - remote
+    - shake
+    - snapcompact
+    - soft
+    - handoff
+title:
+  refreshOnReplan: true
+browser:
+  relay: false
+  headless: false
+defaultThinkingLevel: auto
+codexResets:
+  autoRedeem: "no"
