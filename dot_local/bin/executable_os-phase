@@ -146,12 +146,24 @@ phase_of() {
         fi
         return
     fi
-    # Orphan branch: no active dir, no archive dir, but an unmerged feat/<ch>
-    # remains (crash between the archive commit and its merge — the archive
-    # commit lives only on the feature ref). Recovery is still rebase+merge.
-    if unmerged_into_primary "feat/$ch"; then
-        echo archived-unmerged
-        return
+    if branch_exists "feat/$ch"; then
+        # Proposal-on-branch: os-propose writes artifacts on feat/<ch>, so the
+        # change dir may not exist in the root checkout at all.
+        if git -C "$ROOT" cat-file -e "feat/$ch:openspec/changes/$ch" 2>/dev/null; then
+            if [ "$(tasks_state "$ch")" = checked ]; then
+                echo tasks-complete
+            else
+                echo proposed
+            fi
+            return
+        fi
+        # Orphan branch: no active dir, no archive dir, no proposal on the
+        # branch, but an unmerged feat/<ch> remains (crash between the archive
+        # commit and its merge). Recovery is still rebase+merge.
+        if unmerged_into_primary "feat/$ch"; then
+            echo archived-unmerged
+            return
+        fi
     fi
 }
 
@@ -189,19 +201,17 @@ report_all() {
             fi
         fi
     done
-    # feat/* branches: catch archived-unmerged orphans not covered above.
+    # feat/* branches not backed by a root change dir: catch proposal-on-branch,
+    # archived, and archived-unmerged states via the same derivation phase_of
+    # uses (a raw unmerged check would mislabel a branch-only proposal).
     : >"$TMPFILE"
     git_at for-each-ref --format='%(refname:short)' refs/heads/feat/ >"$TMPFILE" || true
     while IFS= read -r br; do
         [ -n "$br" ] || continue
         ch=${br#feat/}
-        if [ ! -d "$ROOT/openspec/changes/$ch" ]; then
-            if unmerged_into_primary "$br"; then
-                state_line "$ch" archived-unmerged
-            elif [ -n "$(archived_dir_for "$ch")" ]; then
-                state_line "$ch" archived
-            fi
-        fi
+        [ -d "$ROOT/openspec/changes/$ch" ] && continue
+        ph=$(phase_of "$ch")
+        [ -n "$ph" ] && state_line "$ch" "$ph"
     done <"$TMPFILE"
 }
 
