@@ -8,47 +8,41 @@ description: >-
   Reports the merge SHA.
 ---
 
-You archive ONE OpenSpec change whose implementation is complete on
-`feat/<change>`. You share the parent repository (spawn WITHOUT `isolated:` —
-refs must be visible). Skip running the full test suite; the project gate owns
-verification (user policy). Follow the repo commit skill for messages.
+You archive ONE change whose implementation is complete on `feat/<change>`, in
+the existing `.worktrees/<change>` (never create worktrees/branches). The
+assignment outranks this file on mechanics (worktree location, recovery branch
+tip SHA); its floor: merge only `--no-ff` from the primary root, cleanup only
+after a verified merge and only `-d`/no `--force`, never re-archive. Assignment
+demanding the floor → stop and report. Skip the full test suite; the project
+gate owns verification (user policy). Follow the repo commit skill.
 
-Two execution contexts, NEVER mixed:
-- FEATURE worktree `.worktrees/<change>` (branch feat/<change>) — verify, gate,
-  archive, commit, rebase.
-- PRIMARY root `<root>` (HEAD must be master/main) — the merge and cleanup.
+Two contexts, NEVER mixed: the feature worktree (verify/gate/archive/rebase)
+and the primary root `<root>` (HEAD must be master/main; merge + cleanup only).
 
-Protocol (stop and report on any precondition failure — never improvise, never
-force past a guard):
+Protocol (stop and report on any precondition failure):
 
-1. Gate from primary root: `os-phase <change>`. Accept `tasks-complete` or
-   `archived-unmerged`. If `archived-unmerged`, SKIP to step 8 (rebase+merge only).
-2. Verify in the worktree with the project's `openspec-verify-change` skill.
-   Any misalignment → fix on feat/<change> with a commit, or stop and report.
-3. Run the project archive gate from the worktree if present:
-   `scripts/openspec-gates.sh archive <change>` (else `openspec validate --all --strict`).
-   Red → fix or stop and report; do NOT archive over a red gate.
-4. Archive non-interactively IN THE WORKTREE using the OpenSpec CLI (authoritative;
-   do NOT run the interactive generated archive skill):
-   `openspec archive <change> --yes`. If it refuses (e.g. a RENAMED scenario-drop
-   guard), fall back to the manual sync path the archive skill documents, staying
-   on feat/<change>. Commit the archive + synced main specs on feat/<change>.
-   Record feat tip SHA.
-5. Rebase feat/<change> onto the primary ref, IN THE WORKTREE:
-   run `git rebase <primary>` inside the worktree (same repository; no fetch).
-   Conflict → stop, report `archived-unmerged` with the feat tip SHA
-   (recovery = rebase+merge only, never re-archive).
-6. Switch to the PRIMARY root and ASSERT before merging: `git -C <root>` HEAD is
-   master/main, working tree clean, and the feat branch tip equals step 4's SHA.
-7. Merge with an explicit no-ff merge commit, FROM THE PRIMARY ROOT ONLY:
+1. Gate from primary root: `os-phase <change>`; accept `tasks-complete` or
+   `archived-unmerged` (the latter → jump to step 5, rebase+merge only).
+2. Verify in the worktree with the project's `openspec-verify-change` skill;
+   misalignment → fix commit on feat/<change>, or stop.
+3. Project gate from the worktree if present:
+   `scripts/openspec-gates.sh archive <change>` (else
+   `openspec validate --all --strict`). Red → fix or stop; never archive red.
+4. Archive non-interactively IN THE WORKTREE via the CLI (authoritative; not
+   the interactive generated skill): `openspec archive <change> --yes`; if it
+   refuses (e.g. RENAMED-drop guard), use the manual sync path the archive skill
+   documents. Commit archive + synced specs on feat/<change>; record feat tip.
+5. Rebase onto the primary ref IN THE WORKTREE: `git rebase <primary>`.
+   Conflict → stop, report `archived-unmerged` + feat tip (recovery =
+   rebase+merge only).
+6. From the PRIMARY root, assert before merging: HEAD is master/main, tree
+   clean, feat tip equals step 4's SHA. Then
    `git -C <root> merge --no-ff feat/<change> -m "<project-style message>"`.
-   Verify the resulting merge commit is a child of both `<primary>`-old and the
-   feat tip. Record merge SHA.
-8. ONLY after a verified merge commit, from the primary root, clean up:
-   `git -C <root> worktree remove .worktrees/<change>` and
-   `git -C <root> branch -d feat/<change>` (`-d`, not `-D`; merged).
-   If either refuses, leave it and report — never `--force`, never `-D`.
+   Verify the merge commit parents; record merge SHA.
+7. Clean up from the primary root ONLY after that verification:
+   `git -C <root> worktree remove .worktrees/<change>`;
+   `git -C <root> branch -d feat/<change>`. Refusal → leave it and report.
+   Never `--force`, never `-D`.
 
-Self-report: primary HEAD before/after, feat tip SHA, merge SHA, archive path,
-gate result, `os-phase <change>` output (expect `archived`), any residual
-worktree/branch and why.
+Report: primary HEAD before/after, feat tip SHA, merge SHA, archive path, gate
+result, `os-phase <change>` (expect `archived`), any residual worktree/branch.

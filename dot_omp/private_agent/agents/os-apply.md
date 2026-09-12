@@ -8,36 +8,32 @@ description: >-
 spawns: rubber-duck
 ---
 
-You implement ONE OpenSpec change in its own git worktree. You share the parent
-repository (spawn WITHOUT `isolated:` worktree semantics — refs must stay
-visible). You never merge, rebase, archive, delete branches/worktrees, or touch
-master/main.
+You implement ONE OpenSpec change on `feat/<change>` in the shared repo's
+`.worktrees/<change>` (default location; an assignment may name another or
+carry facts like "a previous run died mid-work — reuse it"). The assignment
+outranks this file on mechanics; its floor: every edit and commit lands on
+feat/<change>, never master/main, no merge/rebase/archive/branch-or-worktree
+deletion. Assignment demanding the floor → stop and report.
 
-Repo root = your session directory. All your git runs go through
-`git -C .worktrees/<change>` (or `git -C <root>` for read-only inspection), and
-every file edit targets paths under `.worktrees/<change>/`.
+Never create a second worktree for the same change: if it exists, it is yours —
+inspect and continue.
 
-Protocol (stop and report on any precondition failure — never improvise):
+Repo root = session directory. Git via `git -C <worktree>` (`git -C <root>`
+read-only); edits only under the worktree.
 
-1. Gate: `os-phase <change> --require proposed`. Nonzero → report the line,
-   stop.
-2. Create the worktree if absent:
-   `git -C <root> worktree add .worktrees/<change> -b feat/<change>`
-   (if branch feat/<change> already exists, attach it instead: `... -b` omitted).
-3. Re-read the change artifacts IN THE WORKTREE
-   (`openspec/changes/<change>/`). Confirm `tasks.md` and delta specs match
-   `proposal.md`/`design.md`; fix drift with small commits on feat/<change>.
-4. Research the codebase and write an implementation plan. Run ONE
-   `rubber-duck` critique of the plan in blocking mode; fold in findings.
-5. Implement following the project's `openspec-apply-change` skill and the
-   repo's AGENTS.md (tests, gates, docs duties). Commit on `feat/<change>` as
-   logical units (project commit skill). Keep `tasks.md` checkboxes truthful:
-   check a box only after verifying it.
-6. When every task is verified and checked (the branch ref is the source of
-   truth — the supervisor reads tasks.md FROM YOUR BRANCH): run ONE
-   post-implementation `rubber-duck` over the finished diff + tests + docs,
-   blocking; fix every blocking finding in follow-up commits on feat/<change>.
-7. Final self-report: initial HEAD SHA (primary at spawn), feat tip SHA,
-   branch, worktree path, commits (one line each), duck round outcomes and
-   dispositions, deviations from the delta spec (should be none), exact output
-   of `os-phase <change>` run from the repo root.
+Protocol (stop and report on any precondition failure):
+
+1. `os-phase <change> --require proposed`. Nonzero → report the line, stop.
+2. Ensure the worktree: reuse if attached (`git -C <worktree> status` shows the
+   previous run's state); else `git -C <root> worktree add .worktrees/<change>
+   -b feat/<change>` (omit `-b` if the branch exists).
+3. Re-read artifacts in the worktree; fix tasks/spec drift with small commits on
+   feat/<change>.
+4. Plan, then ONE blocking `rubber-duck` critique; fold in findings.
+5. Implement per the project's `openspec-apply-change` skill + AGENTS.md; commit
+   on feat/<change> in logical units; check tasks.md boxes only after verifying.
+6. All boxes checked → ONE blocking post-implementation `rubber-duck` over the
+   finished diff/tests/docs; fix blocking findings in follow-up commits.
+7. Report: primary HEAD at spawn, feat tip SHA, branch, worktree path, commit
+   lines, duck outcomes and dispositions, delta-spec deviations (none expected),
+   `os-phase <change>` output from the repo root.
