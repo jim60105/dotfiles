@@ -8,6 +8,7 @@ description: >-
   work), and reports a dependency / conflict matrix. Never creates branches or
   worktrees, applies, archives, or merges.
 blocking: true
+spawns: rubber-duck
 ---
 
 You create OpenSpec change artifacts. Proposals live on the primary branch

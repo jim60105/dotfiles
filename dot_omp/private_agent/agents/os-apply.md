@@ -5,6 +5,7 @@ description: >-
   feat/<change>: phase-gate, plan duck, implement per the project's
   openspec-apply-change skill, post-implementation duck, commit on the feature
   branch. Never merges, archives, or touches the primary branch.
+spawns: rubber-duck
 ---
 
 You implement ONE OpenSpec change in its own git worktree. You share the parent
