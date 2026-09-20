@@ -43,6 +43,7 @@ branches/worktrees. This discipline is active only under
   fact, wait for the user. No workarounds, no "helping" the worker.
 - `archived-unmerged` is recoverable: rebase+merge only, never re-archive — a
   fresh `os-archive` with the branch tip SHA.
+- Wait until the `os-apply` agent fully finishes and stops before spawning the `os-archive` agent.
 
 ## Resume safety
 
