@@ -320,7 +320,7 @@ export PATH="$PATH:/home/jim60105/repos/image-dataset-prep-tools/src/"
 ##########################################################################
 alias chrome="/usr/bin/google-chrome-stable"
 alias brave="~/.local/bin/brave-browser"
-{{- end -}}
+{{- end }}
 
 {{- if env "WSL_DISTRO_NAME" }}
 ##########################################################################
@@ -328,4 +328,12 @@ alias brave="~/.local/bin/brave-browser"
 ##########################################################################
 export HTTPS_PROXY="$HTTP_PROXY"
 export https_proxy="$HTTP_PROXY"
-{{- end -}}
+{{- end }}
+
+##########################################################################
+# BUN
+##########################################################################
+if (( $+commands[bun] )) || [[ -x "$HOME/.bun/bin/bun" ]]; then
+  export BUN_INSTALL="$HOME/.bun"
+  export PATH="$BUN_INSTALL/bin:$PATH"
+fi

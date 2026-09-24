@@ -82,6 +82,12 @@ zinit ice wait lucid atinit"
 "
 zinit snippet /dev/null
 
+# bun (installer drops the completion at ~/.bun/_bun; no completions subcommand)
+zinit ice wait lucid atinit"
+  [[ -s \$HOME/.bun/_bun && ! -f \$HOME/.zsh/completions/_bun ]] && command cp -f -- \$HOME/.bun/_bun \$HOME/.zsh/completions/_bun
+"
+zinit snippet /dev/null
+
 # Note: Rust version currently does not support zsh completion.
 # # codex-cli
 # zinit ice wait lucid atinit"
