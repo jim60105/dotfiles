@@ -8,31 +8,6 @@ modelRoles:
 shellPath: /bin/zsh
 bashInterceptor:
   enabled: true
-providers:
-  webSearchOrder:
-    - gemini
-    - perplexity
-    - anthropic
-    - codex
-    - xai
-    - zai
-    - exa
-    - tinyfish
-    - jina
-    - kagi
-    - tavily
-    - firecrawl
-    - brave
-    - kimi
-    - parallel
-    - synthetic
-    - searxng
-    - startpage
-    - duckduckgo
-    - ecosia
-    - google
-    - mojeek
-    - public
 setupVersion: 2
 skills:
   ignoredSkills:
@@ -113,7 +88,7 @@ commands:
   enableOpencodeUser: false
   enableOpencodeProject: false
 todo:
-  reminders: true
+  reminders: false
   remindersMax: 1
   enabled: true
 astGrep:
@@ -140,7 +115,6 @@ compaction:
   methodOrder:
     - remote
     - shake
-    - snapcompact
     - soft
     - handoff
 title:
@@ -148,6 +122,39 @@ title:
 browser:
   relay: false
   headless: false
+  enabled: false
 defaultThinkingLevel: auto
 codexResets:
   autoRedeem: "no"
+collab:
+  autoStart: "off"
+retry:
+  fallbackChains:
+    web:
+      - web/perplexity
+      - anthropic/claude-haiku-4-5
+      - openai-codex/gpt-5.6-luna
+      - xai/grok-4.5
+      - web/zai
+      - web/exa
+      - web/tinyfish
+      - web/jina
+      - web/kagi
+      - web/tavily
+      - web/firecrawl
+      - web/brave
+      - web/kimi
+      - web/parallel
+      - web/synthetic
+      - web/searxng
+      - web/startpage
+      - web/duckduckgo
+      - web/ecosia
+      - web/google
+      - web/mojeek
+      - web/public
+      - google-antigravity/gemini-2.5-flash
+      - openai-codex/gpt-5.6
+      - openai-codex/gpt-5.5
+      - xai-oauth/grok-4.5
+      - web/ollama
