@@ -35,7 +35,7 @@ branches/worktrees. This discipline is active only under
    raise a red signal.
 5. **Pre-archive gate — ALL must hold before spawning `os-archive`:**
    - refs show `tasks-complete`, branch tip, and a clean worktree;
-   - the apply agent itself is NOT running — check `hub list`, not just the
+   - the apply agent itself is NOT running — check `read history://`, not just the
      job row: a `completed`/`cancelled`/`failed` job row does NOT mean the
      agent process stopped, and a parked agent can be woken and keep editing;
    - the apply agent's post-implementation duck children are NOT running;
@@ -54,8 +54,8 @@ branches/worktrees. This discipline is active only under
 ## Single writer
 
 - Exactly one writer per worktree at any moment. Before ANY (re)spawn
-  touching a change, confirm via `hub list` that no agent is running against
-  that worktree and no prior worker of that change can still be woken.
+  touching a change, confirm via `read history://` that no agent is running
+  against that worktree and no prior worker of that change can still be woken.
 - To replace a dead or stuck worker: first send the original a stand-down
   order and wait for its terminal yield (or user approval to cancel), then
   verify it stopped, then spawn the successor with full resume facts.
