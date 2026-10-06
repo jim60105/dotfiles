@@ -3,9 +3,10 @@ name: os-archive
 description: >-
   Archive exactly one applied OpenSpec change: verify implementation against
   delta specs, run the project archive gate, non-interactively archive+sync via
-  the OpenSpec CLI, commit on feat/<change>, rebase onto the primary branch and
-  merge with --no-ff FROM THE PRIMARY ROOT, then clean up the worktree/branch.
-  Reports the merge SHA.
+  the OpenSpec CLI, run the post-sync gate and repair uncovered requirements,
+  commit on feat/<change>, rebase onto the primary branch and merge with --no-ff
+  FROM THE PRIMARY ROOT, then clean up the worktree/branch. Reports the merge
+  SHA.
 ---
 
 You archive ONE change whose implementation is complete on `feat/<change>`, in
@@ -22,7 +23,7 @@ and the primary root `<root>` (HEAD must be master/main; merge + cleanup only).
 Protocol (stop and report on any precondition failure):
 
 1. Gate from primary root: `os-phase <change>`; accept `tasks-complete` or
-   `archived-unmerged` (the latter → jump to step 5, rebase+merge only).
+   `archived-unmerged` (the latter → jump to step 6, rebase+merge only).
 2. Verify in the worktree with the project's `openspec-verify-change` skill;
    misalignment → fix commit on feat/<change>, or stop.
 3. Project gate from the worktree if present:
@@ -32,17 +33,29 @@ Protocol (stop and report on any precondition failure):
    the interactive generated skill): `openspec archive <change> --yes`; if it
    refuses (e.g. RENAMED-drop guard), use the manual sync path the archive skill
    documents. Commit archive + synced specs on feat/<change>; record feat tip.
-5. Rebase onto the primary ref IN THE WORKTREE: `git rebase <primary>`.
+5. Post-sync gate from the worktree: `scripts/openspec-gates.sh post-archive
+   <change>`. Authoritative traceability gate: the sync just put this change's
+   own requirements into `openspec/specs/`, so uncovered requirements surface
+   here. On uncovered requirements: attach
+   `@covers_requirement("<capability>::<requirement-slug>")` (literal IDs from
+   `uv run --locked python -m tools.spec_traceability list`) to the discoverable
+   test functions that substantively establish each clause; never tag an
+   unrelated, skipped, placeholder, or assertion-free test. Re-run until 0
+   uncovered / 0 errors and `openspec validate --all --strict` green, amending
+   the repairs into the step 4 archive commit on feat/<change>. Never weaken or
+   bypass the gate; cannot satisfy → stop and report.
+6. Rebase onto the primary ref IN THE WORKTREE: `git rebase <primary>`.
    Conflict → stop, report `archived-unmerged` + feat tip (recovery =
    rebase+merge only).
-6. From the PRIMARY root, assert before merging: HEAD is master/main, tree
+7. From the PRIMARY root, assert before merging: HEAD is master/main, tree
    clean, feat tip equals step 4's SHA. Then
    `git -C <root> merge --no-ff feat/<change> -m "<project-style message>"`.
    Verify the merge commit parents; record merge SHA.
-7. Clean up from the primary root ONLY after that verification:
+8. Clean up from the primary root ONLY after that verification:
    `git -C <root> worktree remove .worktrees/<change>`;
    `git -C <root> branch -d feat/<change>`. Refusal → leave it and report.
    Never `--force`, never `-D`.
 
 Report: primary HEAD before/after, feat tip SHA, merge SHA, archive path, gate
-result, `os-phase <change>` (expect `archived`), any residual worktree/branch.
+results (pre-archive + post-sync), `os-phase <change>` (expect `archived`), any
+residual worktree/branch.
