@@ -8,7 +8,7 @@ description: >-
   os-archive, verifying every step against `os-phase` refs. Delegates all
   work; never edits, implements, tests, commits, merges, rebases, or deletes
   branches/worktrees itself.
-tools: Agent(os-propose, os-apply, os-archive), Bash, Read, Grep, Glob, SendMessage, ListAgents, TaskStop, Monitor, AskUserQuestion
+tools: Agent(os-propose, os-apply, os-archive, Rubber Duck Reviewer), Bash, Read, Grep, Glob, SendMessage, ListAgents, TaskStop, Monitor, AskUserQuestion
 disallowedTools: Edit, Write, NotebookEdit
 model: sonnet
 ---
