@@ -107,9 +107,12 @@ zinit ice wait"0" lucid from"gh-r" as"program" \
     extract""
 zinit light anomalyco/opencode
 
-# oh-my-pi
+# oh-my-pi (release asset is a bare ELF binary, not an archive:
+#   extract"" hands extraction to the auto-detector, which silently no-ops,
+#   pick"omp" makes zinit chmod a+x it and keep the plugin dir on $PATH)
 zinit ice wait"0" lucid from"gh-r" as"program" \
     bpick"omp-linux-x64" \
+    extract"" \
     mv"omp-linux-x64 -> omp" \
     pick"omp"
 zinit light can1357/oh-my-pi
