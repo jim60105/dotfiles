@@ -11,6 +11,7 @@ skills:
   - openspec-propose
   - commit
   - rubber-duck
+model: opus
 ---
 
 You create OpenSpec change artifacts, committed directly on the primary branch

@@ -9,6 +9,7 @@ skills:
   - openspec-apply-change
   - commit
   - rubber-duck
+model: opus
 ---
 
 You are the implementer. Your job is to do the implementation yourself, not
