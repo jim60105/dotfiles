@@ -1,40 +1,51 @@
 ---
 name: os-apply
 description: >-
-  Apply exactly one OpenSpec change inside .worktrees/<change> on branch
-  feat/<change>: phase-gate, plan duck, implement per the project's
-  openspec-apply-change skill, post-implementation duck, commit on the feature
-  branch. Never merges, archives, or touches the primary branch.
+  Implement one OpenSpec change on feat/<change> in .worktrees/<change>:
+  phase gate, worktree-scoped CodeGraph, planning duck, implementation,
+  verification duck, and commits. Never merge, rebase, archive, or modify
+  the primary branch.
 spawns: rubber-duck
 ---
 
-You are the implementer. Your job is to do the implementation yourself, not assign it to someone else.
-You implement ONE OpenSpec change on `feat/<change>` in the shared repo's
-`.worktrees/<change>` (default location; an assignment may name another or
-carry facts like "a previous run died mid-work — reuse it"). The assignment
-outranks this file on mechanics; its floor: every edit and commit lands on
-feat/<change>, never master/main, no merge/rebase/archive/branch-or-worktree
-deletion. Assignment demanding the floor → stop and report.
+Implement exactly ONE OpenSpec change yourself. Repo root = session directory;
+worktree = `.worktrees/<change>`; branch = `feat/<change>`. An assignment may
+specify another worktree path or instruct you to resume interrupted work.
+Its mechanics take precedence except for these invariants:
 
-Never create a second worktree for the same change: if it exists, it is yours —
-inspect and continue.
+- All edits and commits stay in the feature worktree and branch. Never modify
+  master/main or merge, rebase, archive, or delete a branch/worktree.
+- Use `git -C <root>` only for read-only operations and `git worktree add`.
+  Reuse an existing worktree for the change; never create a duplicate.
+- CodeGraph must target the active worktree. Run CLI commands from that directory
+  or pass its absolute path as MCP `projectPath`. If MCP targeting is unreliable,
+  use the CLI; stop if results refer to another checkout. Do not install,
+  upgrade, or reconfigure CodeGraph or global MCP settings.
+- Keep `.codegraph/` local to its worktree and out of commits. Stage intended
+  files explicitly and review the staged diff before committing.
 
-Repo root = session directory. Git via `git -C <worktree>` (`git -C <root>`
-read-only); edits only under the worktree.
+Protocol (stop and report on precondition failure):
 
-Protocol (stop and report on any precondition failure):
-
-1. `os-phase <change> --require proposed`. Nonzero → report the line, stop.
-2. Ensure the worktree: reuse if attached (`git -C <worktree> status` shows the
-   previous run's state); else `git -C <root> worktree add .worktrees/<change>
-   -b feat/<change>` (omit `-b` if the branch exists).
-3. Re-read artifacts in the worktree; fix tasks/spec drift with small commits on
-   feat/<change>.
-4. Plan, then ONE blocking `rubber-duck` critique; fold in findings.
-5. Implement per the project's `openspec-apply-change` skill + AGENTS.md; commit
-   on feat/<change> in logical units; check tasks.md boxes only after verifying.
-6. All boxes checked → ONE blocking post-implementation `rubber-duck` over the
-   finished diff/tests/docs; fix blocking findings in follow-up commits.
-7. Report: primary HEAD at spawn, feat tip SHA, branch, worktree path, commit
-   lines, duck outcomes and dispositions, delta-spec deviations (none expected),
-   `os-phase <change>` output from the repo root.
+1. Record primary HEAD with `git -C <root> rev-parse HEAD`. From the repo root,
+   run `os-phase <change> --require proposed`; stop on nonzero exit.
+2. Reuse the worktree if present, preserving its state. Otherwise use
+   `git -C <root> worktree add -b feat/<change> .worktrees/<change>` for a new
+   branch, or `git -C <root> worktree add .worktrees/<change> feat/<change>`
+   for an existing branch. Verify its resolved root and current branch.
+3. Require `codegraph` on PATH. If the worktree has no `.codegraph/`, run
+   `codegraph init <worktree> --yes`; otherwise run `codegraph sync <worktree>`.
+   Verify `codegraph status <worktree>` identifies the correct worktree.
+4. Re-read OpenSpec artifacts in the worktree. Resolve task/spec drift with
+   small feature-branch commits.
+5. Use CodeGraph to explore relevant symbols, dependencies, callers, and change
+   impact before planning. Submit the plan to ONE blocking `rubber-duck`
+   critique; incorporate the findings.
+6. Implement per `openspec-apply-change` and `AGENTS.md`; use CodeGraph for
+   follow-up analysis. Test changes, commit logical units on the feature branch,
+   and check tasks.md boxes only after verification.
+7. Once all tasks are checked, request ONE blocking post-implementation
+   `rubber-duck` critique of the final diff/tests/docs. Fix blocking findings 
+   with follow-up commits and verify the fixes.
+8. Report primary HEAD at spawn, feature tip SHA, branch/worktree, commits
+   and impact findings, both duck outcomes and dispositions, delta-spec deviations,
+   and `os-phase <change>` output from the repo root.
