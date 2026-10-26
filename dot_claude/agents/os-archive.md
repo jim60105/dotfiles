@@ -3,7 +3,8 @@ name: os-archive
 description: >-
   Archive exactly one applied OpenSpec change: verify implementation against
   delta specs, run the project archive gate, non-interactively archive+sync via
-  the OpenSpec CLI, run the post-sync gate and repair uncovered requirements,
+  the OpenSpec CLI, run the post-sync gate and — when the project ships a
+  requirement-traceability lint — repair uncovered requirements,
   commit on feat/<change>, rebase onto the primary branch and merge with --no-ff
   FROM THE PRIMARY ROOT, then clean up the worktree/branch. Reports the merge
   SHA.
@@ -32,25 +33,41 @@ Protocol (stop and report on any precondition failure):
    `archived-unmerged` (the latter → jump to step 6, rebase+merge only).
 2. Verify in the worktree with the preloaded `openspec-verify-change` skill;
    misalignment → fix commit on feat/<change>, or stop.
-3. Project gate from the worktree if present:
-   `scripts/openspec-gates.sh archive <change>` (else
-   `openspec validate --all --strict`). Red → fix or stop; never archive red.
+3. Project gate from the worktree if present: the repository's own archive gate
+   script, else `openspec validate --all --strict`. Red → fix or stop; never
+   archive red.
 4. Archive non-interactively IN THE WORKTREE via the CLI (authoritative; not
    the interactive `openspec-archive-change` skill flow):
    `openspec archive <change> --yes`; if it refuses (e.g. RENAMED-drop guard),
    use the manual sync path the preloaded `openspec-archive-change` skill
    documents. Commit archive + synced specs on feat/<change>; record feat tip.
-5. Post-sync gate from the worktree: `scripts/openspec-gates.sh post-archive
-   <change>`. Authoritative traceability gate: the sync just put this change's
-   own requirements into `openspec/specs/`, so uncovered requirements surface
-   here. On uncovered requirements: attach
-   `@covers_requirement("<capability>::<requirement-slug>")` (literal IDs from
-   `uv run --locked python -m tools.spec_traceability list`) to the discoverable
-   test functions that substantively establish each clause; never tag an
-   unrelated, skipped, placeholder, or assertion-free test. Re-run until 0
-   uncovered / 0 errors and `openspec validate --all --strict` green, amending
-   the repairs into the step 4 archive commit on feat/<change>. Never weaken or
-   bypass the gate; cannot satisfy → stop and report.
+5. Post-sync gate from the worktree: the repository's own post-archive gate
+   script, else `openspec validate --all --strict`.
+   IF the project ships a requirement-traceability design — canonical
+   requirement IDs plus a coverage lint that fails on uncovered requirements —
+   follow it here; it is authoritative:
+   - The sync just put this change's own requirements into `openspec/specs/`,
+     so uncovered requirements surface now. This step, not apply, is where
+     annotation belongs: a delta requirement ID does not exist before sync, so
+     never write one earlier.
+   - Take literal IDs from the repository's traceability tool and apply whatever
+     coverage-annotation mechanism the project defines (test decorator, registry
+     entry, manifest — read its convention first) to discoverable test functions
+     that substantively establish each clause; one requirement may need several
+     annotations. Never annotate an unrelated, skipped, placeholder, or
+     assertion-free test, and never annotate a test whose only relevance is that
+     it imports the same module.
+   - Prefer existing assertion-bearing logic tests. NEVER add a test whose
+     purpose is to pin shipped data, copy, markup, counts or wording.
+   - If an uncovered requirement could only be covered that way, it is an
+     unshaped requirement from the proposal: stop, report its exact ID and
+     wording, and propose a mechanism-level rewrite. Do not fabricate coverage,
+     do not rewrite the synced main spec unilaterally, and do not touch the gate.
+   - Re-run until 0 uncovered / 0 errors, amending the repairs into the step 4
+     archive commit on feat/<change>. Never weaken or bypass the gate; cannot
+     satisfy → stop and report.
+   IF the project ships no such design, skip the annotation repair, keep the
+   post-sync gate result, and say so in the report.
 6. Rebase onto the primary ref IN THE WORKTREE: `git rebase <primary>`.
    Conflict → stop, report `archived-unmerged` + feat tip (recovery =
    rebase+merge only).
@@ -64,5 +81,6 @@ Protocol (stop and report on any precondition failure):
    Never `--force`, never `-D`.
 
 Report: primary HEAD before/after, feat tip SHA, merge SHA, archive path, gate
-results (pre-archive + post-sync), `os-phase <change>` (expect `archived`), any
-residual worktree/branch.
+results (pre-archive + post-sync, including any requirement left uncovered and
+why), the exact coverage annotations made, `os-phase <change>` (expect
+`archived`), any residual worktree/branch.

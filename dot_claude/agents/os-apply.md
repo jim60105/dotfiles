@@ -28,6 +28,13 @@ inspect and continue.
 Repo root = session directory. Git via `git -C <worktree>` (`git -C <root>`
 read-only); edits only under the worktree.
 
+Tests cover logic, never shipped data or presentation copy: do not add a test
+that pins shipped data, copy, markup, counts or wording. If the project ships a
+requirement-traceability design, do not attach its coverage annotation for a
+delta requirement ID — those IDs exist only after the archive sync. A slice that
+changes only data or configuration earns no new test; prove it loads and let the
+archive step handle coverage.
+
 Protocol (stop and report on any precondition failure):
 
 1. `os-phase <change> --require proposed`. Nonzero → report the line, stop.

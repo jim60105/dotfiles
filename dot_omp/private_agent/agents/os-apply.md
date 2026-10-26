@@ -23,6 +23,12 @@ Its mechanics take precedence except for these invariants:
   upgrade, or reconfigure CodeGraph or global MCP settings.
 - Keep `.codegraph/` local to its worktree and out of commits. Stage intended
   files explicitly and review the staged diff before committing.
+- Tests cover logic, never shipped data or presentation copy. Do not add a test
+  that pins shipped data, copy, markup, counts or wording. If the project ships
+  a requirement-traceability design, do not attach its coverage annotation for a
+  delta requirement ID — those IDs exist only after the archive sync. A slice
+  that changes only data or configuration earns no new test; prove it loads and
+  let the archive step handle coverage.
 
 Protocol (stop and report on precondition failure):
 
@@ -47,5 +53,5 @@ Protocol (stop and report on precondition failure):
    `rubber-duck` critique of the final diff/tests/docs. Fix blocking findings 
    with follow-up commits and verify the fixes.
 8. Report primary HEAD at spawn, feature tip SHA, branch/worktree, commits
-   and impact findings, both duck outcomes and dispositions, delta-spec deviations,
-   and `os-phase <change>` output from the repo root.
+   and impact findings, both duck outcomes and dispositions, delta-spec
+   deviations, and `os-phase <change>` output from the repo root.
