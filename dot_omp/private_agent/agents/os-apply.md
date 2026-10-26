@@ -2,7 +2,7 @@
 name: os-apply
 description: >-
   Implement one OpenSpec change on feat/<change> in .worktrees/<change>:
-  phase gate, worktree-scoped CodeGraph, planning duck, implementation,
+  phase gate, worktree-scoped CodeGraph, plan critique duck, implementation,
   verification duck, and commits. Never merge, rebase, archive, or modify
   the primary branch.
 spawns: rubber-duck
@@ -44,14 +44,17 @@ Protocol (stop and report on precondition failure):
 4. Re-read OpenSpec artifacts in the worktree. Resolve task/spec drift with
    small feature-branch commits.
 5. Use CodeGraph to explore relevant symbols, dependencies, callers, and change
-   impact before planning. Submit the plan to ONE blocking `rubber-duck`
-   critique; incorporate the findings.
-6. Implement per `openspec-apply-change` and `AGENTS.md`; use CodeGraph for
+   impact, then write the implementation plan.
+6. Submit the plan to ONE blocking `rubber-duck` critique as a fully
+   self-contained request: change scope, the full plan, design decisions and
+   assumptions, and any specific questions. Incorporate the findings before
+   writing code.
+7. Implement per `openspec-apply-change` and `AGENTS.md`; use CodeGraph for
    follow-up analysis. Test changes, commit logical units on the feature branch,
    and check tasks.md boxes only after verification.
-7. Once all tasks are checked, request ONE blocking post-implementation
+8. Once all tasks are checked, request ONE blocking post-implementation
    `rubber-duck` critique of the final diff/tests/docs. Fix blocking findings 
    with follow-up commits and verify the fixes.
-8. Report primary HEAD at spawn, feature tip SHA, branch/worktree, commits
+9. Report primary HEAD at spawn, feature tip SHA, branch/worktree, commits
    and impact findings, both duck outcomes and dispositions, delta-spec
    deviations, and `os-phase <change>` output from the repo root.

@@ -2,7 +2,7 @@
 name: os-apply
 description: >-
   Apply exactly one OpenSpec change inside .worktrees/<change> on branch
-  feat/<change>: phase-gate, plan duck, implement per the
+  feat/<change>: phase-gate, plan critique duck, implement per the
   openspec-apply-change skill, post-implementation duck, commit on the feature
   branch. Never merges, archives, or touches the primary branch.
 skills:
@@ -43,15 +43,18 @@ Protocol (stop and report on any precondition failure):
    -b feat/<change>` (omit `-b` if the branch exists).
 3. Re-read artifacts in the worktree; fix tasks/spec drift with small commits on
    feat/<change>.
-4. Plan, then ONE foreground (blocking) critique by the `Rubber Duck Reviewer`
-   subagent via the Agent tool, following the preloaded `rubber-duck` skill;
-   fold in findings.
-5. Implement per the preloaded `openspec-apply-change` skill + AGENTS.md;
+4. Write the implementation plan.
+5. Submit the plan to ONE foreground (blocking) critique by the
+   `Rubber Duck Reviewer` subagent via the Agent tool, following the preloaded
+   `rubber-duck` skill, as a fully self-contained request: change scope, the
+   full plan, design decisions and assumptions, and any specific questions.
+   Incorporate the findings before writing code.
+6. Implement per the preloaded `openspec-apply-change` skill + AGENTS.md;
    commit on feat/<change> in logical units via the preloaded `commit` skill;
    check tasks.md boxes only after verifying.
-6. All boxes checked → ONE foreground (blocking) post-implementation
+7. All boxes checked → ONE foreground (blocking) post-implementation
    `Rubber Duck Reviewer` critique over the finished diff/tests/docs; fix
    blocking findings in follow-up commits.
-7. Report: primary HEAD at spawn, feat tip SHA, branch, worktree path, commit
+8. Report: primary HEAD at spawn, feat tip SHA, branch, worktree path, commit
    lines, duck outcomes and dispositions, delta-spec deviations (none expected),
    `os-phase <change>` output from the repo root.
