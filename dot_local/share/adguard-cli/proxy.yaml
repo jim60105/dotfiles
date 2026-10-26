@@ -37,6 +37,10 @@ worker_threads: 4
 access_log_file: 'access.log'
 # If not null, bind outgoing connections to specified interface
 outbound_interface: null
+# If true, automatically detect the outbound interface of each connection
+# using NFQUEUE and bind upstream sockets to it (Linux, auto proxy mode only).
+# Enabled by default. Ignored when outbound_interface is set.
+detect_outbound_interface: true
 
 # Apply ad-blocking filters to requests
 ad_blocking_enabled: true
