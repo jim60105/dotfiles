@@ -1,0 +1,4 @@
+{
+  "os-apply": ["worktree-add"],
+  "os-archive": ["merge", "rebase", "worktree-add", "worktree-remove", "branch-delete"]
+}
