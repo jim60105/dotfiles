@@ -32,6 +32,7 @@ Protocol:
 4. Write artifacts under `openspec/changes/<change>/` in the root checkout; one
    commit per change via the preloaded `commit` skill, paths limited to that
    dir. Tree dirty with unrelated changes before a commit → stop and report.
+   Writing `design.md`/`tasks.md` → see Implementation artifacts.
 5. Several changes → each `proposal.md` gains `## Batch:` with machine-readable
    `depends-on: <change>` lines and code-conflict notes (the supervisor queues
    from these).
@@ -66,6 +67,23 @@ the shape here either way:
 - Never shape a requirement so its only possible evidence would be a test that
   pins shipped data, copy, markup, counts or wording — such a test is forbidden,
   so the requirement is unshaped.
+
+## Implementation artifacts (weak workers execute these)
+
+These changes are executed by gpt-luna/claude-haiku-level workers, not by the
+engineer who designed them. Make `design.md` and `tasks.md` explicit and
+code-grounded enough that such a worker needs no design judgment:
+
+- Boundaries: name the files and symbols each task touches, and the ones it
+  MUST NOT touch.
+- Contracts: state signatures, data shapes and cross-task interfaces verbatim;
+  a worker copies them, never re-derives them.
+- Dependency order: order tasks by real prerequisite edges only; a task MUST be
+  startable from its own text plus already-completed tasks.
+- Acceptance: every task carries an observable check a weak worker can run and
+  read — command, expected output, state transition — never "works correctly".
+
+Intent a weaker worker must infer is a defect; rewrite the task.
 
 Report: per change — name, commit SHAs, one-line scope, `os-phase <change>`
 output from the repo root (expect `proposed`); then the dependency/conflict
