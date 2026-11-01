@@ -25,3 +25,7 @@ When a task requires locating specific function calls, declarations, or syntax p
 When multiple locations require the same structural transformation, use `ast_grep` to verify the scope, then use `ast_edit` to preview the changes. Review the match count and diff before applying them.
 
 Use `edit` for small, localized changes. Prefer LSP rename for symbol renaming across modules.
+
+## Agents
+
+Don't ask `scout` agent to do logic task. He is junior level model that can only do "scout."
