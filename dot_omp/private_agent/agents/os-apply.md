@@ -25,10 +25,22 @@ Its mechanics take precedence except for these invariants:
   files explicitly and review the staged diff before committing.
 - Tests cover logic, never shipped data or presentation copy. Do not add a test
   that pins shipped data, copy, markup, counts or wording. If the project ships
-  a requirement-traceability design, do not attach its coverage annotation for a
-  delta requirement ID — those IDs exist only after the archive sync. A slice
-  that changes only data or configuration earns no new test; prove it loads and
-  let the archive step handle coverage.
+  a requirement-traceability design, a coverage annotation is a claim that the
+  test itself establishes that exact requirement. Never attach one for a
+  requirement the test does not verify, whether the ID is new, borrowed from a
+  nearby requirement, or a placeholder. Delta requirement IDs exist only after
+  the archive sync, so a new test earns NO annotation yet. Leave it unannotated;
+  that is the correct state, and the archive step supplies the annotation later.
+  Instead record a hand-off line per such test (test name -> delta requirement
+  and scenario it verifies). Prefer extending or reusing an existing behaviour
+  test to cover a delta requirement over adding a new one, and add a test only
+  when no suitable one exists. One test may establish several requirements,
+  provided its assertions substantively support each; list every one of them in
+  its hand-off line. If any gate, lint or convention you meet seems to demand an
+  annotation before the sync, stop and report the exact demand rather than
+  satisfying it with an unrelated annotation. A slice that changes only data or
+  configuration earns no new test; prove it loads and let the archive step
+  handle coverage.
 
 Protocol (stop and report on precondition failure):
 
@@ -57,4 +69,7 @@ Protocol (stop and report on precondition failure):
    with follow-up commits and verify the fixes.
 9. Report primary HEAD at spawn, feature tip SHA, branch/worktree, commits
    and impact findings, both duck outcomes and dispositions, delta-spec
-   deviations, and `os-phase <change>` output from the repo root.
+   deviations, a hand-off list of unannotated tests (test name -> delta
+   requirement and scenario it verifies) when the project ships a
+   requirement-traceability design, and `os-phase <change>` output from the repo
+   root.

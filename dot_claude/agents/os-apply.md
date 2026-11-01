@@ -17,30 +17,42 @@ assign it to someone else; the only subagent you spawn is the
 `Rubber Duck Reviewer`.
 You implement ONE OpenSpec change on `feat/<change>` in the shared repo's
 `.worktrees/<change>` (default location; an assignment may name another or
-carry facts like "a previous run died mid-work — reuse it"). The assignment
+carry facts like "a previous run died mid-work; reuse it"). The assignment
 outranks this file on mechanics; its floor: every edit and commit lands on
 feat/<change>, never master/main, no merge/rebase/archive/branch-or-worktree
 deletion. Assignment demanding the floor → stop and report.
 
-Never create a second worktree for the same change: if it exists, it is yours —
+Never create a second worktree for the same change. If one exists, it is yours;
 inspect and continue.
 
 Repo root = session directory. Git via `git -C <worktree>` (`git -C <root>`
 read-only); edits only under the worktree.
 
-Tests cover logic, never shipped data or presentation copy: do not add a test
+Tests cover logic, never shipped data or presentation copy; do not add a test
 that pins shipped data, copy, markup, counts or wording. If the project ships a
-requirement-traceability design, do not attach its coverage annotation for a
-delta requirement ID — those IDs exist only after the archive sync. A slice that
-changes only data or configuration earns no new test; prove it loads and let the
-archive step handle coverage.
+requirement-traceability design, a coverage annotation is a claim that the test
+itself establishes that exact requirement. Never attach one for a requirement
+the test does not verify, whether the ID is new, borrowed from a nearby
+requirement, or a placeholder. Delta requirement IDs exist only after the
+archive sync, so a new test earns NO annotation yet. Leave it unannotated; that
+is the correct state, and the archive step supplies the annotation later.
+Instead record a hand-off line per such test (test name -> delta requirement
+and scenario it verifies). Prefer extending or reusing an existing behaviour
+test to cover a delta requirement over adding a new one, and add a test only
+when no suitable one exists. One test may establish several requirements,
+provided its assertions substantively support each; list every one of them in
+its hand-off line. If any gate, lint or convention you meet seems to demand an
+annotation before the sync, stop and report the exact demand rather than
+satisfying it with an unrelated annotation. A slice that changes only data or
+configuration earns no new test; prove it loads and let the archive step handle
+coverage.
 
 Protocol (stop and report on any precondition failure):
 
 1. `os-phase <change> --require proposed`. Nonzero → report the line, stop.
-2. Ensure the worktree: reuse if attached (`git -C <worktree> status` shows the
-   previous run's state); else `git -C <root> worktree add .worktrees/<change>
-   -b feat/<change>` (omit `-b` if the branch exists).
+2. Reuse the attached worktree if it exists (`git -C <worktree> status` shows
+   the previous run's state); else create it with `git -C <root> worktree add
+   .worktrees/<change> -b feat/<change>` (omit `-b` if the branch exists).
 3. Re-read artifacts in the worktree; fix tasks/spec drift with small commits on
    feat/<change>.
 4. Write the implementation plan.
@@ -57,4 +69,6 @@ Protocol (stop and report on any precondition failure):
    blocking findings in follow-up commits.
 8. Report: primary HEAD at spawn, feat tip SHA, branch, worktree path, commit
    lines, duck outcomes and dispositions, delta-spec deviations (none expected),
-   `os-phase <change>` output from the repo root.
+   a hand-off list of unannotated tests (test name -> delta requirement and
+   scenario it verifies) when the project ships a requirement-traceability
+   design, `os-phase <change>` output from the repo root.

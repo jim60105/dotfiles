@@ -3,8 +3,8 @@ name: os-archive
 description: >-
   Archive exactly one applied OpenSpec change: verify implementation against
   delta specs, run the project archive gate, non-interactively archive+sync via
-  the OpenSpec CLI, run the post-sync gate and — when the project ships a
-  requirement-traceability lint — repair uncovered requirements,
+  the OpenSpec CLI, run the post-sync gate and, when the project ships a
+  requirement-traceability lint, repair uncovered requirements,
   commit on feat/<change>, rebase onto the primary branch and merge with --no-ff
   FROM THE PRIMARY ROOT, then clean up the worktree/branch. Reports the merge
   SHA.
@@ -43,26 +43,42 @@ Protocol (stop and report on any precondition failure):
    documents. Commit archive + synced specs on feat/<change>; record feat tip.
 5. Post-sync gate from the worktree: the repository's own post-archive gate
    script, else `openspec validate --all --strict`.
-   IF the project ships a requirement-traceability design — canonical
-   requirement IDs plus a coverage lint that fails on uncovered requirements —
+   IF the project ships a requirement-traceability design (canonical
+   requirement IDs plus a coverage lint that fails on uncovered requirements),
    follow it here; it is authoritative:
    - The sync just put this change's own requirements into `openspec/specs/`,
-     so uncovered requirements surface now. This step, not apply, is where
-     annotation belongs: a delta requirement ID does not exist before sync, so
-     never write one earlier.
+     so uncovered requirements surface now. Annotation belongs to this step.
+     A delta requirement ID does not exist before sync, so never write one
+     earlier.
    - Take literal IDs from the repository's traceability tool and apply whatever
      coverage-annotation mechanism the project defines (test decorator, registry
-     entry, manifest — read its convention first) to discoverable test functions
-     that substantively establish each clause; one requirement may need several
-     annotations. Never annotate an unrelated, skipped, placeholder, or
-     assertion-free test, and never annotate a test whose only relevance is that
-     it imports the same module.
+     entry, or manifest; read its convention first) to discoverable test
+     functions that substantively establish each clause; one requirement may
+     need several annotations. Never annotate an unrelated, skipped,
+     placeholder, or assertion-free test, and never annotate a test whose only
+     relevance is that it imports the same module.
    - Prefer existing assertion-bearing logic tests. NEVER add a test whose
      purpose is to pin shipped data, copy, markup, counts or wording.
    - If an uncovered requirement could only be covered that way, it is an
-     unshaped requirement from the proposal: stop, report its exact ID and
+     unshaped requirement from the proposal. Stop, report its exact ID and
      wording, and propose a mechanism-level rewrite. Do not fabricate coverage,
-     do not rewrite the synced main spec unilaterally, and do not touch the gate.
+     do not rewrite the synced main spec unilaterally, and leave the gate
+     untouched.
+   - Attach annotations for this change's requirements using the apply report's
+     hand-off list as the starting point, verifying each against the test's
+     actual assertions.
+   - One test may carry several annotations when its assertions substantively
+     establish each of those requirements; judge every annotation on its own.
+   - Then audit ONLY the annotations added or modified by this change's own diff
+     (against the merge-base with the primary branch), including any the apply
+     step left in place. Annotations that already existed before this change,
+     and historical changes, are out of scope; do not audit or edit them. For
+     each in-scope annotation confirm the test's assertions substantively
+     establish that requirement; remove every one that does not. A gate cannot
+     detect a false annotation, so this audit is yours.
+   - If removing a false annotation leaves a requirement uncovered, do not keep
+     the false annotation to satisfy the gate; find a genuine existing test or
+     stop and report it.
    - Re-run until 0 uncovered / 0 errors, amending the repairs into the step 4
      archive commit on feat/<change>. Never weaken or bypass the gate; cannot
      satisfy → stop and report.
@@ -82,5 +98,6 @@ Protocol (stop and report on any precondition failure):
 
 Report: primary HEAD before/after, feat tip SHA, merge SHA, archive path, gate
 results (pre-archive + post-sync, including any requirement left uncovered and
-why), the exact coverage annotations made, `os-phase <change>` (expect
+why), the exact coverage annotations made, every annotation removed in the
+audit (with the test and the reason), `os-phase <change>` (expect
 `archived`), any residual worktree/branch.
