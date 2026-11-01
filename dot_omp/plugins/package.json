@@ -5,6 +5,7 @@
     "@mporenta/pi-claude-code": "npm:@mporenta/pi-claude-code@^0.2.5",
     "@yusukeshib/pi-stash": "npm:@yusukeshib/pi-stash@^0.3.1",
     "pi-nvim": "npm:pi-nvim@^0.2.4",
+    "pi-qwen-block-proxy-artifacts": "https://github.com/jim60105/pi-qwen-block-proxy-artifacts",
     "pi-rewind": "npm:pi-rewind@^0.5.0"
   }
 }
