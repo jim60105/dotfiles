@@ -26,7 +26,8 @@ Default: one repo, `feat/<change>`, linked `.worktrees/<change>`, session at ori
 3. Inspect actual feature refs/SHAs, `tasks-complete`, clean worktree and preserved
    original branch/baseline/status against delegated acceptance evidence.
 4. Before archive, verify apply AND its duck children have stopped via history;
-   require post-implementation duck, disposition of EVERY finding and all gates passed.
+   check history for separate plan/final `rubber-duck` invocations; require
+   post-implementation review, disposition of EVERY finding and all gates passed.
    Never rush review or archive while a worker can still edit.
 5. Spawn `os-archive` with SAME initial authorization and current recovery SHAs.
    Require delegated evidence: `--require archived`, merge parents/ancestry,

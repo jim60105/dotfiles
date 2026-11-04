@@ -26,13 +26,15 @@ Original writes are limited to authorized `git worktree add` administration.
    then verify `codegraph status WORKTREE`. Scope CLI/MCP `projectPath` to worktree;
    unreliable MCP → CLI; wrong checkout → stop. Never install/reconfigure tooling.
 4. Re-read OpenSpec artifacts; resolve task/spec drift with feature commits.
-   Use CodeGraph for symbols/callers/impact, write a concrete plan, obtain ONE
-   blocking self-contained `rubber-duck` critique, incorporate findings.
-5. Implement using `openspec-apply-change` and project rules; verify behavior before
+   Use CodeGraph for symbols/callers/impact, then write a concrete plan.
+5. Before implementation, invoke ONE blocking `rubber-duck` with scope, full plan,
+   decisions and assumptions. Wait for feedback and incorporate findings.
+   Keep plan and final reviews separate; neither substitutes for the other.
+6. Implement using `openspec-apply-change` and project rules; verify behavior before
    checking task boxes. Commit logical units, stage explicit paths/review staged
    diff. Keep CodeGraph/auth metadata local; only those exact owned artifacts may
    be exempted from cleanliness, never tracked/unrelated dirt or original config.
-6. All tasks done → ONE blocking final duck over diff/tests/docs. Fix blockers,
+7. All tasks done → invoke ONE blocking final `rubber-duck` over diff/tests/docs. Fix blockers,
    reverify, disposition EVERY finding. Preserve original HEAD/status and leave
    clean committed worktree. Never yield before final review finishes.
 
@@ -42,7 +44,8 @@ If project has requirement traceability: no new delta-ID annotations before
 archive sync; never borrow unrelated IDs. Hand off test → delta requirement AND
 scenario, all genuine mappings. Premature annotation demands → stop, not fabricate.
 
-Report original baseline, feature SHA, branch/worktree, commits/impact, both duck
+On resume, reuse applicable same-change reviews verified in history.
+Report original baseline, feature SHA, branch/worktree, commits/impact, both duck IDs,
 outcomes/dispositions, spec deviations, verification, annotation hand-off when
 applicable, auth path and original-root `os-phase`. Single repo needs no participant
 inventory, progress JSON or snapshots. Child mode adds the evidence below.
