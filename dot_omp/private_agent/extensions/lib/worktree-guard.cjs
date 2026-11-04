@@ -227,8 +227,14 @@ function evaluate(payload) {
       if (/^[a-z][a-z0-9+.-]*:\/\//i.test(value) || value === '~' || value.startsWith('~/')) return null;
       return path.resolve(base, value);
     };
-    const check = (value, base = cwd) => {
-      if (typeof value !== 'string' || !value) return block('missing write path');
+    const check = (value, base = cwd, source = `${payload.toolName} destination`) => {
+      if (typeof value !== 'string' || !value) {
+        const received = value === undefined ? 'missing (undefined)' : value === null ? 'null' :
+          value === '' ? 'an empty string' : Array.isArray(value) ? 'an array' : typeof value;
+        return block(`invalid write path in ${source}: expected a non-empty string, received ${received}. ` +
+          `Retry with an explicit destination in ${source}; relative paths resolve from ${base}. ` +
+          `For repository files, use a writable path inside ${lease}; read-only participants remain blocked.`);
+      }
       const target = resolve(value, base);
       if (!target || !inside(target, root)) return ALLOW;
       if (!inside(target, lease))
@@ -238,14 +244,17 @@ function evaluate(payload) {
         block(`write to read-only participant: ${target}`) : ALLOW;
     };
     const input = payload.input || {};
-    if (payload.toolName === 'write') return check(input.path);
+    if (payload.toolName === 'write') return check(input.path, cwd, 'write.path');
     if (payload.toolName === 'edit' || payload.toolName === 'apply_patch') {
       const patch = typeof input === 'string' ? input : input.input ?? input.patch;
       const targets = [];
+      const addTarget = (value, source) => targets.push({ value, source: `${payload.toolName} ${source}` });
       if (typeof input.path === 'string' && input.path) {
-        targets.push(input.path);
+        addTarget(input.path, 'path');
+        let index = 0;
         for (const edit of input.edits || []) {
-          if (edit.rename !== undefined) targets.push(edit.rename);
+          if (edit.rename !== undefined) addTarget(edit.rename, `edits[${index}].rename`);
+          index++;
         }
       }
       if (typeof patch === 'string') {
@@ -256,14 +265,14 @@ function evaluate(payload) {
           const section = line.match(/^\[([^\]\n]+)#[0-9A-F?]{0,4}\]$/);
           const sloppy = line.match(/^\*\*\* Edit File:(?: (.*))?$/);
           if (file) {
-            targets.push(file[1].trim());
+            addTarget(file[1].trim(), `patch ${line.slice(0, line.indexOf(':') + 1)} target`);
             hashline = false;
           } else if (section) {
-            targets.push(section[1]);
+            addTarget(section[1], 'hashline file section target');
             hashline = true;
           } else if (sloppy) {
             const target = (sloppy[1] || '').replace(/ all$/, '').trim();
-            if (target) { targets.push(target); sloppyTarget = true; }
+            if (target) { addTarget(target, 'patch *** Edit File: target'); sloppyTarget = true; }
             else if (!sloppyTarget) return block(`unrecognized edit payload: ${patch.slice(0, 60)}`);
             hashline = false;
           } else if (hashline && line.startsWith('MV ')) {
@@ -272,12 +281,12 @@ function evaluate(payload) {
             if (destination.startsWith('"')) {
               const target = JSON.parse(destination);
               if (typeof target !== 'string') throw new Error('invalid hashline move destination');
-              targets.push(target);
+              addTarget(target, 'hashline MV destination');
             } else if (destination.startsWith("'")) {
               const parsed = tokens(destination);
               if (parsed.length !== 1) throw new Error('invalid hashline move destination');
-              targets.push(parsed[0]);
-            } else targets.push(destination);
+              addTarget(parsed[0], 'hashline MV destination');
+            } else addTarget(destination, 'hashline MV destination');
           }
         }
       }
@@ -286,7 +295,7 @@ function evaluate(payload) {
         return block(`unrecognized edit payload: ${description.slice(0, 60)}`);
       }
       for (const target of targets) {
-        const hit = check(target);
+        const hit = check(target.value, cwd, target.source);
         if (hit.decision === 'block') return hit;
       }
       return ALLOW;
@@ -346,7 +355,8 @@ function evaluate(payload) {
       }
       for (let j = 0; j < args.length; j++) {
         if (args[j] === '--output' || args[j].startsWith('--output=')) {
-          const hit = check(args[j] === '--output' ? args[++j] : args[j].slice(9), gitCwd);
+          const hit = check(args[j] === '--output' ? args[++j] : args[j].slice(9),
+            gitCwd, 'git --output destination');
           if (hit.decision === 'block') return hit;
         }
       }
@@ -514,7 +524,8 @@ function evaluate(payload) {
       const args = [];
       for (let i = 0; i < segment.length; i++) {
         if (['>', '>>'].includes(segment[i])) {
-          const hit = check(segment[++i], base);
+          const source = `bash ${segment[i]} redirection destination`;
+          const hit = check(segment[++i], base, source);
           if (hit.decision === 'block') return hit;
         } else if (segment[i] === '<') i++;
         else args.push(segment[i]);
@@ -573,10 +584,14 @@ function evaluate(payload) {
         }
       }
       let operands = args.filter(arg => !arg.startsWith('-'));
+      let operandSource = `bash ${executable} path operand`;
       if (executable === 'cp' || executable === 'install') {
         const targetIndex = args.findIndex(arg => arg === '-t' || arg === '--target-directory');
         const targetOption = args.find(arg => arg.startsWith('--target-directory='));
         const shortTarget = args.find(arg => arg.startsWith('-t') && arg.length > 2);
+        if (targetIndex >= 0) operandSource = `bash ${executable} ${args[targetIndex]} destination`;
+        else if (targetOption) operandSource = `bash ${executable} --target-directory destination`;
+        else if (shortTarget) operandSource = `bash ${executable} -t destination`;
         operands = targetIndex >= 0 ? [args[targetIndex + 1]] :
           targetOption ? [targetOption.slice(19)] : shortTarget ? [shortTarget.slice(2)] : operands.slice(-1);
       }
@@ -591,7 +606,7 @@ function evaluate(payload) {
           }
         }
         for (const operand of operands) {
-          const hit = check(operand, base);
+          const hit = check(operand, base, operandSource);
           if (hit.decision === 'block') return hit;
           if (['rm', 'rmdir', 'mv'].includes(executable)) {
             const target = resolve(operand, base);

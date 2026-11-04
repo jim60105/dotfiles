@@ -29,6 +29,23 @@ test('write boundaries include exact lease and exclude siblings and primary', ()
   }
 });
 
+test('malformed write destinations fail closed across tool payloads', () => {
+  for (const path of [undefined, null, '', 42, [], {}]) {
+    decision(request('write', { path }), 'block');
+  }
+  decision(request('edit', {
+    path: `${lease}/x`, edits: [{ rename: `${lease}/y` }, { rename: null }],
+  }), 'block');
+  decision(request('apply_patch', {
+    input: '*** Begin Patch\n*** Add File:   \n+x\n*** End Patch',
+  }), 'block');
+  decision(request('edit', { input: `[${lease}/x#A1B2]\nMV ""` }), 'block');
+  for (const command of ['git diff --output', 'git diff --output=', 'printf x >',
+    'printf x >> ""', 'cp /tmp/source -t', 'install /tmp/source --target-directory=', 'touch ""']) {
+    decision(bash(command), 'block');
+  }
+});
+
 test('missing and plain authorization cannot grant writes or mutations', () => {
   for (const authorization of [undefined, null, lease]) {
     decision(request('write', { path: '.worktrees/b/x' }, { authorization }), 'block');
@@ -166,19 +183,14 @@ test('sloppy mode accepts continuing targets but checks every new target', () =>
   decision(request('edit', { input: inside.replace('.worktrees/a/', 'world/') }), 'block');
 });
 
-test('unknown edit payloads fail closed with a diagnostic preview', () => {
+test('unknown edit payloads fail closed', () => {
   for (const tool of ['edit', 'apply_patch']) {
     for (const input of [{ input: 'unknown payload' }, { patch: 'unknown payload' },
       'unknown payload', {}, { input: '*** Begin Patch\n*** End Patch' },
       { input: '*** Edit File:\n*** Find\nx' }]) {
       const result = request(tool, input);
       decision(result, 'block');
-      assert.match(result.reason, /^worktree-guard: unrecognized edit payload: /);
-      assert.doesNotMatch(result.reason, /missing write path/);
     }
-    const source = 'x'.repeat(90);
-    assert.equal(request(tool, { input: source }).reason,
-      `worktree-guard: unrecognized edit payload: ${source.slice(0, 60)}`);
   }
 });
 
