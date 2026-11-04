@@ -283,7 +283,10 @@ function authorizedFixture(contract = workspaceContract()) {
     if (command === 'rev-parse --abbrev-ref HEAD') return state.branch;
     if (command === 'rev-parse HEAD') return state.head;
     if (command === 'status --porcelain=v1 --untracked-files=all --ignored') return state.status || '';
-    if (args[0] === 'for-each-ref') return state.refs[args[3]] || '';
+    if (args[0] === 'for-each-ref') {
+      const tip = state.refs[args[3]] || '';
+      return tip && args[1] === '--format=%(refname) %(objectname)' ? `${args[3]} ${tip}` : tip;
+    }
     if (args[0] === 'ls-files' && args[1] === '--stage') {
       const head = state.gitlinks?.[args[4]];
       return head ? `160000 ${head} 0\t${args[4]}\0` : '';
@@ -604,6 +607,185 @@ test('isolated archive refresh supports exact primary fetch, rebase and ff-only 
   decision(fixture.archive(`git -C ${child.isolated.root} merge --ff-only FETCH_HEAD`), 'allow');
   isolated.refs.FETCH_HEAD = '4'.repeat(40);
   decision(fixture.archive(`git -C ${child.isolated.root} merge --ff-only FETCH_HEAD`), 'block');
+});
+
+function realGuardFixture(t, mode) {
+  const fs = require('node:fs');
+  const os = require('node:os');
+  const path = require('node:path');
+  const { execFileSync } = require('node:child_process');
+  const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'omp-guard-regression-'));
+  t.after(() => fs.rmSync(temporary, { recursive: true, force: true }));
+  const parentRoot = path.join(temporary, 'parent'), workspace = path.join(parentRoot, '.worktrees/a');
+  const env = { ...process.env, GIT_AUTHOR_NAME: 'Fixture', GIT_AUTHOR_EMAIL: 'fixture@example.test',
+    GIT_COMMITTER_NAME: 'Fixture', GIT_COMMITTER_EMAIL: 'fixture@example.test',
+    GIT_CONFIG_NOSYSTEM: '1', GIT_CONFIG_GLOBAL: '/dev/null', GIT_EDITOR: 'true' };
+  const git = (directory, args) => execFileSync('git', ['-C', directory, ...args], {
+    encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], env,
+  }).trim();
+  const write = (directory, name, content) => fs.writeFileSync(path.join(directory, name), content);
+  const initialize = directory => {
+    fs.mkdirSync(directory, { recursive: true });
+    git(directory, ['init', '-b', 'main']);
+    write(directory, 'tracked', 'baseline\n');
+    git(directory, ['add', 'tracked']);
+    git(directory, ['commit', '-m', 'Baseline']);
+  };
+  initialize(parentRoot);
+  const participant = (relative, mode, access) => {
+    const directory = path.resolve(parentRoot, relative);
+    if (relative !== '.') initialize(directory);
+    return { path: relative, mode, access,
+      original: { root: directory, commonDir: git(directory,
+        ['rev-parse', '--path-format=absolute', '--git-common-dir']),
+        branch: 'main', head: git(directory, ['rev-parse', 'HEAD']) },
+      isolated: { root: path.resolve(workspace, relative), branch: access === 'write' ? 'feat/a' : null },
+      importRef: access === 'write' ? `refs/omp/import/a/${relative === '.' ? 'parent' : relative}` : null };
+  };
+  const contract = { version: 1, change: 'a', parentRoot, workspace,
+    participants: [participant('.', 'worktree', 'write'), participant('child', mode, 'write'),
+      participant('readonly', 'clone', 'read')] };
+  for (const item of contract.participants) {
+    if (item.mode === 'worktree') git(item.original.root, item.access === 'write' ?
+      ['worktree', 'add', '-b', item.isolated.branch, item.isolated.root, item.original.head] :
+      ['worktree', 'add', '--detach', item.isolated.root, item.original.head]);
+    else {
+      git(temporary, ['clone', '--no-hardlinks', '--no-checkout', item.original.root, item.isolated.root]);
+      git(item.isolated.root, item.access === 'write' ?
+        ['checkout', '-b', item.isolated.branch, item.original.head] :
+        ['checkout', '--detach', item.original.head]);
+    }
+  }
+  const inspect = (directory, args, agentName = 'os-archive') => evaluate({
+    agentKind: 'sub', agentName, cwd: temporary, authorization: contract, toolName: 'bash',
+    input: { command: ['git', '-C', directory, ...args].map(arg => JSON.stringify(arg)).join(' ') },
+  });
+  const guarded = (directory, args) => {
+    decision(inspect(directory, args), 'allow');
+    return git(directory, args);
+  };
+  return { contract, git, guarded, inspect, write };
+}
+
+test('real Git advanced originals without import refs allow own re-import but reject foreign and readonly moves', t => {
+  for (const mode of ['clone', 'worktree']) {
+    const { contract, git, guarded, inspect, write } = realGuardFixture(t, mode);
+    const child = contract.participants[1], readonly = contract.participants[2];
+    const original = child.original.root, isolated = child.isolated.root;
+    const fetch = ['fetch', '--no-tags', isolated, `refs/heads/feat/a:${child.importRef}`];
+    write(isolated, 'tracked', 'feature\n');
+    guarded(isolated, ['add', 'tracked']);
+    guarded(isolated, ['commit', '-m', 'Own feature']);
+    const feature = git(isolated, ['rev-parse', 'HEAD']);
+    guarded(original, fetch);
+    guarded(original, ['merge', '--no-ff', child.importRef, '-m', 'Own imported merge']);
+    const merged = git(original, ['rev-parse', 'HEAD']);
+    git(original, ['update-ref', '-d', child.importRef]);
+    assert.equal(git(original, ['for-each-ref', '--format=%(objectname)', '--', child.importRef]), '');
+    guarded(original, fetch);
+    assert.equal(git(original, ['rev-parse', child.importRef]), feature);
+    git(original, ['update-ref', '-d', child.importRef]);
+    git(original, ['checkout', '-b', 'changed-primary']);
+    const changedBranch = inspect(original, fetch);
+    decision(changedBranch, 'block');
+    assert.match(changedBranch.reason, /original branch changed/);
+    git(original, ['checkout', 'main']);
+    write(original, 'foreign', 'unrelated linear commit\n');
+    git(original, ['add', 'foreign']);
+    git(original, ['commit', '-m', 'Foreign original commit']);
+    decision(inspect(original, fetch), 'block');
+    decision(inspect(isolated, ['rebase', git(original, ['rev-parse', 'HEAD'])]), 'block');
+    git(original, ['reset', '--hard', merged]);
+    git(original, ['checkout', '-b', 'foreign', merged]);
+    write(original, 'foreign', 'foreign branch\n');
+    git(original, ['add', 'foreign']);
+    git(original, ['commit', '-m', 'Foreign feature']);
+    git(original, ['checkout', 'main']);
+    git(original, ['merge', '--no-ff', 'foreign', '-m', 'Foreign merge']);
+    decision(inspect(original, fetch), 'block');
+    // Prefix-matched descendants must not impersonate the exact import ref.
+    git(original, ['update-ref', `${child.importRef}/foreign`, git(original, ['rev-parse', 'foreign'])]);
+    decision(inspect(original, fetch), 'block');
+    write(readonly.original.root, 'tracked', 'readonly original moved\n');
+    git(readonly.original.root, ['commit', '-am', 'Readonly move']);
+    const result = evaluate({ agentKind: 'sub', agentName: 'os-archive', cwd: contract.parentRoot,
+      authorization: contract, toolName: 'bash',
+      input: { command: `rm -r -- ${JSON.stringify(readonly.isolated.root)}` } });
+    decision(result, 'block');
+    assert.match(result.reason, /read-only original changed/);
+  }
+});
+
+test('real Git conflicted authorized rebases without import refs can abort and continue but not target foreign commits', t => {
+  for (const mode of ['clone', 'worktree']) {
+    const { contract, git, guarded, inspect, write } = realGuardFixture(t, mode);
+    const child = contract.participants[1], original = child.original.root, isolated = child.isolated.root;
+    write(isolated, 'tracked', 'imported\n');
+    guarded(isolated, ['add', 'tracked']);
+    guarded(isolated, ['commit', '-m', 'Own imported work']);
+    const feature = git(isolated, ['rev-parse', 'HEAD']);
+    guarded(original, ['fetch', '--no-tags', isolated, `refs/heads/feat/a:${child.importRef}`]);
+    // A merge's resolved tree need not equal its second parent's tree.
+    git(original, ['merge', '--no-ff', '--no-commit', child.importRef]);
+    write(original, 'tracked', 'primary resolution\n');
+    git(original, ['commit', '-am', 'Resolve own imported merge']);
+    const target = git(original, ['rev-parse', 'HEAD']);
+    git(original, ['update-ref', '-d', child.importRef]);
+    write(isolated, 'tracked', 'pending feature\n');
+    guarded(isolated, ['add', 'tracked']);
+    guarded(isolated, ['commit', '-m', 'Pending work']);
+    const pending = git(isolated, ['rev-parse', 'HEAD']);
+    guarded(isolated, ['fetch', '--no-tags', original, 'refs/heads/main']);
+    for (const args of [['rebase', '--continue'], ['rebase', '--abort'], ['rebase', feature],
+      ['rebase', '--onto', feature, target], ['rebase', target, 'feat/a']])
+      decision(inspect(isolated, args), 'block');
+    const conflict = args => {
+      decision(inspect(isolated, args), 'allow');
+      assert.throws(() => git(isolated, args), error => error.status === 1);
+      assert.equal(git(isolated, ['rev-parse', '--abbrev-ref', 'HEAD']), 'HEAD');
+      assert.match(git(isolated, ['status', '--porcelain']), /UU tracked/);
+    };
+    conflict(['rebase', target]);
+    decision(inspect(isolated, ['rebase', '--continue'], 'os-apply'), 'block');
+    decision(inspect(isolated, ['rebase', '--skip']), 'block');
+    decision(inspect(isolated, ['rebase', '--abort', '--onto', feature]), 'block');
+    guarded(isolated, ['rebase', '--abort']);
+    assert.equal(git(isolated, ['rev-parse', 'HEAD']), pending);
+    assert.equal(git(isolated, ['rev-parse', '--abbrev-ref', 'HEAD']), 'feat/a');
+    conflict(['rebase', 'FETCH_HEAD']);
+    // Advance by another merge of this feature while recovery is paused.
+    // The original target remains an authorized first-parent HEAD.
+    git(original, ['fetch', '--no-tags', isolated, 'refs/heads/feat/a']);
+    assert.throws(() => git(original, ['merge', '--no-ff', 'FETCH_HEAD']), error => error.status === 1);
+    write(original, 'tracked', 'primary resolution\n');
+    git(original, ['commit', '-am', 'Later own merge']);
+    write(isolated, 'tracked', 'resolved feature\n');
+    guarded(isolated, ['add', 'tracked']);
+    const needsWitness = inspect(isolated, ['rebase', '--continue']);
+    decision(needsWitness, 'block');
+    assert.match(needsWitness.reason, /refresh the exact import ref/);
+    guarded(original, ['fetch', '--no-tags', isolated, `refs/heads/feat/a:${child.importRef}`]);
+    guarded(isolated, ['rebase', '--continue']);
+    assert.equal(git(isolated, ['rev-parse', '--abbrev-ref', 'HEAD']), 'feat/a');
+    assert.equal(git(isolated, ['merge-base', 'HEAD', target]), target);
+    guarded(isolated, ['fetch', '--no-tags', original, 'refs/heads/main']);
+    guarded(isolated, ['rebase', 'FETCH_HEAD']);
+    guarded(original, ['fetch', '--no-tags', isolated, `refs/heads/feat/a:${child.importRef}`]);
+    decision(inspect(isolated, ['rebase', '--continue']), 'block');
+    decision(inspect(isolated, ['rebase', '--abort']), 'block');
+    // An out-of-band rebase onto a feature SHA must not gain recovery authority.
+    git(isolated, ['reset', '--hard', pending]);
+    git(isolated, ['checkout', '-b', 'foreign-target', feature]);
+    write(isolated, 'tracked', 'foreign target\n');
+    git(isolated, ['commit', '-am', 'Foreign target']);
+    const foreign = git(isolated, ['rev-parse', 'HEAD']);
+    git(isolated, ['checkout', 'feat/a']);
+    decision(inspect(isolated, ['rebase', foreign]), 'block');
+    assert.throws(() => git(isolated, ['rebase', foreign]), error => error.status === 1);
+    for (const args of [['rebase', '--continue'], ['rebase', '--abort'], ['add', 'tracked']])
+      decision(inspect(isolated, args), 'block');
+    git(isolated, ['rebase', '--abort']);
+  }
 });
 
 test('real Git detached participants archive, resume and clean clones and worktrees without duplicate merges', t => {

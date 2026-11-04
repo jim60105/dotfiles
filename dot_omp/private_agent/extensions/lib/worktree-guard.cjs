@@ -5,7 +5,7 @@
 // eval paths can evade lexical inspection. Git internals are not traced.
 const path = require('node:path');
 const { execFileSync } = require('node:child_process');
-const { realpathSync, existsSync, readdirSync } = require('node:fs');
+const { realpathSync, existsSync, readdirSync, readFileSync } = require('node:fs');
 const capabilities = require('../worktree-guard.json');
 const ALLOW = Object.freeze({ decision: 'allow' });
 const READ_GIT = new Set(['status', 'log', 'show', 'diff', 'rev-parse', 'rev-list',
@@ -169,29 +169,60 @@ function evaluate(payload) {
     const activeDescendants = participant => participants.some(item => item !== participant &&
       inside(item.isolated.root, participant.isolated.root) &&
       exists(item.isolated.root) && !placeholder(item));
+    const rebaseState = participant => {
+      const directory = participant.isolated.root;
+      for (const backend of ['rebase-merge', 'rebase-apply']) {
+        const metadata = readGit(directory, ['rev-parse', '--path-format=absolute', '--git-path', backend]);
+        if (!exists(metadata)) continue;
+        const field = name => readFileSync(path.join(metadata, name), 'utf8').trim();
+        const branch = `refs/heads/${participant.isolated.branch}`;
+        if (field('head-name') !== branch ||
+          field('orig-head') !== readGit(directory, ['rev-parse', '--verify', branch]))
+          throw new Error('rebase does not belong to the authorized feature branch');
+        return { onto: field('onto') };
+      }
+      return null;
+    };
+    const importTip = participant => {
+      const rows = readGit(participant.original.root,
+        ['for-each-ref', '--format=%(refname) %(objectname)', '--', participant.importRef]);
+      const row = rows.split('\n').find(row => row.startsWith(`${participant.importRef} `));
+      return row ? row.slice(participant.importRef.length + 1) : '';
+    };
     const originalState = participant => {
       const state = identity(participant, 'original');
       if (state.branch !== participant.original.branch) throw new Error('original branch changed');
+      const primaryHeads = new Set([participant.original.head]);
       if (state.head !== participant.original.head) {
-        // Resumes and a final parent gitlink repair can advance the import ref.
-        // Every primary first-parent step must still be an imported merge, not
-        // an arbitrary original commit; progress text never grants authority.
-        const imported = readGit(participant.original.root, ['rev-parse', '--verify', participant.importRef]);
         if (participant.access !== 'write') throw new Error('read-only original changed');
+        // The import ref is a witness, not a prerequisite for re-importing.
+        // Its absence may be proved by this exact isolated feature's history.
+        // Every primary step must still be a two-parent merge back to the frozen
+        // baseline; neither progress text nor a foreign feature grants authority.
+        let witnessDirectory = participant.original.root;
+        let imported = importTip(participant);
+        if (!imported) {
+          const isolated = identity(participant, 'isolated');
+          if (isolated.branch !== participant.isolated.branch &&
+            !(isolated.branch === 'HEAD' && rebaseState(participant)))
+            throw new Error('isolated feature branch changed');
+          witnessDirectory = participant.isolated.root;
+          imported = readGit(witnessDirectory,
+            ['rev-parse', '--verify', `refs/heads/${participant.isolated.branch}`]);
+        }
         let cursor = state.head;
-        const seen = new Set();
         while (cursor !== participant.original.head) {
-          if (seen.has(cursor)) throw new Error('invalid original merge history');
-          seen.add(cursor);
+          if (primaryHeads.has(cursor)) throw new Error('invalid original merge history');
+          primaryHeads.add(cursor);
           const parents = readGit(participant.original.root,
             ['show', '-s', '--format=%P', cursor === state.head ? 'HEAD' : cursor]).split(' ');
-          if (parents.length !== 2 || readGit(participant.original.root,
+          if (parents.length !== 2 || readGit(witnessDirectory,
             ['merge-base', imported, parents[1]]) !== parents[1])
             throw new Error('original HEAD diverged from authorization baseline');
           cursor = parents[0];
         }
       }
-      return state;
+      return { ...state, primaryHeads };
     };
     const integrated = participant => {
       const state = originalState(participant);
@@ -406,7 +437,7 @@ function evaluate(payload) {
         }
         if (exactOriginal) {
           if (original.access !== 'write') return block('original participant is read-only');
-          originalState(original);
+          const originalSnapshot = originalState(original);
           if (verb === 'fetch') {
             const hit = need('import');
             if (hit.decision === 'block') return hit;
@@ -414,8 +445,12 @@ function evaluate(payload) {
               `refs/heads/${original.isolated.branch}:${original.importRef}`];
             if (JSON.stringify(args) !== JSON.stringify(expected))
               return block('fetch must import the exact isolated feature ref');
-            if (identity(original, 'isolated').branch !== original.isolated.branch)
-              return block('isolated feature branch changed');
+            const isolatedState = identity(original, 'isolated');
+            if (isolatedState.branch !== original.isolated.branch) {
+              const active = isolatedState.branch === 'HEAD' && rebaseState(original);
+              if (!active || !originalSnapshot.primaryHeads.has(active.onto))
+                return block('isolated feature branch changed');
+            }
             return ALLOW;
           }
           if (verb === 'merge') {
@@ -473,13 +508,22 @@ function evaluate(payload) {
             return need('clone');
           return block('Git mutation in read-only participant');
         }
+        let activeRebase;
+        if (isolatedState.branch === 'HEAD' &&
+          ['rebase', 'add', 'commit', 'reset', 'restore', 'rm', 'mv'].includes(verb)) {
+          const hit = need('rebase');
+          if (hit.decision === 'block') return hit;
+          activeRebase = rebaseState(isolated);
+          if (!activeRebase || !originalState(isolated).primaryHeads.has(activeRebase.onto))
+            return block('active rebase must target an authorized original primary HEAD');
+        }
         if (['checkout', 'switch'].includes(verb)) {
           if (gitCwd === isolated.isolated.root && isolated.mode === 'clone' &&
             JSON.stringify(args) === JSON.stringify(['-b', isolated.isolated.branch, isolated.original.head]))
             return need('clone');
           if (args.length !== 1 || args[0] !== isolated.isolated.branch)
             return block('checkout must stay on authorized feature branch');
-        } else if (isolatedState.branch !== isolated.isolated.branch)
+        } else if (isolatedState.branch !== isolated.isolated.branch && !activeRebase)
           return block('isolated feature branch changed');
         if (verb === 'fetch') {
           const hit = need('import');
@@ -501,6 +545,16 @@ function evaluate(payload) {
         if (verb === 'rebase') {
           const hit = need('rebase');
           if (hit.decision === 'block') return hit;
+          if (args.length === 1 && ['--continue', '--abort'].includes(args[0])) {
+            if (!activeRebase) return block('rebase control requires an authorized active rebase');
+            // A newer primary merge may contain a pre-rebase feature commit
+            // that continuation rewrites. Keep its exact import witness first.
+            if (args[0] === '--continue' && originalState(isolated).head !== activeRebase.onto &&
+              !importTip(isolated))
+              return block('refresh the exact import ref before continuing past a newer original merge');
+            return ALLOW;
+          }
+          if (activeRebase) return block('cannot start another rebase during an active rebase');
           const state = originalState(isolated);
           return args.length === 1 && [state.head, isolated.original.branch, 'FETCH_HEAD'].includes(args[0]) &&
             readGit(isolated.isolated.root, ['rev-parse', '--verify', args[0]]) === state.head ?

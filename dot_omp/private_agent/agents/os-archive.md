@@ -28,10 +28,14 @@ unauthorized child → stop.
    `worktree remove` ran.
    The original HEAD may differ from the authorized baseline only when every
    first-parent step from the current HEAD back to the baseline is a two-parent
-   merge whose second parent is reachable from this change's IMPORT_REF (e.g. this
-   change's own merge on resume, or a final gitlink repair merge). Merges of other
-   changes do not qualify, and readonly originals must not move at all. Any other
-   original movement or dirt → stop.
+   merge whose second parent is reachable from this change's exact IMPORT_REF
+   (e.g. this change's own merge on resume, or a final gitlink repair merge).
+   If IMPORT_REF is absent, the exact authorized isolated feature branch may
+   supply the ancestry witness after repository identity checks. Recreate the
+   assigned IMPORT_REF with the step-6 fetch when needed; descendant ref names
+   and progress text grant no authority. Merges of other changes do not qualify,
+   and readonly originals must not move at all. Any other original movement or
+   dirt → stop.
 2. Read original-root `os-phase`: require `tasks-complete` for new archive;
    `archived-unmerged` → integration only, merged → pending cleanup. Reconcile refs,
    never repeat proved operations/reset. Verify implementation via project
@@ -48,6 +52,14 @@ unauthorized child → stop.
    the in-progress rebase exactly as is (no `--abort`, `--continue` or `--skip`),
    do not delete or reset the worktree or feature branch, and report phase
    `archived-unmerged` with the pre-rebase feature tip. Recovery is rebase+merge only.
+   A subsequent recovery assignment with the same initial authorization may
+   resolve conflicts and use exact `rebase --continue` or `rebase --abort`.
+   Git's active rebase must name the authorized feature branch and target a
+   validated original first-parent HEAD; arbitrary targets and `--skip` remain
+   forbidden. If primary advanced by another authorized merge while paused and
+   IMPORT_REF is absent, first run the exact step-6 fetch from ORIGINAL to retain
+   the pre-rebase feature history. This fetch is permitted during a validated
+   paused rebase. Then continue, refresh primary again, and rebase before merging.
    After the rebase, read the feature tip again: that new SHA is FEATURE_TIP for
    every later step. Rerun gates affected by the rebase. Never use the pre-rebase SHA.
 6. Before touching the original, recheck its identity, branch and status, and that
