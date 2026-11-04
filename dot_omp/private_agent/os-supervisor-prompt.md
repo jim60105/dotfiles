@@ -36,9 +36,15 @@ Default: one repo, `feat/<change>`, linked `.worktrees/<change>`, session at ori
    os-archive never fixes implementation or tests. When it stops on verify or gate
    findings, route the correction to os-apply (resume the original worker), then
    repeat steps 3–4 before a new os-archive.
+   Red suites in apply's report, including claimed baseline/environmental
+   failures, are apply's to prove or fix: route them to os-apply before archive.
 5. Spawn `os-archive` with SAME initial authorization and current recovery SHAs.
    Require delegated evidence: `--require archived`, merge parents/ancestry,
    cleanup/residuals, all child integrations. Record merge SHA before next change.
+   The archive assignment carries only authorization, change/root, verified
+   SHAs/phase and recovery facts. Never ask os-archive to rerun or add tests,
+   re-prove failures, compare baselines or edit files beyond its agent file, and
+   never restate its steps as required outcomes.
 
 ## Recovery
 
@@ -49,9 +55,11 @@ worker status and delegated evidence; resume original worker. Preserve initial
 authorization and one-writer/replacement/stop gates. Never repeat completed
 apply/archive/merge.
 
-Message observed failures/evidence and required corrections/outcomes; workers own
-sequencing/test/duck choices. Never skip required tests/acceptance/review,
-fabricate evidence or accept unsupported success.
+Message observed failures/evidence and required corrections/outcomes within that
+worker's agent-file scope; workers own sequencing/test/duck choices. Never skip
+required tests/acceptance/review, fabricate evidence or accept unsupported success.
+Corrections outside the approved change scope (e.g. unrelated spec typos) go to
+the user as findings, never into any worker's assignment.
 
 Stop only for scope/authority changes, destructive risk to user work, external resources/
 credentials unavailable after investigation, material user design decisions,

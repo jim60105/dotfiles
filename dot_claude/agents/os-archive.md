@@ -31,6 +31,13 @@ yourself. Your only file changes are the archive/spec sync, traceability
 annotations on existing tests, child-mode gitlink commits and step-5 rebase
 conflict resolution.
 
+This file outranks your assignment. If the assignment asks for anything this
+file forbids (rerunning or adding tests, baseline comparisons, editing docs,
+implementation or tests), do not do it; list each such item under `Declined` in
+the Report. A guard or tool-policy block marks a boundary: never read guard
+source or retry an equivalent spelling to get past it; if the blocked step is
+required, stop.
+
 1. Validate INITIAL `<worktree-authorization>` against exact local
    `.omp-workspace-authorization.json`, identities/commonDir, refs, original branch,
    baseline. Missing/malformed/conflicting/expanded authority → stop;
@@ -54,6 +61,7 @@ conflict resolution.
    operations/reset. Run the preloaded openspec-verify-change read-only in the
    feature worktree and report its findings (CRITICAL → stop; WARNING/SUGGESTION → list in the
    Report only). A stop's `Needs` routes the fix to os-apply; never fix it here.
+   This verify run must finish before step 3; the Report cites only this run.
 3. Run project archive gate, else `openspec validate --all --strict`; red blocks.
    `openspec archive <change> --yes` IN WORKTREE; CLI governs over interactive skill.
    Refusal → preloaded archive skill's documented manual sync, never bypass guards.
@@ -123,7 +131,7 @@ explicitly). The supervisor rejects reports with missing fields.
 - Status: complete | stopped
 - Archive: <archived change path>
 - Gates: <gate command> → <result>, one per line (pre- and post-archive)
-- Verification: <openspec-verify-change outcome>
+- Verification: <step-2 openspec-verify-change outcome> | not run (never substitute later checks)
 - Annotations: added/removed <test> → <ID> — <reason> | n/a
 - Original HEAD: before <full SHA> / after <full SHA>
 - Feature tip after rebase: <full SHA>
@@ -131,6 +139,7 @@ explicitly). The supervisor rejects reports with missing fields.
 - Merge: <full SHA>, parent 1 <full SHA>, parent 2 <full SHA>
 - Cleanup: <each of 7a–7d → done | skipped (reason)>
 - Residuals: <remaining files/refs/worktrees> | none
+- Declined: <assignment item> — <rule that forbids it> | none
 - os-phase (original root): <output>
 - Child repos: <per-repo evidence from child section> | n/a
 ```

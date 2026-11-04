@@ -229,6 +229,42 @@ test('eval only blocks a literal primary root, while read tools stay untouched',
   decision(request('read', { path: `${root}/x` }), 'allow');
 });
 
+test('eval paths inside the exact workspace are not primary mentions', () => {
+  decision(request('eval', { code: `write("${root}/${lease}/x")` }), 'allow');
+  decision(request('eval', { code: `cwd = "${root}/${lease}"` }), 'allow');
+  decision(request('eval', { code: `write("${root}/${lease}/../../x")` }), 'block');
+  decision(request('eval', { code: `a = "${root}/${lease}/x"; b = "${root}/y"` }), 'block');
+  decision(request('eval', { code: `write("${root}/${lease}b/x")` }), 'block');
+  decision(request('eval', { code: `write("${root}")` }), 'block');
+});
+
+test('descriptor duplication is not a file redirection', () => {
+  const cwd = `${root}/${lease}`;
+  for (const command of ['uv run os-phase a 2>&1 | tail -30', 'ls 2>&1', 'ls >&2', 'ls 2>&-',
+    'ls 2>/dev/null', 'ls &>/dev/null', 'git status 2>&1']) {
+    decision(bash(command, { cwd }), 'allow');
+  }
+  for (const command of [`ls 2>${root}/x`, `ls &>${root}/x`, `ls &>>${root}/x`, `ls >&${root}/x`,
+    `ls 2>>${root}/x`]) {
+    decision(bash(command, { cwd }), 'block');
+  }
+  // A quoted digit is an argument, not a descriptor number.
+  decision(bash(`rm "2">/tmp/x`), 'block');
+});
+
+test('read-only git inspection verbs stay allowed in every repository', () => {
+  for (const command of [`git -C ${root} grep -n covers_requirement -- world`,
+    `git -C ${root} check-ignore -v .codegraph`, `git -C ${root} blame x`,
+    `git -C ${root} branch --list 'feat/*'`, `git -C ${root} branch -l --format=%(refname) 'feat/*'`,
+    `git -C ${root} branch --show-current`, `git -C ${root} branch`]) {
+    decision(bash(command), 'allow');
+  }
+  for (const command of [`git -C ${root} grep -O vim x`, `git -C ${root} grep --open-files-in-pager=vim x`,
+    `git -C ${root} branch feat/x`, `git -C ${root} branch -D feat/a`]) {
+    decision(bash(command), 'block');
+  }
+});
+
 test('authorization is mandatory in the first user message, never inferred from paths or later messages', () => {
   for (const content of ['Work in `.worktrees/a`.', `Work in ${root}/${lease}.`, 'No authorization'])
     assert.throws(() => captureAuthorization([{ role: 'user', content }]));

@@ -9,7 +9,11 @@ const { realpathSync, existsSync, readdirSync, readFileSync } = require('node:fs
 const capabilities = require('../worktree-guard.json');
 const ALLOW = Object.freeze({ decision: 'allow' });
 const READ_GIT = new Set(['status', 'log', 'show', 'diff', 'rev-parse', 'rev-list',
-  'ls-files', 'ls-tree', 'cat-file', 'show-ref', 'for-each-ref', 'merge-base', 'describe']);
+  'ls-files', 'ls-tree', 'cat-file', 'show-ref', 'for-each-ref', 'merge-base', 'describe',
+  'grep', 'check-ignore', 'blame', 'shortlog', 'name-rev', 'cherry', 'range-diff']);
+// Read-only `git branch` listing options; with --list/-l, operands are patterns.
+const BRANCH_LIST = ['--list', '-l', '-a', '--all', '-r', '--remotes', '--show-current',
+  '--no-color', '-v', '-vv', '--verbose', '--merged', '--no-merged', '--contains', '--no-contains'];
 const READ_SHELL = new Set(['cat', 'head', 'tail', 'ls', 'pwd', 'grep', 'rg',
   'find', 'stat', 'test', '[', 'echo', 'printf']);
 const MUTATORS = new Set(['cp', 'mv', 'rm', 'rmdir', 'tee', 'install', 'touch', 'mkdir', 'truncate']);
@@ -91,8 +95,8 @@ function inspectGit(directory, args) {
 // Tokenize literal argv, retaining shell separators and redirections. No expansion.
 function tokens(source) {
   const result = [];
-  let word = '', quote = '', started = false;
-  const flush = () => { if (started) result.push(word); word = ''; started = false; };
+  let word = '', quote = '', started = false, quoted = false;
+  const flush = () => { if (started) result.push(word); word = ''; started = false; quoted = false; };
   for (let i = 0; i < source.length; i++) {
     const char = source[i];
     if (char === '\\' && quote !== "'") {
@@ -103,9 +107,29 @@ function tokens(source) {
       if (char === quote) quote = '';
       else word += char;
     } else if (char === "'" || char === '"') {
-      quote = char; started = true;
+      quote = char; started = true; quoted = true;
     } else if (';&|\n><()'.includes(char)) {
-      flush();
+      // An unquoted all-digit word directly before a redirection is its fd
+      // number (`2>x`), not a command argument.
+      if ('<>'.includes(char) && started && !quoted && /^\d+$/.test(word)) {
+        word = ''; started = false;
+      } else flush();
+      if (char === '&' && source[i + 1] === '>') {
+        // `&>x` / `&>>x` redirect stdout and stderr to a file.
+        i++;
+        if (source[i + 1] === '>') { i++; result.push('>>'); } else result.push('>');
+        continue;
+      }
+      if ('<>'.includes(char) && source[i + 1] === '&') {
+        // `N>&M`, `>&-` and `<&M` duplicate descriptors and name no file.
+        let j = i + 2;
+        while (j < source.length && /[0-9-]/.test(source[j])) j++;
+        if (j > i + 2 && (j === source.length || /[\s;&|<>()]/.test(source[j]))) { i = j - 1; continue; }
+        // `>&file` redirects both streams to a file.
+        i++;
+        result.push(char);
+        continue;
+      }
       if (source[i + 1] === char && '&|><'.includes(char)) result.push(char + source[++i]);
       else result.push(char);
     } else if (/\s/.test(char)) flush();
@@ -333,7 +357,12 @@ function evaluate(payload) {
     }
     if (payload.toolName === 'eval') {
       const source = typeof input === 'string' ? input : input.code ?? input.source ?? '';
-      return typeof source === 'string' && source.includes(root) ?
+      if (typeof source !== 'string') return ALLOW;
+      // The workspace lives under the primary root, so mentions of the exact
+      // workspace (not climbing out with `..`) are not primary mentions.
+      const escape = value => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const remaining = source.replace(new RegExp(`${escape(lease)}(?![^/\\s'"\`])(?!/\\.\\.(?:/|$))`, 'g'), '');
+      return new RegExp(`${escape(root)}(?![^/\\s'"\`])`).test(remaining) ?
         block(`eval source mentions primary repository: ${root}`) : ALLOW;
     }
     if (payload.toolName !== 'bash') return ALLOW;
@@ -391,10 +420,19 @@ function evaluate(payload) {
           if (hit.decision === 'block') return hit;
         }
       }
-      if (READ_GIT.has(verb)) return ALLOW;
-      if (verb === 'branch' && args.every(arg =>
-        ['--list', '-l', '-a', '-r', '--show-current', '--no-color', '-v', '-vv', '--verbose'].includes(arg)))
+      if (READ_GIT.has(verb)) {
+        if (verb === 'grep' && args.some(arg => arg === '-O' || arg.startsWith('-O') ||
+          arg.startsWith('--open-files-in-pager')))
+          return block('git grep cannot open files in a pager command');
         return ALLOW;
+      }
+      if (verb === 'branch') {
+        const listing = args.includes('--list') || args.includes('-l');
+        if (args.every(arg => BRANCH_LIST.includes(arg) || arg.startsWith('--format=') ||
+          arg.startsWith('--sort=') || arg.startsWith('--contains=') || arg.startsWith('--merged=') ||
+          arg.startsWith('--no-merged=') || (listing && !arg.startsWith('-'))))
+          return ALLOW;
+      }
       {
         const isolated = participantAt(gitCwd, 'isolated');
         const original = participantAt(gitCwd, 'original');
