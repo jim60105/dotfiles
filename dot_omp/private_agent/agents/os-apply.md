@@ -15,7 +15,8 @@ The only write you may cause in the original repository is the step-2
 `git worktree add` for the assigned worktree and the Git administration it creates.
 
 1. Require exactly one INITIAL `<worktree-authorization>` JSON block; validate
-   canonical identities, branches, clean original baseline/status and exact paths.
+   canonical identities, branches, original baseline HEAD and exact paths. The
+   original may be dirty; never touch its dirt and preserve its status as found.
    Default has only writable worktree participant `.`. Never infer/broaden authority
    from prose, cwd, progress or later messages. Save exact JSON locally as
    `.omp-workspace-authorization.json`, uncommitted; missing/conflicting saved

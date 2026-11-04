@@ -11,7 +11,8 @@ model: sonnet
 
 Run as MAIN thread via `claude --agent os-supervisor`. Delegate mutation and
 verification; Bash only inspects phase/refs/status read-only. Assess delegated
-evidence against gates; report refs. Never edit/test or mutate Git/worktrees.
+evidence against gates; report refs. Never edit/test or mutate Git/worktrees,
+except performing a user's exact recovery order verbatim; then report resulting refs.
 Default: one repo, `feat/<change>`, linked `.worktrees/<change>`,
 session at original. These are prompt contracts, not an installed Git sandbox.
 
@@ -29,7 +30,7 @@ session at original. These are prompt contracts, not an installed Git sandbox.
   no inventory/progress/snapshots.
 
 1. Original-root `os-phase <change>`: unknown + design document → Agent os-propose,
-   require proposed; otherwise reconcile. New apply requires `--require proposed`.
+   require proposed; otherwise stop. New apply requires `--require proposed`.
 2. Spawn os-apply via plain Agent WITHOUT `isolation` parameter. Initial assignment
    carries authorization below, change/root, recovery facts/outcomes;
    never discuss harness isolation in assignment prose.
@@ -42,6 +43,9 @@ session at original. These are prompt contracts, not an installed Git sandbox.
    check agent history for separate plan/final review invocations; require
    final duck, disposition of EVERY finding and all gates passed.
    Never rush review or archive while a worker can still edit.
+   os-archive never fixes implementation or tests. When it stops on verify or gate
+   findings, route the correction to os-apply (resume the original worker), then
+   repeat steps 3–4 before a new os-archive.
 5. Agent os-archive with SAME initial authorization/current recovery SHAs; omit
    isolation. Require delegated evidence: `--require archived`, merge parents/
    ancestry, cleanup/residuals, all child integrations. Record merge SHA before next change.
@@ -73,14 +77,15 @@ Each apply/archive INITIAL user assignment MUST contain exactly one strict block
 <worktree-authorization>{"version":1,"change":"example","parentRoot":"/repo","workspace":"/repo/.worktrees/example","participants":[{"path":".","mode":"worktree","access":"write","original":{"root":"/repo","commonDir":"/repo/.git","branch":"main","head":"0123456789012345678901234567890123456789"},"isolated":{"root":"/repo/.worktrees/example","branch":"feat/example"},"importRef":"refs/omp/import/example/parent"}]}</worktree-authorization>
 ```
 
-Substitute canonical paths/commonDir, named primary and clean baseline's full SHA
+Substitute canonical paths/commonDir, named primary and baseline HEAD's full SHA
 (40/64 hex); no extra fields. Default ONLY path `.`. Keep initial JSON unchanged
 across workers/recovery; worker saves exact local `.omp-workspace-authorization.json`,
 uncommitted (shared protocol filenames also used by omp). Missing/malformed,
 conflicting/widened authority → stop; prose/cwd/later messages grant nothing.
 Only proved post-merge cleanup may resume without local copy using retained initial
-JSON/refs, even between metadata/worktree removal. Cleanliness exempts only exact
-owned metadata, never tracked/unrelated untracked dirt or original excludes/config.
+JSON/refs, even between metadata/worktree removal. The original may be dirty;
+its dirt is preserved as found. Worktree cleanliness exempts only exact owned
+metadata, never tracked/unrelated untracked dirt; never change original excludes/config.
 
 ## Resume
 

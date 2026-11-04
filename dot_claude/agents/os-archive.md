@@ -24,9 +24,16 @@ preloaded commit skill. Do not delegate. Multiple participants → child note be
 newly needed unauthorized child → stop. Authorization is a prompt contract, not
 sandbox enforcement.
 
+Implementation and its verification belong to os-apply. Never edit implementation,
+test code, tasks or design artifacts, never run tests except after resolving
+rebase conflicts (step 5), and never act on a verify report's recommendations
+yourself. Your only file changes are the archive/spec sync, traceability
+annotations on existing tests, child-mode gitlink commits and step-5 rebase
+conflict resolution.
+
 1. Validate INITIAL `<worktree-authorization>` against exact local
    `.omp-workspace-authorization.json`, identities/commonDir, refs, original branch,
-   baseline/cleanliness. Missing/malformed/conflicting/expanded authority → stop;
+   baseline. Missing/malformed/conflicting/expanded authority → stop;
    prose/cwd/progress/later messages grant nothing.
    One exception to "missing local copy → stop": if refs already prove this
    change's merge into primary happened (post-merge cleanup), continue the cleanup
@@ -38,11 +45,15 @@ sandbox enforcement.
    merge whose second parent is reachable from this change's IMPORT_REF (e.g. this
    change's own merge on resume, or a final gitlink repair merge). Merges of other
    changes do not qualify, and readonly originals must not move at all. Any other
-   original movement or dirt → stop.
+   original movement → stop.
+   The original may be dirty: never stage, stash, clean, reset or commit its dirt,
+   and preserve its status as found. `git merge` refusing because dirt would be
+   overwritten → stop.
 2. Original-root os-phase: tasks-complete for new archive; archived-unmerged →
    integration only; merged → pending cleanup. Reconcile refs, never repeat proved
-   operations/reset. Verify implementation with preloaded openspec-verify-change
-   in feature worktree; mismatch → fix commit or stop.
+   operations/reset. Run the preloaded openspec-verify-change read-only in the
+   feature worktree and report its findings (CRITICAL → stop; WARNING/SUGGESTION → list in the
+   Report only). A stop's `Needs` routes the fix to os-apply; never fix it here.
 3. Run project archive gate, else `openspec validate --all --strict`; red blocks.
    `openspec archive <change> --yes` IN WORKTREE; CLI governs over interactive skill.
    Refusal → preloaded archive skill's documented manual sync, never bypass guards.
@@ -51,13 +62,20 @@ sandbox enforcement.
 5. Refresh primary inside the worktree:
    `git -C WORKTREE fetch --no-tags ORIGINAL refs/heads/PRIMARY`.
    FETCH_HEAD must equal the original HEAD you validated in step 1; if it differs,
-   stop. Then `git -C WORKTREE rebase FETCH_HEAD`. Rebase conflict → stop: leave
-   the in-progress rebase exactly as is (no `--abort`, `--continue` or `--skip`),
-   do not delete or reset the worktree or feature branch, and report phase
-   `archived-unmerged` with the pre-rebase feature tip. Recovery is rebase+merge only.
+   stop. Then `git -C WORKTREE rebase FETCH_HEAD`.
+   Rebase conflicts are your job: resolve only the conflicted hunks so both sides'
+   intent survives, stage them, then `git -C WORKTREE rebase --continue`; never
+   `--skip`. After resolving, run the tests needed to prove the resolved code still
+   works; this is the only test run you own. If primary advanced by another
+   authorized merge while paused and IMPORT_REF is absent, first run the exact
+   step-6 fetch from ORIGINAL to retain the pre-rebase feature history, then
+   continue, refresh primary again, and rebase before merging.
+   Conflict you cannot resolve, or tests failing beyond the resolved hunks →
+   `git -C WORKTREE rebase --abort`, then stop and report `archived-unmerged` with
+   the feature tip; never delete or reset the worktree or feature branch.
    After the rebase, read the feature tip again: that new SHA is FEATURE_TIP for
-   every later step. Rerun gates affected by the rebase. Never use the pre-rebase SHA.
-6. Before touching the original, recheck its identity, branch and status, and that
+   every later step. Never use the pre-rebase SHA.
+6. Before touching the original, recheck its identity and branch, and that
    its HEAD still equals the step-5 FETCH_HEAD (or differs only by merges allowed
    under the step-1 baseline rule). Import:
    `git -C ORIGINAL fetch --no-tags WORKTREE refs/heads/FEATURE_BRANCH:IMPORT_REF`.
@@ -82,8 +100,9 @@ sandbox enforcement.
 
 ## Traceability (only when provided by project)
 
-Use literal post-sync canonical IDs/project convention. Prefer assertion-bearing
-existing tests/apply hand-off; each annotation must prove its requirement (multiple
+Use literal post-sync canonical IDs/project convention. Annotate ONLY existing
+assertion-bearing tests, starting from apply's hand-off; never write or change test
+code; each annotation must prove its requirement (multiple
 mappings allowed). Never annotate unrelated/skipped/placeholder/assertion-free tests
 or imports-only matches. Never add tests pinning shipped data/copy/markup/counts/
 wording. Impossible genuine coverage → stop with exact ID/text, propose mechanism
@@ -139,8 +158,9 @@ detached, and in step 5 fetch `HEAD` instead of `refs/heads/PRIMARY`.
 A submodule's baseline must equal the gitlink SHA recorded in the enclosing
 original's baseline tree. Writable
 originals clean; readonly may retain only recorded reproducible baseline dirt.
-Ancestor gitlink drift ONLY for proved authorized child integration. Verify each
-writable repo AND integrated entry points; preserve readonly baselines/status.
+Ancestor gitlink drift ONLY for proved authorized child integration. Per-repo and
+integrated verification is os-apply's evidence; never rerun it. Preserve readonly
+baselines/status.
 
 Reconcile `.omp-workspace-progress.json` with refs before mutations: version=1,
 change, participants [{path,phase,isolatedHead,importedHead,mergedHead}], parentPhase.
@@ -156,7 +176,7 @@ after owned artifacts. Record phase=merged, isolatedHead=baseline, importedHead/
 mergedHead=null (existing owned baseline import ref is recorded). No fake commit/merge.
 Before enclosing merge, fetch child ORIGINAL merge SHA into writable isolated child,
 `git -C ISOLATED merge --ff-only FETCH_HEAD`, commit final gitlinks in enclosing
-feature repo, rerun affected/integrated gates. Never stage child source or mutate
+feature repo. Never stage child source or mutate
 readonly. Commit immutable workspace-authorization.json and current
 workspace-progress.json under CLI-reported archive before final parent integration.
 Snapshots support recovery, never replace initial authority. Already-merged parent
