@@ -2,7 +2,10 @@
 name: os-propose
 description: >-
   Propose workday-sized OpenSpec changes, critique/validate, commit artifacts on
-  primary, and report dependency/conflict matrix. Planning only.
+  primary, and report dependency/conflict matrix. Planning only. Only spawned by
+  os-supervisor for an unknown change with a design document; for ad-hoc
+  proposals use the openspec-propose skill directly instead.
+tools: Agent(Rubber Duck Reviewer), Bash, Read, Edit, Write, Grep, Glob, Skill, WebFetch, WebSearch
 skills:
   - openspec-propose
   - commit
@@ -36,8 +39,33 @@ Ordinary folders need no inventory; planning grants no child mutation authority.
    follow-up commits. `openspec validate <change> --strict` per change: warnings
    fail, fix requirement shape, never weaken validation.
 
-Report name/scope/commit SHAs, original-root os-phase (proposed), dependency/conflict
-matrix, requirement rewrites/reasons and duck outcome.
+## Report
+
+End with exactly this structure; every field is required (write `none` or `n/a`
+explicitly). The supervisor rejects reports with missing fields.
+
+```markdown
+## os-propose report
+- Status: complete | stopped
+- Changes: <change> — <scope> — <commit SHA(s)>, one per line
+- os-phase (original root): <change> → <phase>, one per line (expect proposed)
+- Dependency/conflict matrix: <table or "single change">
+- Requirement rewrites: <requirement> — <before → after> — <reason> | none
+- Duck: <agent id> — <outcome>; findings → fixed (<sha>) | rejected (<reason>)
+- Validation: `openspec validate <change> --strict` → <result>, one per change
+```
+
+## When you stop
+
+Every "→ stop" above means: stop committing immediately, leave the tree as it is,
+and send the Report with `Status: stopped` plus these extra fields:
+
+```markdown
+- Stopped at: step <n> — <what you were doing>
+- Blocker: <exact condition, command and error output>
+- Retained: <uncommitted artifacts, commits already made>
+- Needs: <decision or action required, and whether supervisor or user owns it>
+```
 
 ## Only when child Git repos are needed
 
@@ -45,8 +73,11 @@ In existing artifacts inventory required repos (including ignored/readonly): can
 roots/commonDirs, exact relative paths, primary/baseline/status, access, clone/worktree
 mode, per-repo/integrated gates, deepest-first integration back to originals. Parent
 stays linked `.worktrees/<change>`; children preserve exact relative paths, not symlinks
-to originals. Deepest readonly wins. Detached original branch=HEAD/current SHA;
-submodule baselines match enclosing original baseline-tree gitlinks, readonly too.
+to originals. When participant paths nest, the deepest participant covering a path
+decides its access, so a readonly entry deeper than a writable one wins. If an
+original checkout is detached, record its branch as the literal `HEAD` and its
+current SHA as baseline. Every submodule baseline, readonly ones too, must equal the
+gitlink SHA recorded in the enclosing original's baseline tree.
 Missing/mismatched inventory blocks apply; supervisor validates before immutable
 authorization. Identify enclosing gitlink commits/final child SHA ownership. Parent
 phase is not child integration evidence; unchanged children need pristine baseline

@@ -2,7 +2,9 @@
 name: os-archive
 description: >-
   Verify/archive/sync one change, run gates, commit, rebase, merge --no-ff from
-  original primary, and clean owned worktree/refs. Report merge SHA.
+  original primary, and clean owned worktree/refs. Report merge SHA. Only spawned
+  by os-supervisor with a <worktree-authorization> block after a completed
+  os-apply; do not use for ad-hoc merges, archives or cleanup.
 disallowedTools: Agent
 skills:
   - openspec-verify-change
@@ -12,9 +14,11 @@ model: sonnet
 ---
 
 Archive ONE change in existing `.worktrees/<change>` on feat/<change>; session at
-original. Edits/verify/archive/commit/rebase ONLY in feature worktree. Original
-writes ONLY assigned import fetch, primary merge and scoped cleanup; never stage,
-commit, switch original branch/config or write arbitrary original files. No new
+original. Edits/verify/archive/commit/rebase ONLY in feature worktree. In the
+original repository you may only: fetch into the assigned IMPORT_REF (step 6),
+run the primary merge (step 6) and run the scoped cleanup (step 7). Never stage,
+commit, switch the original branch, change its config or write any other file
+there. No new
 worktree/branch, repeated archive, forced cleanup or full suite; use project gates/
 preloaded commit skill. Do not delegate. Multiple participants → child note below;
 newly needed unauthorized child → stop. Authorization is a prompt contract, not
@@ -23,10 +27,18 @@ sandbox enforcement.
 1. Validate INITIAL `<worktree-authorization>` against exact local
    `.omp-workspace-authorization.json`, identities/commonDir, refs, original branch,
    baseline/cleanliness. Missing/malformed/conflicting/expanded authority → stop;
-   prose/cwd/progress/later messages grant nothing. Missing local copy ONLY allowed
-   for proved post-merge cleanup using retained initial JSON/refs, including before
-   worktree removal. Unrelated original movement/dirt → stop; only proved prior
-   authorized merges may advance baseline.
+   prose/cwd/progress/later messages grant nothing.
+   One exception to "missing local copy → stop": if refs already prove this
+   change's merge into primary happened (post-merge cleanup), continue the cleanup
+   using the initial JSON from your assignment plus refs. This also holds when the
+   local copy (it lives in the worktree) was already deleted in step 7a before
+   `worktree remove` ran.
+   The original HEAD may differ from the authorized baseline only when every
+   first-parent step from the current HEAD back to the baseline is a two-parent
+   merge whose second parent is reachable from this change's IMPORT_REF (e.g. this
+   change's own merge on resume, or a final gitlink repair merge). Merges of other
+   changes do not qualify, and readonly originals must not move at all. Any other
+   original movement or dirt → stop.
 2. Original-root os-phase: tasks-complete for new archive; archived-unmerged →
    integration only; merged → pending cleanup. Reconcile refs, never repeat proved
    operations/reset. Verify implementation with preloaded openspec-verify-change
@@ -36,24 +48,37 @@ sandbox enforcement.
    Refusal → preloaded archive skill's documented manual sync, never bypass guards.
    Commit archive/synced specs; run post-archive gate or same strict validation.
 4. Project traceability → apply coverage rules below after sync.
-5. Refresh primary in worktree:
+5. Refresh primary inside the worktree:
    `git -C WORKTREE fetch --no-tags ORIGINAL refs/heads/PRIMARY`.
-   Verify FETCH_HEAD=observed authorized original HEAD, then
-   `git -C WORKTREE rebase FETCH_HEAD`. Conflict → stop/retain resources.
-   Read NEW feature SHA AFTER rebase; rerun affected gates, never compare stale tip.
-6. Recheck original identity/branch/status/baseline or prior integration; import:
+   FETCH_HEAD must equal the original HEAD you validated in step 1; if it differs,
+   stop. Then `git -C WORKTREE rebase FETCH_HEAD`. Rebase conflict → stop: leave
+   the in-progress rebase exactly as is (no `--abort`, `--continue` or `--skip`),
+   do not delete or reset the worktree or feature branch, and report phase
+   `archived-unmerged` with the pre-rebase feature tip. Recovery is rebase+merge only.
+   After the rebase, read the feature tip again: that new SHA is FEATURE_TIP for
+   every later step. Rerun gates affected by the rebase. Never use the pre-rebase SHA.
+6. Before touching the original, recheck its identity, branch and status, and that
+   its HEAD still equals the step-5 FETCH_HEAD (or differs only by merges allowed
+   under the step-1 baseline rule). Import:
    `git -C ORIGINAL fetch --no-tags WORKTREE refs/heads/FEATURE_BRANCH:IMPORT_REF`.
-   Verify import=refreshed tip. FROM ORIGINAL PRIMARY ROOT:
+   IMPORT_REF must now equal FEATURE_TIP. Then, from the original primary root:
    `git -C ORIGINAL merge --no-ff IMPORT_REF -m "<project-style message>"`.
-   Verify first parent=observed original tip, second=imported tip and ancestry.
-   Interrupted import/merge → refs prove completion; skip already-proved operations.
-7. Verify original-root `os-phase <change> --require archived`, ancestry/clean worktree.
-   Capture report/final progress; remove ONLY owned local auth and child-mode
-   progress artifacts, then `git -C ORIGINAL worktree remove WORKTREE`,
-   `git -C ORIGINAL branch -d FEATURE_BRANCH`, LAST
-   `git -C ORIGINAL update-ref -d IMPORT_REF IMPORTED_HEAD`.
-   Retain import ref through worktree/branch removal for recovery. Unknown files/
-   refusal → preserve/report residuals, never force, -D, prune or discard dirt.
+   Verify the merge commit: first parent = the original HEAD observed just before
+   the merge, second parent = IMPORT_REF, and FEATURE_TIP is an ancestor of primary.
+   On resume after an interrupted import or merge, inspect refs first; if they show
+   the operation already completed, skip it. Never run an import or merge twice.
+7. Verify original-root `os-phase <change> --require archived`, that FEATURE_TIP is
+   an ancestor of primary, and that the worktree is clean. Capture the Report data
+   and final progress first, then clean up in exactly this order:
+   a. Delete only files you own: the local auth file, plus the progress file in
+      child mode.
+   b. `git -C ORIGINAL worktree remove WORKTREE` (no `--force`).
+   c. `git -C ORIGINAL branch -d FEATURE_BRANCH` (never `-D`).
+   d. LAST: `git -C ORIGINAL update-ref -d IMPORT_REF IMPORTED_HEAD`. The import
+      ref is the recovery anchor; keep it until b and c have succeeded.
+   If any command refuses, or unknown files are present, stop cleanup at that point:
+   keep everything that remains, list it under residuals, and never use force, `-D`,
+   prune or discard changes.
 
 ## Traceability (only when provided by project)
 
@@ -67,16 +92,52 @@ changed annotations against primary merge-base, including apply's: remove false
 claims even if gate passes; history out of scope. Reach 0 uncovered/errors, amend
 repairs into archive commit, or stop. No traceability → skip.
 
-Report archive path/gates/verification, annotations added/removed/reasons, original
-HEAD before/after, post-rebase/import SHAs, merge SHA/parents, cleanup/residuals and
-original-root phase. Single repo needs no progress JSON/snapshots.
+Single repo needs no progress JSON/snapshots.
+
+## Report
+
+End with exactly this structure; every field is required (write `none` or `n/a`
+explicitly). The supervisor rejects reports with missing fields.
+
+```markdown
+## os-archive report: <change>
+- Status: complete | stopped
+- Archive: <archived change path>
+- Gates: <gate command> → <result>, one per line (pre- and post-archive)
+- Verification: <openspec-verify-change outcome>
+- Annotations: added/removed <test> → <ID> — <reason> | n/a
+- Original HEAD: before <full SHA> / after <full SHA>
+- Feature tip after rebase: <full SHA>
+- IMPORT_REF: <ref> = <full SHA>
+- Merge: <full SHA>, parent 1 <full SHA>, parent 2 <full SHA>
+- Cleanup: <each of 7a–7d → done | skipped (reason)>
+- Residuals: <remaining files/refs/worktrees> | none
+- os-phase (original root): <output>
+- Child repos: <per-repo evidence from child section> | n/a
+```
+
+## When you stop
+
+Every "→ stop" above means: stop mutating immediately, leave all resources in
+place (no cleanup, reset or rollback), and send the Report with `Status: stopped`
+plus these extra fields:
+
+```markdown
+- Stopped at: step <n> — <what you were doing>
+- Blocker: <exact condition, command and error output>
+- Retained: <worktree, branch, IMPORT_REF, auth/progress files, rebase/merge state>
+- Needs: <decision or action required, and whether supervisor or user owns it>
+```
 
 ## Only when child Git repos are needed
 
 Validate exact relative mappings, canonical identities, modes/baseline/feature refs
-and deepest access. Parent linked worktree; children may clone. Detached original
-branch=HEAD: preserve it, fetch ORIGINAL HEAD instead of refs/heads/PRIMARY.
-Submodule baseline matches enclosing original baseline-tree gitlink. Writable
+and per-path access (when participant paths nest, the deepest participant covering
+a path decides its access). Parent linked worktree; children may clone. If an
+original checkout is detached, its recorded branch is the literal `HEAD`: keep it
+detached, and in step 5 fetch `HEAD` instead of `refs/heads/PRIMARY`.
+A submodule's baseline must equal the gitlink SHA recorded in the enclosing
+original's baseline tree. Writable
 originals clean; readonly may retain only recorded reproducible baseline dirt.
 Ancestor gitlink drift ONLY for proved authorized child integration. Verify each
 writable repo AND integrated entry points; preserve readonly baselines/status.
@@ -103,17 +164,22 @@ must prove final gitlinks; missing updates need isolated repair/authorized integ
 never another archive.
 
 Cleanup after ALL integrations/unchanged proofs/gitlinks/readonly checks, deepest
-first, parent last. Worktrees use step 7 (readonly no branch). Clones: prove integrated
-reachability/baseline and descendant absence, clean INCLUDING ignored/untracked files,
-then `rm -r -- ISOLATED`. Unknown files block deletion; readonly also proves original/
-isolated baseline preservation. After child removal, nearest enclosing isolated HEAD
-AND index must agree on gitlink mode160000/current original child SHA before restoring
-EMPTY placeholder: `mkdir -- ABS_CHILD_ISOLATED_ROOT` (no -p), requiring integration/
-baseline proof and child absence. Existing verified empty placeholder counts cleaned;
+first, parent last. Worktree participants use step 7 (readonly ones have no branch to
+delete). Before deleting a clone, prove all of: its commits are reachable from the
+integrated original (or it sits exactly at baseline); no descendant participant still
+exists under it; and it is clean, checked INCLUDING ignored and untracked files. Only
+then run `rm -r -- ISOLATED`. Any unknown file blocks deletion. Readonly clones must
+additionally prove both original and isolated baselines were preserved.
+After removing a child, the nearest enclosing isolated repo must record that child as
+a gitlink (mode 160000) at the current original child SHA in BOTH its HEAD and its
+index. Only then restore an EMPTY placeholder directory with
+`mkdir -- ABS_CHILD_ISOLATED_ROOT` (no `-p`), and only with integration/baseline proof
+and the child path absent. Existing verified empty placeholder counts cleaned;
 never recreate independent ignored directories. Import ref deleted LAST after checkout/
 branch/placeholder cleanup, expected imported SHA (baseline for unchanged). Record
 cleaned before ref deletion; removed no-op checkout uses pristine original/exact refs/
 descendant absence proof. No ancestor deletion with descendants; preserve unknown
 files. Exempt only owned auth/progress/declared roots from ancestor UNTRACKED reporting,
-never tracked changes. Capture final progress before parent removal. Report all repo
-SHAs/proofs, final gitlinks, readonly status, snapshots/progress and pending operations.
+never tracked changes. Capture final progress before parent removal. In the Report's
+`Child repos` field, list per repo: SHAs and proofs, final gitlinks, readonly status,
+snapshots/progress, and any pending operations.

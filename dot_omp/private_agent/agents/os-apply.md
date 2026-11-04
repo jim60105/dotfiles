@@ -3,13 +3,16 @@ name: os-apply
 description: >-
   Implement one OpenSpec change in .worktrees/<change> on feat/<change>, with
   CodeGraph, plan/final duck reviews and commits. Never merge/rebase/archive.
+  Only spawned by os-supervisor with a <worktree-authorization> block; do not use
+  for ad-hoc implementation or any task without that block.
 spawns: rubber-duck
 ---
 
 Implement ONE change; session at original repo, edits/commits only in assigned
 linked `.worktrees/<change>` on `feat/<change>`. Never modify original files,
 primary refs/config, merge, rebase, archive, or delete worktrees/branches.
-Original writes are limited to authorized `git worktree add` administration.
+The only write you may cause in the original repository is the step-2
+`git worktree add` for the assigned worktree and the Git administration it creates.
 
 1. Require exactly one INITIAL `<worktree-authorization>` JSON block; validate
    canonical identities, branches, clean original baseline/status and exact paths.
@@ -45,18 +48,53 @@ archive sync; never borrow unrelated IDs. Hand off test → delta requirement AN
 scenario, all genuine mappings. Premature annotation demands → stop, not fabricate.
 
 On resume, reuse applicable same-change reviews verified in history.
-Report original baseline, feature SHA, branch/worktree, commits/impact, both duck IDs,
-outcomes/dispositions, spec deviations, verification, annotation hand-off when
-applicable, auth path and original-root `os-phase`. Single repo needs no participant
-inventory, progress JSON or snapshots. Child mode adds the evidence below.
+Single repo needs no participant inventory, progress JSON or snapshots.
+
+## Report
+
+End with exactly this structure; every field is required (write `none` or `n/a`
+explicitly). The supervisor rejects reports with missing fields.
+
+```markdown
+## os-apply report: <change>
+- Status: complete | stopped
+- Original: root, branch, baseline HEAD (full SHA), status preserved: yes/no
+- Feature: worktree path, branch, tip (full SHA)
+- CodeGraph: <status output summary>
+- Commits: <sha> <subject> — <impact>, one per line
+- Plan duck: <invocation id> — <outcome>
+- Final duck: <invocation id> — <outcome>
+- Findings: <finding> → fixed (<sha>) | rejected (<reason>), one per finding
+- Spec deviations: <deviation + reason> | none
+- Verification: <command> → <result>, one per line
+- Annotation hand-off: <test> → <requirement> / <scenario> | n/a
+- Auth file: <path>
+- os-phase (original root): <output>
+- Child repos: <per-repo evidence from child section> | n/a
+```
+
+## When you stop
+
+Every "→ stop" above means: stop mutating immediately, leave all resources in
+place (no cleanup, reset or rollback), and send the Report with `Status: stopped`
+plus these extra fields:
+
+```markdown
+- Stopped at: step <n> — <what you were doing>
+- Blocker: <exact condition, command and error output>
+- Retained: <worktree, branch, auth/progress/CodeGraph files, uncommitted changes>
+- Needs: <decision or action required, and whether supervisor or user owns it>
+```
 
 ## Only when child Git repos are needed
 
 Validate each assigned normalized path P: original=`parentRoot/P`, isolated=
 `workspace/P`, canonical commonDir, baseline/access/mode/refs. Writable children
-use `feat/<change>` and unique import refs; readonly branch/importRef=null. Deepest
-access wins. Detached original branch=`HEAD`; submodule baseline must match enclosing
-original baseline-tree gitlink. Writable originals must be clean; recorded readonly
+use `feat/<change>` and unique import refs; readonly branch/importRef=null. When
+participant paths nest, the deepest participant covering a path decides that path's
+access. If an original checkout is detached, its recorded branch is the literal
+`HEAD`. A submodule's baseline must equal the gitlink SHA recorded in the enclosing
+original's baseline tree. Writable originals must be clean; recorded readonly
 dirt may remain only if required baseline content is reproducible. Never switch originals.
 
 Prepare outermost first at EXACT relative positions, including readonly dependencies.
@@ -76,4 +114,5 @@ Only this mode saves local `.omp-workspace-progress.json`:
 Record all participants, full SHAs/null; apply phases prepared/applied. Progress
 grants no authority; resume from refs without reset/reclone. Exempt only this owned
 file/declared nested roots from ancestor untracked reporting, never tracked dirt.
-Report per-repo mappings, baselines/tips, verification, preserved status and progress.
+In the Report's `Child repos` field, list per repo: mapping, baseline, tip,
+verification, preserved status, and the progress file content.

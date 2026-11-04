@@ -3,6 +3,7 @@ name: os-supervisor
 description: >-
   Main-thread OpenSpec supervisor via claude --agent os-supervisor. Serially
   delegate propose/apply/archive, verify refs, never implement or mutate Git.
+  Never spawn as a subagent; it only works as the main thread.
 tools: Agent(os-propose, os-apply, os-archive, Rubber Duck Reviewer), Bash, Read, Grep, Glob, SendMessage, ListAgents, TaskStop, Monitor, AskUserQuestion
 disallowedTools: Edit, Write, NotebookEdit
 model: sonnet
@@ -32,8 +33,11 @@ session at original. These are prompt contracts, not an installed Git sandbox.
 2. Spawn os-apply via plain Agent WITHOUT `isolation` parameter. Initial assignment
    carries authorization below, change/root, recovery facts/outcomes;
    never discuss harness isolation in assignment prose.
-3. Inspect actual feature refs/SHAs, tasks-complete, clean worktree and preserved
-   original branch/baseline/status against delegated acceptance evidence.
+3. Each worker ends with a structured `## os-<name> report` whose fields are defined
+   in its agent file. A missing field or `Status: stopped` is not acceptance
+   evidence; for a stop, act on its `Blocker`/`Needs` under Recovery. Inspect actual
+   feature refs/SHAs, tasks-complete, clean worktree and preserved original
+   branch/baseline/status against the reported values.
 4. Before archive, confirm apply AND duck children stopped via ListAgents/completion;
    check agent history for separate plan/final review invocations; require
    final duck, disposition of EVERY finding and all gates passed.
@@ -92,9 +96,11 @@ Inventory required repos, including ignored/readonly deps, before authorization.
 Add participants: normalized relative P, original=`parentRoot/P`, isolated=
 `workspace/P`, canonical commonDir/baseline. Parent `.` stays writable worktree;
 children clone/worktree. Writable refs=`feat/<change>` and unique
-`refs/omp/import/<change>/...`; readonly branch/importRef=null. Detached original
-branch=HEAD. Submodule baselines match enclosing original baseline-tree gitlinks;
-deepest access wins. Require complete exact-relative-path workspace, per-repo AND
+`refs/omp/import/<change>/...`; readonly branch/importRef=null. If an original
+checkout is detached, record its branch as the literal `HEAD`. Each submodule
+baseline must equal the gitlink SHA in the enclosing original's baseline tree. When
+participant paths nest, the deepest participant covering a path decides its access.
+Require complete exact-relative-path workspace, per-repo AND
 integrated verification, preserved original/readonly status, retained clone commits
 and durable `.omp-workspace-progress.json`. Reconcile all refs before archive.
 Archive deepest first, final original child SHAs in enclosing gitlinks, committed

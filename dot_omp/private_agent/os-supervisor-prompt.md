@@ -23,8 +23,11 @@ Default: one repo, `feat/<change>`, linked `.worktrees/<change>`, session at ori
 2. Spawn `os-apply` with harness `isolated:` OFF. Assignment carries initial
    authorization below, change/root, recovery facts/outcomes.
    Never mention harness isolation in assignment prose.
-3. Inspect actual feature refs/SHAs, `tasks-complete`, clean worktree and preserved
-   original branch/baseline/status against delegated acceptance evidence.
+3. Each worker ends with a structured `## os-<name> report` whose fields are defined
+   in its agent file. A missing field or `Status: stopped` is not acceptance
+   evidence; for a stop, act on its `Blocker`/`Needs` under Recovery. Inspect actual
+   feature refs/SHAs, `tasks-complete`, clean worktree and preserved original
+   branch/baseline/status against the reported values.
 4. Before archive, verify apply AND its duck children have stopped via history;
    check history for separate plan/final `rubber-duck` invocations; require
    post-implementation review, disposition of EVERY finding and all gates passed.
@@ -85,8 +88,10 @@ authorization. Add participants with normalized relative path P, original root
 `parentRoot/P`, isolated root `workspace/P`, canonical commonDir and baseline SHA.
 Parent `.` stays writable worktree; children choose clone/worktree. Writable refs
 are `feat/<change>` and unique `refs/omp/import/<change>/...`; read-only branch/
-importRef are null. Detached originals use branch `HEAD`. Submodule baselines must
-match enclosing original baseline-tree gitlinks; deepest access wins.
+importRef are null. If an original checkout is detached, record its branch as the
+literal `HEAD`. Each submodule baseline must equal the gitlink SHA in the enclosing
+original's baseline tree. When participant paths nest, the deepest participant
+covering a path decides its access.
 
 Require complete exact-relative-path workspace, per-repo AND integrated verification,
 preserved original status/read-only content, retained clone commits and durable
