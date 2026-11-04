@@ -35,7 +35,8 @@ session at original. These are prompt contracts, not an installed Git sandbox.
 3. Inspect actual feature refs/SHAs, tasks-complete, clean worktree and preserved
    original branch/baseline/status against delegated acceptance evidence.
 4. Before archive, confirm apply AND duck children stopped via ListAgents/completion;
-   require final duck, disposition of EVERY finding and all gates passed.
+   check agent history for separate plan/final review invocations; require
+   final duck, disposition of EVERY finding and all gates passed.
    Never rush review or archive while a worker can still edit.
 5. Agent os-archive with SAME initial authorization/current recovery SHAs; omit
    isolation. Require delegated evidence: `--require archived`, merge parents/

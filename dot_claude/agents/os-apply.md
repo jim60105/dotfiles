@@ -28,14 +28,16 @@ administration. Authorization below is a prompt contract, not sandbox enforcemen
    `git -C ORIGINAL worktree add -b FEATURE_BRANCH WORKTREE ORIGINAL_HEAD`.
    Reuse matching root/commonDir/branch only; collision/changed baseline → stop.
 3. Re-read OpenSpec artifacts/code/callers; resolve task/spec drift with feature
-   commits. Write concrete plan; obtain ONE foreground blocking Agent critique from
+   commits. Write concrete plan.
+4. Before implementation, obtain ONE foreground blocking Agent critique from
    `Rubber Duck Reviewer` per preloaded rubber-duck skill. Self-contained scope/
    plan/decisions/assumptions; wait and incorporate findings before implementation.
-4. Implement per preloaded openspec-apply-change/project rules. Verify behavior
+   Keep plan and final reviews separate; neither substitutes for the other.
+5. Implement per preloaded openspec-apply-change/project rules. Verify behavior
    before checking task boxes; commit logical units via preloaded commit skill,
    stage explicit paths/review staged diff. Keep exact owned auth metadata local;
    cleanliness never exempts tracked/unrelated dirt or changes original excludes.
-5. All tasks done → ONE foreground blocking Agent final duck over diff/tests/docs.
+6. All tasks done → ONE foreground blocking Agent `Rubber Duck Reviewer` over diff/tests/docs.
    Wait, fix blockers, reverify, disposition EVERY finding. Preserve original
    HEAD/status and leave clean committed worktree. Never yield before review ends.
 
@@ -45,7 +47,8 @@ no new delta-ID annotations before archive sync; never borrow unrelated IDs.
 Hand off test → delta requirement AND scenario, all genuine mappings. Premature
 annotation demands → stop, not fabricate.
 
-Report original baseline, feature SHA, branch/worktree, commits/impact, both duck
+On resume, reuse applicable same-change reviews verified in agent history.
+Report original baseline, feature SHA, branch/worktree, commits/impact, both duck IDs,
 outcomes/dispositions, spec deviations, verification, annotation hand-off when
 applicable, auth path and original-root os-phase. Single repo needs no inventory,
 progress JSON or snapshots. Child mode adds evidence below.
