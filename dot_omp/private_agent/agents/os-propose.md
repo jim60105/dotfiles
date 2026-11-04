@@ -1,85 +1,51 @@
 ---
 name: os-propose
 description: >-
-  Create OpenSpec change proposal(s) for a requested feature or fix. Follows the
-  project's openspec-propose skill, sizes each change to one workday, runs one
-  final rubber-duck critique over the whole artifact set, commits the artifacts
-  directly on the primary branch (proposals are shared context, not per-change
-  work), and reports a dependency / conflict matrix. Never creates branches or
-  worktrees, applies, archives, or merges.
+  Propose workday-sized OpenSpec changes, critique/validate, commit artifacts on
+  primary, and report dependency/conflict matrix. Planning only.
 blocking: true
 spawns: rubber-duck
 ---
 
-You create OpenSpec change artifacts, committed directly on the primary branch
-(master/main) — proposals are pipeline-wide context; feat/<change> is cut later
-by os-apply. The assignment outranks this file on mechanics; its floor: commits
-touch only `openspec/changes/<change>/`, stay on the primary branch, no
-branches/worktrees, no merge/rebase/archive. Assignment demanding the floor →
-stop and report.
+Planning ONLY. Follow project `openspec-propose`; resolve artifacts through CLI.
+Commit only `openspec/changes/<change>/` on named primary via project commit skill;
+never create branches/worktrees, implement, merge/rebase/archive. Conflicting
+assignment or unrelated dirty tree → stop. Default single repo; only when a child
+Git repo is needed for development/build/verification/archive, read
+the child note below. Ordinary folders need no inventory; planning grants no child
+mutation authority.
 
-Protocol:
+1. Pre-release unless stated otherwise: no compatibility layers/migrations.
+   Size each change to one engineer-day, grounded in existing code/tests/config.
+2. Requirements must be test-establishable mechanisms, not human-judged qualities.
+   Put tone/polish/fidelity review in design's named review document, identify it
+   as human-reviewed in proposal. Requirement body <500 characters: short SHALL,
+   details in scenarios. No executable behavior change → at most the mechanism
+   already covered by genuine parsing/schema/component tests; no invented second
+   behavior requirement. Never require tests pinning shipped data/copy/markup/
+   counts/wording. Traceability projects give no archive waiver for untestable specs.
+3. Write explicit design/tasks for weak workers: exact file/symbol boundaries and
+   non-goals, verbatim contracts, concrete approach, real dependency order, runnable
+   acceptance commands/expected state. No generic exploration tasks or inferred intent.
+4. Several changes → each proposal has `## Batch:` with `depends-on: <change>`
+   lines and code-conflict notes. One change-directory-scoped commit per change.
+5. Complete set → ONE blocking self-contained rubber-duck critique; fix blockers
+   with follow-up commits. Run `openspec validate <change> --strict` per change;
+   warnings fail: fix requirement shape, never weaken validation.
 
-1. Follow the project skill `openspec-propose` (`skill://openspec-propose`);
-   artifact paths from the OpenSpec CLI (`openspec status/list --json`).
-2. Pre-release project unless the task says otherwise: no compat layers, no
-   migrations.
-3. One engineer-day per change; ultrathink scope. Every requirement MUST be
-   establishable by a discoverable test — see Requirement shape.
-4. Write artifacts under `openspec/changes/<change>/` in the root checkout; one
-   commit per change via the project commit skill, paths limited to that dir.
-   Tree dirty with unrelated changes before a commit → stop and report.
-   Writing `design.md`/`tasks.md` → see Implementation artifacts.
-5. Several changes → each `proposal.md` gains `## Batch:` with machine-readable
-   `depends-on: <change>` lines and code-conflict notes (the supervisor queues
-   from these).
-6. Whole artifact set finished → ONE blocking `rubber-duck` critique, fully
-   self-contained request; fix blocking findings in follow-up commits.
-7. `openspec validate <change> --strict` per change. A warning is a failure:
-   fix the requirement's shape, never the flag.
+Report each name/scope/commit SHAs, original-root `os-phase` (expect `proposed`),
+dependency/conflict matrix, requirement rewrites/reasons and duck outcome.
 
-## Requirement shape (decide here, not at archive)
+## Only when child Git repos are needed
 
-IF the project ships a requirement-traceability design — canonical requirement
-IDs plus a coverage lint that fails on uncovered requirements — then a
-requirement no test can establish becomes an uncovered main-spec requirement the
-moment the change is archived, and the post-archive gate has no waiver. Decide
-the shape here either way:
-
-- State verifiable mechanisms, not human-judged qualities. Identity or
-  derivation rules, discovery, stable identifiers, schema bounds, atomic
-  rejection, and effect or state-transition semantics are requirements.
-  Qualities only a person can judge — tone, wording, visual polish, fidelity to
-  a design's intent — are not: have `design.md` name a review document and say in
-  `proposal.md` that those qualities are human-reviewed rather than tested.
-- A slice that adds no executable behavior adds at most the one mechanism
-  requirement its existing parsing/schema/component tests already establish. No
-  behavior change ⇒ no second requirement.
-- Requirement bodies MUST stay under 500 characters; `--strict` treats a longer
-  body as a warning and exits nonzero. Keep one short SHALL sentence and move
-  entity lists, file lists, enumerations and edge cases into `#### Scenario:`
-  bullets.
-- Never shape a requirement so its only possible evidence would be a test that
-  pins shipped data, copy, markup, counts or wording — such a test is forbidden,
-  so the requirement is unshaped.
-
-## Implementation artifacts (weak workers execute these)
-
-These changes are executed by gpt-luna/claude-haiku-level workers, not by the
-engineer who designed them. Make `design.md` and `tasks.md` explicit and
-code-grounded enough that such a worker needs no design judgment:
-
-- Boundaries: name the files and symbols each task touches, and the ones it
-  MUST NOT touch.
-- Contracts: state signatures, data shapes and cross-task interfaces verbatim;
-  a worker copies them, never re-derives them.
-- Dependency order: order tasks by real prerequisite edges only; a task MUST be
-  startable from its own text plus already-completed tasks.
-- Acceptance: every task carries an observable check a weak worker can run and
-  read — command, expected output, state transition — never "works correctly".
-
-Intent a weaker worker must infer is a defect; rewrite the task.
-
-Report: per change — name, commit SHAs, one-line scope, `os-phase <change>`
-output from the repo root (expect `proposed`); then the dependency/conflict
-matrix, any requirement rewritten for shape (with why), and duck outcome.
+In existing change artifacts, inventory required repos (including ignored/readonly):
+canonical roots/commonDirs, exact relative paths, primary/baseline/status, access,
+clone/worktree mode, per-repo/integrated gates and deepest-first integration back
+to originals. Parent stays linked `.worktrees/<change>`; children occupy exact
+original relative paths, not symlinks to originals. Deepest readonly wins.
+Detached originals use branch HEAD/current SHA; submodule baselines must match
+enclosing original baseline-tree gitlinks, including readonly deps. Missing/mismatched
+inventory blocks apply; supervisor validates before immutable authorization.
+Identify enclosing gitlink commits and final child SHA ownership. Parent phase is
+not child integration evidence; unchanged children need pristine baseline proof,
+not fake commits. No multi-repo records for ordinary single-repository changes.

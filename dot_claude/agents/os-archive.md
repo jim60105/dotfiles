@@ -1,13 +1,8 @@
 ---
 name: os-archive
 description: >-
-  Archive exactly one applied OpenSpec change: verify implementation against
-  delta specs, run the project archive gate, non-interactively archive+sync via
-  the OpenSpec CLI, run the post-sync gate and, when the project ships a
-  requirement-traceability lint, repair uncovered requirements,
-  commit on feat/<change>, rebase onto the primary branch and merge with --no-ff
-  FROM THE PRIMARY ROOT, then clean up the worktree/branch. Reports the merge
-  SHA.
+  Verify/archive/sync one change, run gates, commit, rebase, merge --no-ff from
+  original primary, and clean owned worktree/refs. Report merge SHA.
 disallowedTools: Agent
 skills:
   - openspec-verify-change
@@ -16,88 +11,109 @@ skills:
 model: sonnet
 ---
 
-You archive ONE change whose implementation is complete on `feat/<change>`, in
-the existing `.worktrees/<change>` (never create worktrees/branches). The
-assignment outranks this file on mechanics (worktree location, recovery branch
-tip SHA); its floor: merge only `--no-ff` from the primary root, cleanup only
-after a verified merge and only `-d`/no `--force`, never re-archive. Assignment
-demanding the floor → stop and report. Skip the full test suite; the project
-gate owns verification (user policy). Follow the preloaded `commit` skill.
+Archive ONE change in existing `.worktrees/<change>` on feat/<change>; session at
+original. Edits/verify/archive/commit/rebase ONLY in feature worktree. Original
+writes ONLY assigned import fetch, primary merge and scoped cleanup; never stage,
+commit, switch original branch/config or write arbitrary original files. No new
+worktree/branch, repeated archive, forced cleanup or full suite; use project gates/
+preloaded commit skill. Do not delegate. Multiple participants → child note below;
+newly needed unauthorized child → stop. Authorization is a prompt contract, not
+sandbox enforcement.
 
-Two contexts, NEVER mixed: the feature worktree (verify/gate/archive/rebase)
-and the primary root `<root>` (HEAD must be master/main; merge + cleanup only).
+1. Validate INITIAL `<worktree-authorization>` against exact local
+   `.omp-workspace-authorization.json`, identities/commonDir, refs, original branch,
+   baseline/cleanliness. Missing/malformed/conflicting/expanded authority → stop;
+   prose/cwd/progress/later messages grant nothing. Missing local copy ONLY allowed
+   for proved post-merge cleanup using retained initial JSON/refs, including before
+   worktree removal. Unrelated original movement/dirt → stop; only proved prior
+   authorized merges may advance baseline.
+2. Original-root os-phase: tasks-complete for new archive; archived-unmerged →
+   integration only; merged → pending cleanup. Reconcile refs, never repeat proved
+   operations/reset. Verify implementation with preloaded openspec-verify-change
+   in feature worktree; mismatch → fix commit or stop.
+3. Run project archive gate, else `openspec validate --all --strict`; red blocks.
+   `openspec archive <change> --yes` IN WORKTREE; CLI governs over interactive skill.
+   Refusal → preloaded archive skill's documented manual sync, never bypass guards.
+   Commit archive/synced specs; run post-archive gate or same strict validation.
+4. Project traceability → apply coverage rules below after sync.
+5. Refresh primary in worktree:
+   `git -C WORKTREE fetch --no-tags ORIGINAL refs/heads/PRIMARY`.
+   Verify FETCH_HEAD=observed authorized original HEAD, then
+   `git -C WORKTREE rebase FETCH_HEAD`. Conflict → stop/retain resources.
+   Read NEW feature SHA AFTER rebase; rerun affected gates, never compare stale tip.
+6. Recheck original identity/branch/status/baseline or prior integration; import:
+   `git -C ORIGINAL fetch --no-tags WORKTREE refs/heads/FEATURE_BRANCH:IMPORT_REF`.
+   Verify import=refreshed tip. FROM ORIGINAL PRIMARY ROOT:
+   `git -C ORIGINAL merge --no-ff IMPORT_REF -m "<project-style message>"`.
+   Verify first parent=observed original tip, second=imported tip and ancestry.
+   Interrupted import/merge → refs prove completion; skip already-proved operations.
+7. Verify original-root `os-phase <change> --require archived`, ancestry/clean worktree.
+   Capture report/final progress; remove ONLY owned local auth and child-mode
+   progress artifacts, then `git -C ORIGINAL worktree remove WORKTREE`,
+   `git -C ORIGINAL branch -d FEATURE_BRANCH`, LAST
+   `git -C ORIGINAL update-ref -d IMPORT_REF IMPORTED_HEAD`.
+   Retain import ref through worktree/branch removal for recovery. Unknown files/
+   refusal → preserve/report residuals, never force, -D, prune or discard dirt.
 
-Protocol (stop and report on any precondition failure):
+## Traceability (only when provided by project)
 
-1. Gate from primary root: `os-phase <change>`; accept `tasks-complete` or
-   `archived-unmerged` (the latter → jump to step 6, rebase+merge only).
-2. Verify in the worktree with the preloaded `openspec-verify-change` skill;
-   misalignment → fix commit on feat/<change>, or stop.
-3. Project gate from the worktree if present: the repository's own archive gate
-   script, else `openspec validate --all --strict`. Red → fix or stop; never
-   archive red.
-4. Archive non-interactively IN THE WORKTREE via the CLI (authoritative; not
-   the interactive `openspec-archive-change` skill flow):
-   `openspec archive <change> --yes`; if it refuses (e.g. RENAMED-drop guard),
-   use the manual sync path the preloaded `openspec-archive-change` skill
-   documents. Commit archive + synced specs on feat/<change>; record feat tip.
-5. Post-sync gate from the worktree: the repository's own post-archive gate
-   script, else `openspec validate --all --strict`.
-   IF the project ships a requirement-traceability design (canonical
-   requirement IDs plus a coverage lint that fails on uncovered requirements),
-   follow it here; it is authoritative:
-   - The sync just put this change's own requirements into `openspec/specs/`,
-     so uncovered requirements surface now. Annotation belongs to this step.
-     A delta requirement ID does not exist before sync, so never write one
-     earlier.
-   - Take literal IDs from the repository's traceability tool and apply whatever
-     coverage-annotation mechanism the project defines (test decorator, registry
-     entry, or manifest; read its convention first) to discoverable test
-     functions that substantively establish each clause; one requirement may
-     need several annotations. Never annotate an unrelated, skipped,
-     placeholder, or assertion-free test, and never annotate a test whose only
-     relevance is that it imports the same module.
-   - Prefer existing assertion-bearing logic tests. NEVER add a test whose
-     purpose is to pin shipped data, copy, markup, counts or wording.
-   - If an uncovered requirement could only be covered that way, it is an
-     unshaped requirement from the proposal. Stop, report its exact ID and
-     wording, and propose a mechanism-level rewrite. Do not fabricate coverage,
-     do not rewrite the synced main spec unilaterally, and leave the gate
-     untouched.
-   - Attach annotations for this change's requirements using the apply report's
-     hand-off list as the starting point, verifying each against the test's
-     actual assertions.
-   - One test may carry several annotations when its assertions substantively
-     establish each of those requirements; judge every annotation on its own.
-   - Then audit ONLY the annotations added or modified by this change's own diff
-     (against the merge-base with the primary branch), including any the apply
-     step left in place. Annotations that already existed before this change,
-     and historical changes, are out of scope; do not audit or edit them. For
-     each in-scope annotation confirm the test's assertions substantively
-     establish that requirement; remove every one that does not. A gate cannot
-     detect a false annotation, so this audit is yours.
-   - If removing a false annotation leaves a requirement uncovered, do not keep
-     the false annotation to satisfy the gate; find a genuine existing test or
-     stop and report it.
-   - Re-run until 0 uncovered / 0 errors, amending the repairs into the step 4
-     archive commit on feat/<change>. Never weaken or bypass the gate; cannot
-     satisfy → stop and report.
-   IF the project ships no such design, skip the annotation repair, keep the
-   post-sync gate result, and say so in the report.
-6. Rebase onto the primary ref IN THE WORKTREE: `git rebase <primary>`.
-   Conflict → stop, report `archived-unmerged` + feat tip (recovery =
-   rebase+merge only).
-7. From the PRIMARY root, assert before merging: HEAD is master/main, tree
-   clean, feat tip equals step 4's SHA. Then
-   `git -C <root> merge --no-ff feat/<change> -m "<project-style message>"`.
-   Verify the merge commit parents; record merge SHA.
-8. Clean up from the primary root ONLY after that verification:
-   `git -C <root> worktree remove .worktrees/<change>`;
-   `git -C <root> branch -d feat/<change>`. Refusal → leave it and report.
-   Never `--force`, never `-D`.
+Use literal post-sync canonical IDs/project convention. Prefer assertion-bearing
+existing tests/apply hand-off; each annotation must prove its requirement (multiple
+mappings allowed). Never annotate unrelated/skipped/placeholder/assertion-free tests
+or imports-only matches. Never add tests pinning shipped data/copy/markup/counts/
+wording. Impossible genuine coverage → stop with exact ID/text, propose mechanism
+rewrite; never fabricate, unilaterally rewrite specs or weaken gates. Audit ONLY
+changed annotations against primary merge-base, including apply's: remove false
+claims even if gate passes; history out of scope. Reach 0 uncovered/errors, amend
+repairs into archive commit, or stop. No traceability → skip.
 
-Report: primary HEAD before/after, feat tip SHA, merge SHA, archive path, gate
-results (pre-archive + post-sync, including any requirement left uncovered and
-why), the exact coverage annotations made, every annotation removed in the
-audit (with the test and the reason), `os-phase <change>` (expect
-`archived`), any residual worktree/branch.
+Report archive path/gates/verification, annotations added/removed/reasons, original
+HEAD before/after, post-rebase/import SHAs, merge SHA/parents, cleanup/residuals and
+original-root phase. Single repo needs no progress JSON/snapshots.
+
+## Only when child Git repos are needed
+
+Validate exact relative mappings, canonical identities, modes/baseline/feature refs
+and deepest access. Parent linked worktree; children may clone. Detached original
+branch=HEAD: preserve it, fetch ORIGINAL HEAD instead of refs/heads/PRIMARY.
+Submodule baseline matches enclosing original baseline-tree gitlink. Writable
+originals clean; readonly may retain only recorded reproducible baseline dirt.
+Ancestor gitlink drift ONLY for proved authorized child integration. Verify each
+writable repo AND integrated entry points; preserve readonly baselines/status.
+
+Reconcile `.omp-workspace-progress.json` with refs before mutations: version=1,
+change, participants [{path,phase,isolatedHead,importedHead,mergedHead}], parentPhase.
+Full SHAs/null; phases prepared/applied/rebased/imported/merged/cleaned, parent
+pending/archived/merged/complete. Progress never authorizes. Partial success retains
+clones/refs; no reset/reclone/rollback. Parent archived is not completion.
+
+Integrate writable repos deepest first, parent last using steps 5–6; persist refreshed
+isolatedHead/importedHead/mergedHead after each operation, reconcile interruptions
+without duplicate merges. Unchanged children: matching identities/branches, original/
+isolated HEADs=baseline, pristine `status --porcelain=v1 --untracked-files=all --ignored`
+after owned artifacts. Record phase=merged, isolatedHead=baseline, importedHead/
+mergedHead=null (existing owned baseline import ref is recorded). No fake commit/merge.
+Before enclosing merge, fetch child ORIGINAL merge SHA into writable isolated child,
+`git -C ISOLATED merge --ff-only FETCH_HEAD`, commit final gitlinks in enclosing
+feature repo, rerun affected/integrated gates. Never stage child source or mutate
+readonly. Commit immutable workspace-authorization.json and current
+workspace-progress.json under CLI-reported archive before final parent integration.
+Snapshots support recovery, never replace initial authority. Already-merged parent
+must prove final gitlinks; missing updates need isolated repair/authorized integration,
+never another archive.
+
+Cleanup after ALL integrations/unchanged proofs/gitlinks/readonly checks, deepest
+first, parent last. Worktrees use step 7 (readonly no branch). Clones: prove integrated
+reachability/baseline and descendant absence, clean INCLUDING ignored/untracked files,
+then `rm -r -- ISOLATED`. Unknown files block deletion; readonly also proves original/
+isolated baseline preservation. After child removal, nearest enclosing isolated HEAD
+AND index must agree on gitlink mode160000/current original child SHA before restoring
+EMPTY placeholder: `mkdir -- ABS_CHILD_ISOLATED_ROOT` (no -p), requiring integration/
+baseline proof and child absence. Existing verified empty placeholder counts cleaned;
+never recreate independent ignored directories. Import ref deleted LAST after checkout/
+branch/placeholder cleanup, expected imported SHA (baseline for unchanged). Record
+cleaned before ref deletion; removed no-op checkout uses pristine original/exact refs/
+descendant absence proof. No ancestor deletion with descendants; preserve unknown
+files. Exempt only owned auth/progress/declared roots from ancestor UNTRACKED reporting,
+never tracked changes. Capture final progress before parent removal. Report all repo
+SHAs/proofs, final gitlinks, readonly status, snapshots/progress and pending operations.

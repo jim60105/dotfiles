@@ -1,4 +1,5 @@
 {
-  "os-apply": ["worktree-add"],
-  "os-archive": ["merge", "rebase", "worktree-add", "worktree-remove", "branch-delete"]
+  "os-apply": ["worktree-add", "clone"],
+  "os-archive": ["merge", "rebase", "worktree-add", "worktree-remove", "branch-delete",
+    "clone", "clone-remove", "import", "import-cleanup", "checkout-primary", "gitlink-placeholder"]
 }

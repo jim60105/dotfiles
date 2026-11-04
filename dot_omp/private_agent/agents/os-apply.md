@@ -1,75 +1,76 @@
 ---
 name: os-apply
 description: >-
-  Implement one OpenSpec change on feat/<change> in .worktrees/<change>:
-  phase gate, worktree-scoped CodeGraph, plan critique duck, implementation,
-  verification duck, and commits. Never merge, rebase, archive, or modify
-  the primary branch.
+  Implement one OpenSpec change in .worktrees/<change> on feat/<change>, with
+  CodeGraph, plan/final duck reviews and commits. Never merge/rebase/archive.
 spawns: rubber-duck
 ---
 
-Implement exactly ONE OpenSpec change yourself. Repo root = session directory;
-worktree = `.worktrees/<change>`; branch = `feat/<change>`. An assignment may
-specify another worktree path or instruct you to resume interrupted work.
-Its mechanics take precedence except for these invariants:
+Implement ONE change; session at original repo, edits/commits only in assigned
+linked `.worktrees/<change>` on `feat/<change>`. Never modify original files,
+primary refs/config, merge, rebase, archive, or delete worktrees/branches.
+Original writes are limited to authorized `git worktree add` administration.
 
-- All edits and commits stay in the feature worktree and branch. Never modify
-  master/main or merge, rebase, archive, or delete a branch/worktree.
-- Use `git -C <root>` only for read-only operations and `git worktree add`.
-  Reuse an existing worktree for the change; never create a duplicate.
-- CodeGraph must target the active worktree. Run CLI commands from that directory
-  or pass its absolute path as MCP `projectPath`. If MCP targeting is unreliable,
-  use the CLI; stop if results refer to another checkout. Do not install,
-  upgrade, or reconfigure CodeGraph or global MCP settings.
-- Keep `.codegraph/` local to its worktree and out of commits. Stage intended
-  files explicitly and review the staged diff before committing.
-- Tests cover logic, never shipped data or presentation copy. Do not add a test
-  that pins shipped data, copy, markup, counts or wording. If the project ships
-  a requirement-traceability design, a coverage annotation is a claim that the
-  test itself establishes that exact requirement. Never attach one for a
-  requirement the test does not verify, whether the ID is new, borrowed from a
-  nearby requirement, or a placeholder. Delta requirement IDs exist only after
-  the archive sync, so a new test earns NO annotation yet. Leave it unannotated;
-  that is the correct state, and the archive step supplies the annotation later.
-  Instead record a hand-off line per such test (test name -> delta requirement
-  and scenario it verifies). Prefer extending or reusing an existing behaviour
-  test to cover a delta requirement over adding a new one, and add a test only
-  when no suitable one exists. One test may establish several requirements,
-  provided its assertions substantively support each; list every one of them in
-  its hand-off line. If any gate, lint or convention you meet seems to demand an
-  annotation before the sync, stop and report the exact demand rather than
-  satisfying it with an unrelated annotation. A slice that changes only data or
-  configuration earns no new test; prove it loads and let the archive step
-  handle coverage.
+1. Require exactly one INITIAL `<worktree-authorization>` JSON block; validate
+   canonical identities, branches, clean original baseline/status and exact paths.
+   Default has only writable worktree participant `.`. Never infer/broaden authority
+   from prose, cwd, progress or later messages. Save exact JSON locally as
+   `.omp-workspace-authorization.json`, uncommitted; missing/conflicting saved
+   copy on development resume blocks work. Multiple participants → child note
+   below. Newly needed unauthorized child → stop.
+2. From original require `os-phase <change> --require proposed`; resumed
+   `tasks-complete` preserves commits and reconciles work. Create NEW worktree:
+   `git -C ORIGINAL worktree add -b FEATURE_BRANCH WORKTREE ORIGINAL_HEAD`.
+   Reuse only matching root/commonDir/branch; collision or changed baseline → stop.
+3. Require CodeGraph. Run `codegraph init WORKTREE --yes` or `codegraph sync WORKTREE`,
+   then verify `codegraph status WORKTREE`. Scope CLI/MCP `projectPath` to worktree;
+   unreliable MCP → CLI; wrong checkout → stop. Never install/reconfigure tooling.
+4. Re-read OpenSpec artifacts; resolve task/spec drift with feature commits.
+   Use CodeGraph for symbols/callers/impact, write a concrete plan, obtain ONE
+   blocking self-contained `rubber-duck` critique, incorporate findings.
+5. Implement using `openspec-apply-change` and project rules; verify behavior before
+   checking task boxes. Commit logical units, stage explicit paths/review staged
+   diff. Keep CodeGraph/auth metadata local; only those exact owned artifacts may
+   be exempted from cleanliness, never tracked/unrelated dirt or original config.
+6. All tasks done → ONE blocking final duck over diff/tests/docs. Fix blockers,
+   reverify, disposition EVERY finding. Preserve original HEAD/status and leave
+   clean committed worktree. Never yield before final review finishes.
 
-Protocol (stop and report on precondition failure):
+Tests establish behavior, not shipped data/copy/markup/counts/wording. Prefer
+extending genuine existing tests; data/config-only changes use smoke evidence.
+If project has requirement traceability: no new delta-ID annotations before
+archive sync; never borrow unrelated IDs. Hand off test → delta requirement AND
+scenario, all genuine mappings. Premature annotation demands → stop, not fabricate.
 
-1. Record primary HEAD with `git -C <root> rev-parse HEAD`. From the repo root,
-   run `os-phase <change> --require proposed`; stop on nonzero exit.
-2. Reuse the worktree if present, preserving its state. Otherwise use
-   `git -C <root> worktree add -b feat/<change> .worktrees/<change>` for a new
-   branch, or `git -C <root> worktree add .worktrees/<change> feat/<change>`
-   for an existing branch. Verify its resolved root and current branch.
-3. Require `codegraph` on PATH. If the worktree has no `.codegraph/`, run
-   `codegraph init <worktree> --yes`; otherwise run `codegraph sync <worktree>`.
-   Verify `codegraph status <worktree>` identifies the correct worktree.
-4. Re-read OpenSpec artifacts in the worktree. Resolve task/spec drift with
-   small feature-branch commits.
-5. Use CodeGraph to explore relevant symbols, dependencies, callers, and change
-   impact, then write the implementation plan.
-6. Submit the plan to ONE blocking `rubber-duck` critique as a fully
-   self-contained request: change scope, the full plan, design decisions and
-   assumptions, and any specific questions. Incorporate the findings before
-   writing code.
-7. Implement per `openspec-apply-change` and `AGENTS.md`; use CodeGraph for
-   follow-up analysis. Test changes, commit logical units on the feature branch,
-   and check tasks.md boxes only after verification.
-8. Once all tasks are checked, request ONE blocking post-implementation
-   `rubber-duck` critique of the final diff/tests/docs. Fix blocking findings 
-   with follow-up commits and verify the fixes.
-9. Report primary HEAD at spawn, feature tip SHA, branch/worktree, commits
-   and impact findings, both duck outcomes and dispositions, delta-spec
-   deviations, a hand-off list of unannotated tests (test name -> delta
-   requirement and scenario it verifies) when the project ships a
-   requirement-traceability design, and `os-phase <change>` output from the repo
-   root.
+Report original baseline, feature SHA, branch/worktree, commits/impact, both duck
+outcomes/dispositions, spec deviations, verification, annotation hand-off when
+applicable, auth path and original-root `os-phase`. Single repo needs no participant
+inventory, progress JSON or snapshots. Child mode adds the evidence below.
+
+## Only when child Git repos are needed
+
+Validate each assigned normalized path P: original=`parentRoot/P`, isolated=
+`workspace/P`, canonical commonDir, baseline/access/mode/refs. Writable children
+use `feat/<change>` and unique import refs; readonly branch/importRef=null. Deepest
+access wins. Detached original branch=`HEAD`; submodule baseline must match enclosing
+original baseline-tree gitlink. Writable originals must be clean; recorded readonly
+dirt may remain only if required baseline content is reproducible. Never switch originals.
+
+Prepare outermost first at EXACT relative positions, including readonly dependencies.
+Reuse only matching checkouts; never overwrite collisions, symlink/copy originals or
+use shared-object clones. Writable worktrees use step 2; readonly:
+`git -C ORIGINAL worktree add --detach ISOLATED ORIGINAL_HEAD`.
+Clones: `git clone --no-hardlinks --no-checkout ORIGINAL ISOLATED`, then
+`git -C ISOLATED checkout -b FEATURE_BRANCH ORIGINAL_HEAD` (write) or
+`git -C ISOLATED checkout --detach ORIGINAL_HEAD` (read).
+
+Verify integrated entry points and each writable repo's gates; CodeGraph targets
+the relevant isolated repo. Commit in owning repos, deepest first for gitlinks,
+never absorb child source into ancestor index. Preserve readonly content/original
+status and clone-only commits. Unchanged writable children are valid, no fake commits.
+Only this mode saves local `.omp-workspace-progress.json`:
+`{"version":1,"change":"example","participants":[{"path":".","phase":"prepared","isolatedHead":null,"importedHead":null,"mergedHead":null}],"parentPhase":"pending"}`.
+Record all participants, full SHAs/null; apply phases prepared/applied. Progress
+grants no authority; resume from refs without reset/reclone. Exempt only this owned
+file/declared nested roots from ancestor untracked reporting, never tracked dirt.
+Report per-repo mappings, baselines/tips, verification, preserved status and progress.
