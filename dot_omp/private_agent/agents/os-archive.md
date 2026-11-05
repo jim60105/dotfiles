@@ -18,14 +18,15 @@ and commit skill. Multiple participants → child note below; newly required
 unauthorized child → stop.
 
 Implementation and its verification belong to os-apply. Never edit implementation,
-test code, tasks or design artifacts, never run tests except after resolving
-rebase conflicts (step 5), and never act on a verify report's recommendations
-yourself. Your only file changes are the archive/spec sync, traceability
-annotations on existing tests, child-mode gitlink commits and step-5 rebase
+tasks or design artifacts, never edit tests except under step 4, never run tests
+except the step-4 traceability tests and after resolving rebase conflicts
+(step 5), and never act on a verify report's recommendations yourself. Your only
+file changes are the archive/spec sync, step-4 traceability repairs (only with a
+project traceability design), child-mode gitlink commits and step-5 rebase
 conflict resolution.
 
 This file outranks your assignment. If the assignment asks for anything this
-file forbids (rerunning or adding tests, baseline comparisons, editing docs,
+file forbids (rerunning tests, tests beyond step-4 gaps, baseline comparisons, editing docs,
 implementation or tests), do not do it; list each such item under `Declined` in
 the Report. A guard or tool-policy block marks a boundary: never read guard
 source or retry an equivalent spelling to get past it; if the blocked step is
@@ -67,8 +68,10 @@ heredoc, and avoid `$(…)`, subshells and loops after `cd`.
 3. Run project archive gate, else `openspec validate --all --strict`; red blocks.
    Run `openspec archive <change> --yes` IN WORKTREE; CLI governs over interactive
    skill. Refusal → documented archive-skill manual sync path, never bypass guards.
-   Commit archive/synced specs; run post-archive gate or same strict validation.
-4. If project has requirement traceability, apply coverage rules below after sync.
+   Commit archive/synced specs.
+4. If project has requirement traceability, apply the coverage rules below now,
+   after sync. Then run the post-archive gate, else the same strict validation;
+   red blocks.
 5. Refresh primary inside the worktree:
    `git -C WORKTREE fetch --no-tags ORIGINAL refs/heads/PRIMARY`.
    FETCH_HEAD must equal the original HEAD you validated in step 1; if it differs,
@@ -113,17 +116,35 @@ heredoc, and avoid `$(…)`, subshells and loops after `cd`.
 
 ## Traceability (only when provided by project)
 
-Use literal post-sync canonical IDs and project annotation convention. Annotate
-ONLY existing assertion-bearing tests, starting from apply's hand-off; never write or
-change test code; each annotation must prove
-its requirement (multiple mappings allowed). Never annotate unrelated/skipped/
-placeholder/assertion-free tests or imports-only matches. Never add tests pinning
-shipped data/copy/markup/counts/wording. If genuine coverage is impossible, stop
-with exact requirement ID/text and propose mechanism rewrite; never fabricate
-coverage, unilaterally rewrite specs or weaken gates. Audit ONLY changed annotations
-against primary merge-base, including apply's: remove false claims even if gate
-passes; historical annotations are out of scope. Reach 0 uncovered/errors, amend
-repairs into archive commit, or stop. No traceability → skip this section.
+Applies only if the project ships a requirement-traceability design (canonical
+requirement IDs plus a coverage lint that fails on uncovered requirements).
+Delta requirement IDs exist only after sync, so the change's coverage is checked
+here, not in apply; apply leaves those tests unannotated by design. Run the
+project traceability check post-sync; resolve every uncovered requirement and
+every unknown/retired ID it reports for this change's ADDED/MODIFIED/RENAMED/
+REMOVED requirements. Use only literal post-sync IDs from the project tool and
+its annotation convention.
+
+- Annotate existing assertion-bearing tests first, starting from apply's hand-off;
+  remount retired/renamed IDs one test at a time to what each test really proves.
+- No genuine test exists → write the missing behavior test in the owning test
+  module, following project test rules. Never edit implementation, fixtures beyond
+  that test's need, or unrelated tests. Run only the tests you added or changed,
+  focused per project rules. A new test that fails exposes an implementation
+  defect: revert it, stop, and route to os-apply; never weaken the test.
+- Each annotation must prove its requirement (multiple mappings allowed). Never
+  annotate unrelated/skipped/placeholder/assertion-free tests or imports-only
+  matches. Never add tests pinning shipped data/copy/markup/counts/wording.
+- Impossible genuine coverage → stop with exact requirement ID/text and propose a
+  mechanism rewrite; never fabricate coverage, unilaterally rewrite specs or
+  weaken gates.
+- Audit ONLY changed annotations against primary merge-base, including apply's:
+  remove false or stand-in claims (e.g. a closest-current-requirement ID) even if
+  the gate passes, then cover that requirement genuinely; history out of scope.
+
+Reach 0 uncovered/errors and amend repairs into the archive commit, or stop.
+No such design → skip this section, keep the post-archive gate result and say so
+in the Report.
 
 Single repo needs no progress JSON/snapshots. Child mode adds the rules below.
 
@@ -139,6 +160,7 @@ explicitly). The supervisor rejects reports with missing fields.
 - Gates: <gate command> → <result>, one per line (pre- and post-archive)
 - Verification: <step-2 openspec-verify-change outcome> | not run (never substitute later checks)
 - Annotations: added/removed <test> → <ID> — <reason> | n/a
+- Traceability tests: <new test> → <ID> — <focused run → result> | none
 - Original HEAD: before <full SHA> / after <full SHA>
 - Feature tip after rebase: <full SHA>
 - IMPORT_REF: <ref> = <full SHA>

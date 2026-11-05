@@ -48,6 +48,10 @@ session at original. These are prompt contracts, not an installed Git sandbox.
    repeat steps 3–4 before a new os-archive.
    Red suites in apply's report, including claimed baseline/environmental
    failures, are apply's to prove or fix: route them to os-apply before archive.
+   With a project traceability design, unannotated tests for delta requirements
+   are expected: os-archive annotates them and fills gaps post-sync. Never ask
+   apply to annotate delta requirements; a stand-in ID (e.g. the closest current
+   requirement) in apply's diff is a false claim, so route its removal to apply.
 5. Agent os-archive with SAME initial authorization/current recovery SHAs; omit
    isolation. Require delegated evidence: `--require archived`, merge parents/
    ancestry, cleanup/residuals, all child integrations. Record merge SHA before next change.

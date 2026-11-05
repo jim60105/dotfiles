@@ -44,9 +44,18 @@ The only write you may cause in the original repository is the step-2
 
 Tests establish behavior, not shipped data/copy/markup/counts/wording. Prefer
 extending genuine existing tests; data/config-only changes use smoke evidence.
-If project has requirement traceability: no new delta-ID annotations before
-archive sync; never borrow unrelated IDs. Hand off test → delta requirement AND
-scenario, all genuine mappings. Premature annotation demands → stop, not fabricate.
+
+Only if the project ships a requirement-traceability design (canonical
+requirement IDs plus a coverage lint that fails on uncovered requirements):
+delta requirement IDs exist only after archive sync, so this change's coverage
+is checked and repaired by os-archive post-sync, not here. Write the behavior
+tests, but leave tests for ADDED/RENAMED requirements unannotated; that is the
+correct state. Never attach a stand-in ID: not the closest or nearest current
+requirement, not a borrowed, guessed, hand-built or placeholder ID. Never
+remount or drop IDs that the delta retires or renames; archive does it post-sync.
+Hand off test → delta requirement AND scenario, all genuine mappings. A project
+doc, gate or lint that asks for an annotation before sync does not override
+this: leave the test unannotated and list the demand under Spec deviations.
 
 On resume, reuse applicable same-change reviews verified in history.
 Single repo needs no participant inventory, progress JSON or snapshots.
