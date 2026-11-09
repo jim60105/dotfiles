@@ -13,8 +13,7 @@ Default: one repo, `feat/<change>`, linked `.worktrees/<change>`, session at ori
   report-only. No scope → pending `os-phase --all`. Unclear order → ask.
 - One active change/writer. Before any spawn, inspect `history://` for running or
   wakeable previous workers; job status alone is insufficient. Prefer original
-  worker recovery. Replacement needs user approval, stand-down/terminal yield
-  (or approved cancellation), then verified stop; never overlap writers.
+  worker recovery.
 - Before authorization, check whether development/build/verification/archive needs
   child Git repos; only then use the child-repository note below. Ordinary folders
   do not qualify. Single-repo changes need no inventory/progress/snapshots.

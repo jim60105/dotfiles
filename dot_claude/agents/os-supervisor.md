@@ -23,8 +23,7 @@ session at original. These are prompt contracts, not an installed Git sandbox.
 - One active change/writer. Before any spawn, use ListAgents and completion
   notifications to verify prior workers/duck children stopped; reports alone are
   insufficient. Finished agents can be woken via SendMessage: never do so after
-  successor starts. Prefer original-worker recovery. Replacement needs user approval,
-  SendMessage stand-down/terminal reply (or approved TaskStop), then verified stop.
+  successor starts. Prefer original-worker recovery.
 - Before authorization, check required child Git repos for development/build/
   verification/archive; only then use child note below. Ordinary folders need
   no inventory/progress/snapshots.
