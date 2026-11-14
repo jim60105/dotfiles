@@ -11,11 +11,22 @@ _openspec() {
   commands=(
     'init:Initialize OpenSpec in your project'
     'update:Update OpenSpec instruction files'
+    'install:Install the standalone openspec, which runs without Node.js (latest release unless \[version\] is given)'
+    'version:Report the installed OpenSpec version and update availability'
     'list:List items (changes by default, or specs with --specs)'
     'view:Display an interactive dashboard of specs and changes'
     'validate:Validate changes and specs'
     'show:Show a change or spec'
     'archive:Archive a completed change and update main specs'
+    'status:Display artifact completion status for a change'
+    'instructions:Output enriched instructions for artifacts, apply, or archive'
+    'templates:Show resolved template paths for all artifacts in a schema'
+    'schemas:List available workflow schemas with descriptions'
+    'new:Create new items'
+    'store:Create and manage stores - standalone OpenSpec repos you register on this machine'
+    'context:Print the working context for the resolved OpenSpec root'
+    'doctor:Report relationship health for the resolved OpenSpec root'
+    'workset:Compose, keep, and open personal working views (purely local)'
     'feedback:Submit feedback about OpenSpec'
     'change:Manage OpenSpec change proposals (deprecated)'
     'spec:Manage OpenSpec specifications'
@@ -40,6 +51,12 @@ _openspec() {
         update)
           _openspec_update
           ;;
+        install)
+          _openspec_install
+          ;;
+        version)
+          _openspec_version
+          ;;
         list)
           _openspec_list
           ;;
@@ -54,6 +71,33 @@ _openspec() {
           ;;
         archive)
           _openspec_archive
+          ;;
+        status)
+          _openspec_status
+          ;;
+        instructions)
+          _openspec_instructions
+          ;;
+        templates)
+          _openspec_templates
+          ;;
+        schemas)
+          _openspec_schemas
+          ;;
+        new)
+          _openspec_new
+          ;;
+        store)
+          _openspec_store
+          ;;
+        context)
+          _openspec_context
+          ;;
+        doctor)
+          _openspec_doctor
+          ;;
+        workset)
+          _openspec_workset
           ;;
         feedback)
           _openspec_feedback
@@ -81,22 +125,48 @@ _openspec() {
 _openspec_init() {
   _arguments \
     '--tools[Configure AI tools non-interactively (e.g., "all", "none", or comma-separated tool IDs)]:value:' \
-    '*:path:_files'
+    '--language[Write new OpenSpec artifacts in this language]:value:' \
+    '--force[Auto-cleanup legacy files without prompting]' \
+    '--profile[Override global config profile (core or custom)]:value:(core custom)' \
+    '--no-animation[Show a static welcome screen instead of the animated one]' \
+    '--copilot-cloud[Generate GitHub Copilot cloud coding-agent files (opt-in; default\: prompt)]' \
+    '--no-copilot-cloud[Skip generating GitHub Copilot cloud coding-agent files]' \
+    '1::path:_files'
 }
 
 _openspec_update() {
   _arguments \
-    '*:path:_files'
+    '--force[Force update even when tools are up to date]' \
+    '--dry-run[Report what the update would change without writing anything]' \
+    '--json[With --dry-run, print the planned changes as JSON]' \
+    '1::path:_files'
+}
+
+_openspec_install() {
+  _arguments \
+    '1::version:'
+}
+
+_openspec_version() {
+  _arguments \
+    '--json[Output as JSON]' \
+    '--check[Check the registry for a newer version]'
 }
 
 _openspec_list() {
   _arguments \
     '--specs[List specs instead of changes]' \
-    '--changes[List changes explicitly (default)]'
+    '--changes[List changes explicitly (default)]' \
+    '--archived[Show only archived changes]' \
+    '--all[Show both active and archived changes]' \
+    '--sort[Sort order\: "recent" (default) or "name"]:value:(recent name)' \
+    '--json[Output as JSON]' \
+    '--store[Store id to use as the OpenSpec root (a store is a standalone OpenSpec repo you'\''ve registered)]:value:'
 }
 
 _openspec_view() {
-  _arguments
+  _arguments \
+    '--store[Store id to use as the OpenSpec root (a store is a standalone OpenSpec repo you'\''ve registered)]:value:'
 }
 
 _openspec_validate() {
@@ -104,12 +174,15 @@ _openspec_validate() {
     '--all[Validate all changes and specs]' \
     '--changes[Validate all changes]' \
     '--specs[Validate all specs]' \
+    '--archived[Validate that archived changes have all tasks completed (for pre-commit linting)]' \
+    '--report[Select bulk report content]:value:(full findings)' \
     '--type[Specify item type when ambiguous]:value:(change spec)' \
     '--strict[Enable strict validation mode]' \
     '--json[Output validation results as JSON]' \
     '--concurrency[Max concurrent validations (defaults to env OPENSPEC_CONCURRENCY or 6)]:value:' \
     '--no-interactive[Disable interactive prompts]' \
-    '*: :_openspec_complete_items'
+    '--store[Store id to use as the OpenSpec root (a store is a standalone OpenSpec repo you'\''ve registered)]:value:' \
+    '1::item-name:_openspec_complete_items'
 }
 
 _openspec_show() {
@@ -119,10 +192,12 @@ _openspec_show() {
     '--no-interactive[Disable interactive prompts]' \
     '--deltas-only[Show only deltas (JSON only, change-specific)]' \
     '--requirements-only[Alias for --deltas-only (deprecated, change-specific)]' \
+    '--diff[Show per-requirement diffs for delta specs (change-specific)]' \
     '--requirements[Show only requirements, exclude scenarios (JSON only, spec-specific)]' \
     '--no-scenarios[Exclude scenario content (JSON only, spec-specific)]' \
     '(-r --requirement)'{-r,--requirement}'[Show specific requirement by ID (JSON only, spec-specific)]:value:' \
-    '*: :_openspec_complete_items'
+    '--store[Store id to use as the OpenSpec root (a store is a standalone OpenSpec repo you'\''ve registered)]:value:' \
+    '1::item-name:_openspec_complete_items'
 }
 
 _openspec_archive() {
@@ -130,13 +205,268 @@ _openspec_archive() {
     '(-y --yes)'{-y,--yes}'[Skip confirmation prompts]' \
     '--skip-specs[Skip spec update operations]' \
     '--no-validate[Skip validation (not recommended)]' \
-    '*: :_openspec_complete_changes'
+    '--json[Output as JSON (non-interactive)]' \
+    '--store[Store id to use as the OpenSpec root (a store is a standalone OpenSpec repo you'\''ve registered)]:value:' \
+    '1::change-name:_openspec_complete_changes'
+}
+
+_openspec_status() {
+  _arguments \
+    '--change[Change name to show status for]:value:' \
+    '--all[Show status for all active changes]' \
+    '--schema[Schema override]:value:' \
+    '--json[Output as JSON]' \
+    '--store[Store id to use as the OpenSpec root (a store is a standalone OpenSpec repo you'\''ve registered)]:value:'
+}
+
+_openspec_instructions() {
+  _arguments \
+    '--change[Change name]:value:' \
+    '--schema[Schema override]:value:' \
+    '--json[Output as JSON]' \
+    '--store[Store id to use as the OpenSpec root (a store is a standalone OpenSpec repo you'\''ve registered)]:value:' \
+    '1::artifact:'
+}
+
+_openspec_templates() {
+  _arguments \
+    '--schema[Schema to use]:value:' \
+    '--json[Output as JSON]'
+}
+
+_openspec_schemas() {
+  _arguments \
+    '--json[Output as JSON]' \
+    '--store[Store id to use as the OpenSpec root (a store is a standalone OpenSpec repo you'\''ve registered)]:value:'
+}
+
+_openspec_new() {
+  local context state line
+  typeset -A opt_args
+
+  local -a subcommands
+  subcommands=(
+    'change:Create a new change directory'
+  )
+
+  _arguments -C \
+    "1: :->subcommand" \
+    "*::arg:->args"
+
+  case $state in
+    subcommand)
+      _describe "subcommand" subcommands
+      ;;
+    args)
+      case $words[1] in
+        change)
+          _openspec_new_change
+          ;;
+      esac
+      ;;
+  esac
+}
+
+_openspec_new_change() {
+  _arguments \
+    '--description[Description to add to README.md]:value:' \
+    '--goal[Optional goal metadata to store with the change]:value:' \
+    '--schema[Workflow schema to use]:value:' \
+    '--json[Output as JSON]' \
+    '--store[Store id to use as the OpenSpec root (a store is a standalone OpenSpec repo you'\''ve registered)]:value:' \
+    '1:name:'
+}
+
+_openspec_store() {
+  local context state line
+  typeset -A opt_args
+
+  local -a subcommands
+  subcommands=(
+    'setup:Create or register a local store'
+    'register:Register an existing store directory'
+    'unregister:Forget a local store registration without deleting files'
+    'remove:Forget a local store registration and delete its local folder'
+    'list:List registered stores'
+    'ls:List registered stores'
+    'doctor:Check local store registration and metadata'
+  )
+
+  _arguments -C \
+    "1: :->subcommand" \
+    "*::arg:->args"
+
+  case $state in
+    subcommand)
+      _describe "subcommand" subcommands
+      ;;
+    args)
+      case $words[1] in
+        setup)
+          _openspec_store_setup
+          ;;
+        register)
+          _openspec_store_register
+          ;;
+        unregister)
+          _openspec_store_unregister
+          ;;
+        remove)
+          _openspec_store_remove
+          ;;
+        list)
+          _openspec_store_list
+          ;;
+        ls)
+          _openspec_store_ls
+          ;;
+        doctor)
+          _openspec_store_doctor
+          ;;
+      esac
+      ;;
+  esac
+}
+
+_openspec_store_setup() {
+  _arguments \
+    '--path[Directory to use for the store]:value:' \
+    '--init-git[Initialize a Git repository in the store]' \
+    '--no-init-git[Skip Git repository initialization]' \
+    '--remote[Canonical clone source recorded in store.yaml]:value:' \
+    '--json[Output as JSON]' \
+    '1::id:'
+}
+
+_openspec_store_register() {
+  _arguments \
+    '--id[Store id]:value:' \
+    '--yes[Confirm creating store identity metadata]' \
+    '--json[Output as JSON]' \
+    '1::path:_files'
+}
+
+_openspec_store_unregister() {
+  _arguments \
+    '--json[Output as JSON]' \
+    '1:id:'
+}
+
+_openspec_store_remove() {
+  _arguments \
+    '--yes[Confirm local store folder deletion]' \
+    '--json[Output as JSON]' \
+    '1:id:'
+}
+
+_openspec_store_list() {
+  _arguments \
+    '--json[Output as JSON]'
+}
+
+_openspec_store_ls() {
+  _arguments \
+    '--json[Output as JSON]'
+}
+
+_openspec_store_doctor() {
+  _arguments \
+    '--json[Output as JSON]' \
+    '1::id:'
+}
+
+_openspec_context() {
+  _arguments \
+    '--json[Output as JSON]' \
+    '--store[Store id to use as the OpenSpec root (a store is a standalone OpenSpec repo you'\''ve registered)]:value:' \
+    '--code-workspace[Also write a VS Code workspace file for the set]:value:' \
+    '--force[Overwrite an existing --code-workspace file]'
+}
+
+_openspec_doctor() {
+  _arguments \
+    '--json[Output as JSON]' \
+    '--store[Store id to use as the OpenSpec root (a store is a standalone OpenSpec repo you'\''ve registered)]:value:'
+}
+
+_openspec_workset() {
+  local context state line
+  typeset -A opt_args
+
+  local -a subcommands
+  subcommands=(
+    'create:Compose and save a named working view of folders you choose'
+    'list:Show saved worksets with their members'
+    'ls:Show saved worksets with their members'
+    'open:Open a saved workset in your tool (editor window or agent session)'
+    'remove:Delete a saved workset (member folders are never touched)'
+  )
+
+  _arguments -C \
+    "1: :->subcommand" \
+    "*::arg:->args"
+
+  case $state in
+    subcommand)
+      _describe "subcommand" subcommands
+      ;;
+    args)
+      case $words[1] in
+        create)
+          _openspec_workset_create
+          ;;
+        list)
+          _openspec_workset_list
+          ;;
+        ls)
+          _openspec_workset_ls
+          ;;
+        open)
+          _openspec_workset_open
+          ;;
+        remove)
+          _openspec_workset_remove
+          ;;
+      esac
+      ;;
+  esac
+}
+
+_openspec_workset_create() {
+  _arguments \
+    '--member[Member folder as <path> or <name>=<path>; repeatable, first is the primary]:value:' \
+    '--tool[Preferred tool to open this workset with]:value:' \
+    '--json[Output as JSON]' \
+    '1::name:'
+}
+
+_openspec_workset_list() {
+  _arguments \
+    '--json[Output as JSON]'
+}
+
+_openspec_workset_ls() {
+  _arguments \
+    '--json[Output as JSON]'
+}
+
+_openspec_workset_open() {
+  _arguments \
+    '--tool[Open with this tool just this once]:value:' \
+    '1:name:'
+}
+
+_openspec_workset_remove() {
+  _arguments \
+    '--yes[Confirm removal non-interactively]' \
+    '--json[Output as JSON]' \
+    '1:name:'
 }
 
 _openspec_feedback() {
   _arguments \
     '--body[Detailed description for the feedback]:value:' \
-    '*: :_default'
+    '1:message:'
 }
 
 _openspec_change() {
@@ -179,8 +509,9 @@ _openspec_change_show() {
     '--json[Output as JSON]' \
     '--deltas-only[Show only deltas (JSON only)]' \
     '--requirements-only[Alias for --deltas-only (deprecated)]' \
+    '--diff[Show per-requirement diffs for delta specs]' \
     '--no-interactive[Disable interactive prompts]' \
-    '*: :_openspec_complete_changes'
+    '1::change-name:_openspec_complete_changes'
 }
 
 _openspec_change_list() {
@@ -194,7 +525,7 @@ _openspec_change_validate() {
     '--strict[Enable strict validation mode]' \
     '--json[Output validation results as JSON]' \
     '--no-interactive[Disable interactive prompts]' \
-    '*: :_openspec_complete_changes'
+    '1::change-name:_openspec_complete_changes'
 }
 
 _openspec_spec() {
@@ -239,7 +570,7 @@ _openspec_spec_show() {
     '--no-scenarios[Exclude scenario content (JSON only)]' \
     '(-r --requirement)'{-r,--requirement}'[Show specific requirement by ID (JSON only)]:value:' \
     '--no-interactive[Disable interactive prompts]' \
-    '*: :_openspec_complete_specs'
+    '1::spec-id:_openspec_complete_specs'
 }
 
 _openspec_spec_list() {
@@ -253,7 +584,7 @@ _openspec_spec_validate() {
     '--strict[Enable strict validation mode]' \
     '--json[Output validation results as JSON]' \
     '--no-interactive[Disable interactive prompts]' \
-    '*: :_openspec_complete_specs'
+    '1::spec-id:_openspec_complete_specs'
 }
 
 _openspec_completion() {
@@ -293,19 +624,19 @@ _openspec_completion() {
 
 _openspec_completion_generate() {
   _arguments \
-    '*:shell:(zsh bash fish powershell)'
+    '1::shell:(zsh bash fish powershell)'
 }
 
 _openspec_completion_install() {
   _arguments \
     '--verbose[Show detailed installation output]' \
-    '*:shell:(zsh bash fish powershell)'
+    '1::shell:(zsh bash fish powershell)'
 }
 
 _openspec_completion_uninstall() {
   _arguments \
     '(-y --yes)'{-y,--yes}'[Skip confirmation prompts]' \
-    '*:shell:(zsh bash fish powershell)'
+    '1::shell:(zsh bash fish powershell)'
 }
 
 _openspec_config() {
@@ -375,19 +706,20 @@ _openspec_config_list() {
 
 _openspec_config_get() {
   _arguments \
-    '*: :_default'
+    '1:key:'
 }
 
 _openspec_config_set() {
   _arguments \
     '--string[Force value to be stored as string]' \
     '--allow-unknown[Allow setting unknown keys]' \
-    '*: :_default'
+    '1:key:' \
+    '2:value:'
 }
 
 _openspec_config_unset() {
   _arguments \
-    '*: :_default'
+    '1:key:'
 }
 
 _openspec_config_reset() {
@@ -401,7 +733,8 @@ _openspec_config_edit() {
 }
 
 _openspec_config_profile() {
-  _arguments
+  _arguments \
+    '1::preset:'
 }
 
 _openspec_schema() {
@@ -447,21 +780,22 @@ _openspec_schema_which() {
   _arguments \
     '--json[Output as JSON]' \
     '--all[List all schemas with their resolution sources]' \
-    '*: :_default'
+    '1::name:_openspec_complete_schemas'
 }
 
 _openspec_schema_validate() {
   _arguments \
     '--json[Output as JSON]' \
     '--verbose[Show detailed validation steps]' \
-    '*: :_default'
+    '1::name:_openspec_complete_schemas'
 }
 
 _openspec_schema_fork() {
   _arguments \
     '--json[Output as JSON]' \
     '--force[Overwrite existing destination]' \
-    '*: :_default'
+    '1:source:_openspec_complete_schemas' \
+    '2::name:'
 }
 
 _openspec_schema_init() {
@@ -472,7 +806,7 @@ _openspec_schema_init() {
     '--default[Set as project default schema]' \
     '--no-default[Do not prompt to set as default]' \
     '--force[Overwrite existing schema]' \
-    '*: :_default'
+    '1:name:'
 }
 
 # Dynamic completion helpers
@@ -505,5 +839,14 @@ _openspec_complete_items() {
     items+=("$id:$desc")
   done < <(openspec __complete specs 2>/dev/null)
   _describe "item" items
+}
+
+# Use openspec __complete to get available schemas
+_openspec_complete_schemas() {
+  local -a schemas
+  while IFS=$'\t' read -r id desc; do
+    schemas+=("$id:$desc")
+  done < <(openspec __complete schemas 2>/dev/null)
+  _describe "schema" schemas
 }
 compdef _openspec openspec
