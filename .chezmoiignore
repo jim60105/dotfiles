@@ -8,6 +8,7 @@ LICENSE
 README.md
 **/.git
 tmp/**
+copilot-prompt/skills/synced
 {{- if ne .chezmoi.hostname "Jim-T480" }}
 .config/mpv
 {{- end }}
