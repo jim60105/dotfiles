@@ -1,16 +1,17 @@
 modelRoles:
   rubber_duck: openai-codex/gpt-6.1-sol:auto
   advisor: openai-codex/gpt-6.1-sol:auto
-  tiny: google-antigravity/gemini-3.8-flash:minimal
-  smol: google-antigravity/gemini-3.8-flash:auto
+  tiny: opencode-go/deepseek-v4.1-flash:low
+  smol: opencode-go/deepseek-v4.1-flash:low
   slow: pro6000/qwen3.8-flash-next:low
   web: google/gemini-2.5-flash
-  commit: pro6000/qwen3.8-flash-next
-  default: pro6000/qwen3.8-flash-next:low
+  commit: opencode-go/deepseek-v4.1-flash:auto
+  judge: openrouter/microsoft/microsoft-decision-1
+  default: opencode-go/deepseek-v4.1-flash
 shellPath: /bin/zsh
 bashInterceptor:
   enabled: true
-setupVersion: 2
+setupVersion: 3
 skills:
   ignoredSkills:
     - add-artifact-attestations-to-workflow
@@ -30,10 +31,12 @@ theme:
 symbolPreset: nerd
 composer:
   shape: band
+  tokenRate: true
 terminal:
   showProgress: true
 tui:
   textSizing: true
+  completeScrollback: true
 display:
   cacheMissMarker: true
   showTurnTime: false
@@ -43,14 +46,13 @@ display:
 showHardwareCursor: false
 task:
   showResolvedModelBadge: true
-  agentModelOverrides:
-    task: pro6000/qwen3.8-flash-next:low
-    scout: pro6000/qwen3.8-flash-next:low
-    sonic: pro6000/qwen3.8-flash-next:low
-    reviewer: pro6000/qwen3.8-flash-next:low
   isolation:
     commits: generic
     enabled: true
+  agentModelOverrides:
+    reviewer: openai-codex/gpt-6.1-sol
+    os-propose: openai-codex/gpt-6.1-sol:high
+    os-apply: opencode-go/deepseek-v4.1-flash:high
 proseOnlyThinking: true
 tier:
   openai: none
@@ -78,7 +80,7 @@ commands:
   enableOpencodeUser: false
   enableOpencodeProject: false
 todo:
-  reminders: true
+  reminders: false
   remindersMax: 1
   enabled: true
 astGrep:
@@ -107,6 +109,7 @@ compaction:
     - shake
     - soft
     - handoff
+  thresholdPercent: 70
 title:
   refreshOnReplan: true
 browser:
@@ -115,7 +118,8 @@ browser:
   enabled: false
 defaultThinkingLevel: auto
 codexResets:
-  autoRedeem: "no"
+  autoRedeem5h: "no"
+  autoRedeemWeekly: "no"
 collab:
   autoStart: "off"
 retry:
@@ -144,11 +148,18 @@ retry:
       - web/mojeek
       - web/public
       - google-antigravity/gemini-2.5-flash
-      - openai-codex/gpt-5.6
-      - openai-codex/gpt-5.5
+      - openai-codex/gpt-5.6-sol
       - xai-oauth/grok-4.5
       - web/ollama
 features:
   unexpectedStopDetection: smart
 web_search:
   enabled: true
+emojiAutocomplete: true
+claudeResets:
+  autoRedeem5h: "no"
+  autoRedeemWeekly: "no"
+update:
+  auto: false
+commit:
+  enabled: false
