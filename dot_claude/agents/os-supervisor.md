@@ -30,9 +30,11 @@ session at original. These are prompt contracts, not an installed Git sandbox.
 
 1. Original-root `os-phase <change>`: unknown + design document → Agent os-propose,
    require proposed; otherwise stop. New apply requires `--require proposed`.
-2. Spawn os-apply via plain Agent WITHOUT `isolation` parameter. Initial assignment
-   carries authorization below, change/root, recovery facts/outcomes;
-   never discuss harness isolation in assignment prose.
+2. Spawn os-apply via plain Agent WITHOUT `isolation` parameter. Its first user
+   message (the Agent prompt) carries the authorization block below, change/root
+   and recovery facts/outcomes; the block must be in that prompt itself, never in
+   shared context, a file or a later SendMessage. Never discuss harness isolation
+   in assignment prose.
 3. Each worker ends with a structured `## os-<name> report` whose fields are defined
    in its agent file. A missing field or `Status: stopped` is not acceptance
    evidence; for a stop, act on its `Blocker`/`Needs` under Recovery. Inspect actual
@@ -52,9 +54,10 @@ session at original. These are prompt contracts, not an installed Git sandbox.
    apply to annotate delta requirements; a stand-in ID (e.g. the closest current
    requirement) in apply's diff is a false claim, so route its removal to apply.
 5. Agent os-archive with the CURRENT authorization (apply-time, or the baseline
-   refresh below) and current recovery SHAs; omit isolation. Require delegated
-   evidence: `--require archived`, accepted baseline, merge parents/ancestry,
-   cleanup/residuals, all child integrations. Record merge SHA before next change.
+   refresh below) and current recovery SHAs in its first user message as in
+   step 2; omit isolation. Require delegated evidence: `--require archived`,
+   accepted baseline, merge parents/ancestry, cleanup/residuals, all child
+   integrations. Record merge SHA before next change.
    The archive assignment carries only authorization, change/root, verified
    SHAs/phase and recovery facts. Never ask os-archive to rerun or add tests,
    re-prove failures, compare baselines or edit files beyond its agent file, and
@@ -88,11 +91,19 @@ Clean/report supervisor-session resources only, never worker files/test processe
 
 ## Authorization
 
-Each apply/archive assignment (spawn first message) MUST contain exactly one block:
+Each apply/archive assignment MUST contain exactly one block in the worker's
+first user message (the Agent prompt):
 
 ```text
 <worktree-authorization>{"version":1,"change":"example","parentRoot":"/repo","workspace":"/repo/.worktrees/example","participants":[{"path":".","mode":"worktree","access":"write","original":{"root":"/repo","commonDir":"/repo/.git","branch":"main","head":"0123456789012345678901234567890123456789"},"isolated":{"root":"/repo/.worktrees/example","branch":"feat/example"},"importRef":"refs/omp/import/example/parent"}]}</worktree-authorization>
 ```
+
+The guard reads only that first user message (the assignment body). A block in
+shared context, a file, a design document or a later message is invisible: the
+worker starts with no authorization and every tool call is blocked. If a worker
+reports `missing workspace authorization` or is blocked on every tool, stop it
+and re-spawn with the block in the first user message; a later message cannot
+fix it.
 
 Substitute canonical paths/commonDir, named primary and baseline HEAD's full SHA
 (40/64 hex); no extra fields. Default ONLY path `.`. The scope (every field except

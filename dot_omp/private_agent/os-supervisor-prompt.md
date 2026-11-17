@@ -20,9 +20,10 @@ Default: one repo, `feat/<change>`, linked `.worktrees/<change>`, session at ori
 
 1. Run `os-phase <change>` from original. Unknown + design document → `os-propose`,
    require `proposed`; otherwise stop. New apply requires `--require proposed`.
-2. Spawn `os-apply` with harness `isolated:` OFF. Assignment carries initial
-   authorization below, change/root, recovery facts/outcomes.
-   Never mention harness isolation in assignment prose.
+2. Spawn `os-apply` with harness `isolated:` OFF. Put the authorization block
+   below, change/root and recovery facts/outcomes in that task's `task` string
+   (the worker's first user message) — never in the shared top-level `context`,
+   a file or a later message. Never mention harness isolation in assignment prose.
 3. Each worker ends with a structured `## os-<name> report` whose fields are defined
    in its agent file. A missing field or `Status: stopped` is not acceptance
    evidence; for a stop, act on its `Blocker`/`Needs` under Recovery. Inspect actual
@@ -42,7 +43,7 @@ Default: one repo, `feat/<change>`, linked `.worktrees/<change>`, session at ori
    apply to annotate delta requirements; a stand-in ID (e.g. the closest current
    requirement) in apply's diff is a false claim, so route its removal to apply.
 5. Spawn `os-archive` with the CURRENT authorization (apply-time, or the baseline
-   refresh below) and current recovery SHAs.
+   refresh below) and current recovery SHAs in its `task` string as in step 2.
    Require delegated evidence: `--require archived`, accepted baseline, merge
    parents/ancestry, cleanup/residuals, all child integrations. Record merge SHA
    before next change.
@@ -79,11 +80,19 @@ Clean/report supervisor-session resources only, never worker files/jobs.
 
 ## Authorization
 
-Each apply/archive assignment (spawn first message) MUST contain exactly one block:
+Each apply/archive assignment MUST contain exactly one block in the task's `task`
+string (the worker's first user message):
 
 ```text
 <worktree-authorization>{"version":1,"change":"example","parentRoot":"/repo","workspace":"/repo/.worktrees/example","participants":[{"path":".","mode":"worktree","access":"write","original":{"root":"/repo","commonDir":"/repo/.git","branch":"main","head":"0123456789012345678901234567890123456789"},"isolated":{"root":"/repo/.worktrees/example","branch":"feat/example"},"importRef":"refs/omp/import/example/parent"}]}</worktree-authorization>
 ```
+
+The guard reads only that first user message (the assignment body). A block in
+the shared top-level `context`, a file, a design document or a later message is
+invisible: the worker starts with no authorization and every tool call is
+blocked. If a worker reports `missing workspace authorization` or is blocked on
+every tool, stop it and re-spawn with the block in the task string; a later
+message cannot fix it.
 
 Substitute canonical paths/common directory, named primary and baseline HEAD's
 full SHA (40/64 hex); no extra fields. Default is ONLY `path: "."`. The scope
