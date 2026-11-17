@@ -41,9 +41,11 @@ Default: one repo, `feat/<change>`, linked `.worktrees/<change>`, session at ori
    are expected: os-archive annotates them and fills gaps post-sync. Never ask
    apply to annotate delta requirements; a stand-in ID (e.g. the closest current
    requirement) in apply's diff is a false claim, so route its removal to apply.
-5. Spawn `os-archive` with SAME initial authorization and current recovery SHAs.
-   Require delegated evidence: `--require archived`, merge parents/ancestry,
-   cleanup/residuals, all child integrations. Record merge SHA before next change.
+5. Spawn `os-archive` with the CURRENT authorization (apply-time, or the baseline
+   refresh below) and current recovery SHAs.
+   Require delegated evidence: `--require archived`, accepted baseline, merge
+   parents/ancestry, cleanup/residuals, all child integrations. Record merge SHA
+   before next change.
    The archive assignment carries only authorization, change/root, verified
    SHAs/phase and recovery facts. Never ask os-archive to rerun or add tests,
    re-prove failures, compare baselines or edit files beyond its agent file, and
@@ -54,9 +56,14 @@ Default: one repo, `feat/<change>`, linked `.worktrees/<change>`, session at ori
 Within approved scope/authority, recover local setup/dependencies, failed tests/gates,
 false acceptance/completion reports, review findings, stale phases and resolvable
 conflicts, including worker limits/interruptions. Reconcile actual refs/SHAs, phase,
-worker status and delegated evidence; resume original worker. Preserve initial
-authorization and one-writer/replacement/stop gates. Never repeat completed
-apply/archive/merge.
+worker status and delegated evidence; resume original worker. Preserve the
+authorized scope and latest baseline, plus one-writer/replacement/stop gates.
+Never repeat completed apply/archive/merge.
+
+An archive stop whose `Blocker` is the original primary ahead of the authorized
+baseline (step-1 divergence, step-5 `FETCH_HEAD` mismatch, or step-6 pre-merge
+recheck) is recovered by the baseline refresh below, never by `os-apply` and
+never by accepting the old base.
 
 Message observed failures/evidence and required corrections/outcomes within that
 worker's agent-file scope; workers own sequencing/test/duck choices. Never skip
@@ -72,22 +79,47 @@ Clean/report supervisor-session resources only, never worker files/jobs.
 
 ## Authorization
 
-Each apply/archive INITIAL user assignment MUST contain exactly one strict block:
+Each apply/archive assignment (spawn first message) MUST contain exactly one block:
 
 ```text
 <worktree-authorization>{"version":1,"change":"example","parentRoot":"/repo","workspace":"/repo/.worktrees/example","participants":[{"path":".","mode":"worktree","access":"write","original":{"root":"/repo","commonDir":"/repo/.git","branch":"main","head":"0123456789012345678901234567890123456789"},"isolated":{"root":"/repo/.worktrees/example","branch":"feat/example"},"importRef":"refs/omp/import/example/parent"}]}</worktree-authorization>
 ```
 
 Substitute canonical paths/common directory, named primary and baseline HEAD's
-full SHA (40/64 hex); no extra fields. Default is ONLY `path: "."`. Keep initial
-JSON unchanged across workers/recovery; save exact local
-`.omp-workspace-authorization.json` in worktree, uncommitted. Missing/malformed,
-conflicting or widened authority → stop; prose/cwd/later messages cannot grant it.
-Only proved post-merge cleanup may resume without the local copy, using retained
-initial authorization and refs, even between metadata and worktree removal.
+full SHA (40/64 hex); no extra fields. Default is ONLY `path: "."`. The scope
+(every field except `original.head`) never changes after apply; the baseline
+advances only via the archive refresh below. The local
+`.omp-workspace-authorization.json` keeps the apply-time baseline, uncommitted;
+archive validates the assignment's newer head against refs and reports it.
+Missing/malformed, conflicting or widened authority → stop; prose/cwd/later
+messages cannot grant it.
+Only proved post-merge cleanup may resume without the local copy, using the
+retained latest accepted block and refs, even between metadata and worktree
+removal.
 The original may be dirty; its dirt is preserved as found. Worktree cleanliness
 exempts only exact owned metadata/CodeGraph artifacts, never tracked or unrelated
 untracked dirt; never change original excludes/config.
+
+Archive baseline refresh — the only authorization change you may make: the
+baseline is a snapshot, not a ban on primary advancing. When the authorized
+baseline is behind the original primary (observed before the spawn, or reported
+by an archive stop on step-1 divergence / step-5 `FETCH_HEAD` mismatch / step-6
+pre-merge recheck), spawn a FRESH `os-archive` for the same change with the SAME
+block, replacing only each `original.head` with one newer-or-equal descendant
+(the parent strictly advances): parent = current primary HEAD; child = its
+gitlink in that new parent tree, a descendant of the old child head (equal when
+its gitlink is unchanged), with that child original HEAD already equal to it
+(unsynced child → stop). Before issuing it, verify read-only that
+branch/commonDir/refs/mode/access/roots are unchanged, the old baseline is an
+ancestor of the new head (rewritten or sideways history → stop), old..new
+contains no merge of this change (merge/cleanup state, not a refresh), phase is
+still `tasks-complete` or `archived-unmerged`, and the reported feature tips
+still match the last verified values. Never refresh downward, never for
+`os-apply` (its baseline stays frozen), never refresh without refs proving the
+move. Archive independently requires the new head to descend from the saved
+baseline and reports the accepted baseline; every other field stays
+byte-identical, so this remains one authorized scope at a later base. Retain the
+latest accepted block for recovery/cleanup.
 
 ## Resume
 

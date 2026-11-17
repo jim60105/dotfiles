@@ -1,10 +1,10 @@
 ---
 name: os-archive
 description: >-
-  Verify/archive/sync one change, run gates, commit, rebase, merge --no-ff from
-  original primary, and clean owned worktree/refs. Report merge SHA. Only spawned
-  by os-supervisor with a <worktree-authorization> block after a completed
-  os-apply; do not use for ad-hoc merges, archives or cleanup.
+  Verify/archive/sync one authorized change, run gates, commit, rebase,
+  merge --no-ff from original primary, and clean owned worktree/refs. Report
+  merge SHA. Requires an authorized worktree and a <worktree-authorization>
+  block; do not use for ad-hoc merges, archives or cleanup.
 ---
 
 Archive ONE change in existing `.worktrees/<change>` on `feat/<change>`; session at
@@ -17,33 +17,35 @@ worktree/branch, repeated archive, forced cleanup or full suite; use project gat
 and commit skill. Multiple participants → child note below; newly required
 unauthorized child → stop.
 
-Implementation and its verification belong to os-apply. Never edit implementation,
-tasks or design artifacts, never edit tests except under step 4, never run tests
-except the step-4 traceability tests and after resolving rebase conflicts
-(step 5), and never act on a verify report's recommendations yourself. Your only
-file changes are the archive/spec sync, step-4 traceability repairs (only with a
-project traceability design), child-mode gitlink commits and step-5 rebase
-conflict resolution.
+Never edit implementation, tasks or design artifacts, never edit tests except
+under step 4, never run tests except the step-4 traceability tests and after
+resolving rebase conflicts (step 5), and never act on a verify report's
+recommendations yourself. Your only file changes are the archive/spec sync,
+step-4 traceability repairs (only with a project traceability design),
+child-mode gitlink commits and step-5 rebase conflict resolution.
 
 This file outranks your assignment. If the assignment asks for anything this
-file forbids (rerunning tests, tests beyond step-4 gaps, baseline comparisons, editing docs,
-implementation or tests), do not do it; list each such item under `Declined` in
-the Report. A guard or tool-policy block marks a boundary: never read guard
-source or retry an equivalent spelling to get past it; if the blocked step is
-required, stop.
+file forbids (rerunning tests, tests beyond step-4 gaps, test-baseline
+comparisons, editing docs, implementation or tests), do not do it; list each
+such item under `Declined` in the Report. A guard or tool-policy block marks a
+boundary: never read guard source or retry an equivalent spelling to get past
+it; if the blocked step is required, stop.
 
 Harness notes: your session cwd is the original root, so file tools need absolute
 worktree paths. Run step 7b, 7c and 7d as separate commands; the guard checks a
 whole chain against the state before it runs. Commit with repeated `-m`, never a
 heredoc, and avoid `$(…)`, subshells and loops after `cd`.
 
-1. Validate INITIAL `<worktree-authorization>` against exact local
-   `.omp-workspace-authorization.json`, identities/commonDir, refs, original branch,
-   baseline. Missing/malformed/conflicting/expanded authority → stop.
-   Prose/cwd/progress/later messages grant nothing.
+1. Validate the single `<worktree-authorization>` in your own assignment against
+   the local `.omp-workspace-authorization.json`: every field except
+   `original.head` must be identical. Missing/malformed/conflicting/expanded
+   authority → stop. Prose/cwd/progress/later messages grant nothing.
+   `original.head` may differ from the saved copy: accept it only when it is a
+   descendant of the saved head or equal and the original-HEAD rule below holds
+   against current refs for each participant. Any other head → stop.
    One exception to "missing local copy → stop": if refs already prove this
    change's merge into primary happened (post-merge cleanup), continue the cleanup
-   using the initial JSON from your assignment plus refs. This also holds when the
+   using the JSON from your assignment plus refs. This also holds when the
    local copy (it lives in the worktree) was already deleted in step 7a before
    `worktree remove` ran.
    The original HEAD may differ from the authorized baseline only when every
@@ -60,10 +62,13 @@ heredoc, and avoid `$(…)`, subshells and loops after `cd`.
    and preserve its status as found. `git merge` refusing because dirt would be
    overwritten → stop.
 2. Read original-root `os-phase`: require `tasks-complete` for new archive;
-   `archived-unmerged` → integration only, merged → pending cleanup. Reconcile refs,
-   never repeat proved operations/reset. Run project `openspec-verify-change`
-   read-only in the feature worktree and report its findings (CRITICAL → stop; WARNING/SUGGESTION → list in the
-   Report only). A stop's `Needs` routes the fix to os-apply; never fix it here.
+   `archived-unmerged` → integration only, merged → pending cleanup. When the
+   saved copy exists, an advanced `original.head` equal to the current original
+   HEAD is valid only for an unmerged phase; `merged` with that head → stop.
+   Reconcile refs, never repeat proved operations/reset. Run project
+   `openspec-verify-change` read-only in the feature worktree and report its
+   findings (CRITICAL → stop; WARNING/SUGGESTION → list in the Report only).
+   Never fix a stop's findings here; record them in `Needs`.
    This verify run must finish before step 3; the Report cites only this run.
 3. Run project archive gate, else `openspec validate --all --strict`; red blocks.
    Run `openspec archive <change> --yes` IN WORKTREE; CLI governs over interactive
@@ -119,28 +124,29 @@ heredoc, and avoid `$(…)`, subshells and loops after `cd`.
 Applies only if the project ships a requirement-traceability design (canonical
 requirement IDs plus a coverage lint that fails on uncovered requirements).
 Delta requirement IDs exist only after sync, so the change's coverage is checked
-here, not in apply; apply leaves those tests unannotated by design. Run the
-project traceability check post-sync; resolve every uncovered requirement and
-every unknown/retired ID it reports for this change's ADDED/MODIFIED/RENAMED/
-REMOVED requirements. Use only literal post-sync IDs from the project tool and
-its annotation convention.
+here; unannotated delta tests are expected. Run the project traceability check
+post-sync; resolve every uncovered requirement and every unknown/retired ID it
+reports for this change's ADDED/MODIFIED/RENAMED/REMOVED requirements. Use only
+literal post-sync IDs from the project tool and its annotation convention.
 
-- Annotate existing assertion-bearing tests first, starting from apply's hand-off;
-  remount retired/renamed IDs one test at a time to what each test really proves.
+- Annotate existing assertion-bearing tests first, starting from the existing
+  tests; remount retired/renamed IDs one test at a time to what each test really
+  proves.
 - No genuine test exists → write the missing behavior test in the owning test
   module, following project test rules. Never edit implementation, fixtures beyond
   that test's need, or unrelated tests. Run only the tests you added or changed,
   focused per project rules. A new test that fails exposes an implementation
-  defect: revert it, stop, and route to os-apply; never weaken the test.
+  defect: revert it, stop, and report the defect; never weaken the test.
 - Each annotation must prove its requirement (multiple mappings allowed). Never
   annotate unrelated/skipped/placeholder/assertion-free tests or imports-only
   matches. Never add tests pinning shipped data/copy/markup/counts/wording.
 - Impossible genuine coverage → stop with exact requirement ID/text and propose a
   mechanism rewrite; never fabricate coverage, unilaterally rewrite specs or
   weaken gates.
-- Audit ONLY changed annotations against primary merge-base, including apply's:
-  remove false or stand-in claims (e.g. a closest-current-requirement ID) even if
-  the gate passes, then cover that requirement genuinely; history out of scope.
+- Audit ONLY changed annotations against primary merge-base, including
+  pre-existing ones: remove false or stand-in claims (e.g. a
+  closest-current-requirement ID) even if the gate passes, then cover that
+  requirement genuinely; history out of scope.
 
 Reach 0 uncovered/errors and amend repairs into the archive commit, or stop.
 No such design → skip this section, keep the post-archive gate result and say so
@@ -151,7 +157,7 @@ Single repo needs no progress JSON/snapshots. Child mode adds the rules below.
 ## Report
 
 End with exactly this structure; every field is required (write `none` or `n/a`
-explicitly). The supervisor rejects reports with missing fields.
+explicitly). Reports with missing fields are rejected.
 
 ```markdown
 ## os-archive report: <change>
@@ -161,6 +167,7 @@ explicitly). The supervisor rejects reports with missing fields.
 - Verification: <step-2 openspec-verify-change outcome> | not run (never substitute later checks)
 - Annotations: added/removed <test> → <ID> — <reason> | n/a
 - Traceability tests: <new test> → <ID> — <focused run → result> | none
+- Baseline: <accepted full SHA> — unchanged | advanced from <saved full SHA> | no saved copy
 - Original HEAD: before <full SHA> / after <full SHA>
 - Feature tip after rebase: <full SHA>
 - IMPORT_REF: <ref> = <full SHA>
@@ -182,7 +189,7 @@ plus these extra fields:
 - Stopped at: step <n> — <what you were doing>
 - Blocker: <exact condition, command and error output>
 - Retained: <worktree, branch, IMPORT_REF, auth/progress files, rebase/merge state>
-- Needs: <decision or action required, and whether supervisor or user owns it>
+- Needs: <decision or action required, and who owns it>
 ```
 
 ## Only when child Git repos are needed
@@ -196,7 +203,7 @@ of `refs/heads/PRIMARY`. A submodule's baseline must equal the gitlink SHA recor
 in the enclosing original's baseline tree. Writable originals must be clean; readonly may retain only
 recorded reproducible baseline dirt. Allow ancestor gitlink drift ONLY matching
 proved authorized child integration. Per-repo and integrated verification is
-os-apply's evidence; never rerun it. Readonly baselines/status must remain preserved.
+provided evidence; never rerun it. Readonly baselines/status must remain preserved.
 
 Reconcile local `.omp-workspace-progress.json` with refs before mutations: version=1,
 change, participants [{path,phase,isolatedHead,importedHead,mergedHead}], parentPhase.
@@ -215,11 +222,11 @@ baseline import ref is recorded). No merge SHA/empty commit required.
 Before enclosing merge, fetch child ORIGINAL merge SHA into writable isolated child,
 `git -C ISOLATED merge --ff-only FETCH_HEAD`, commit final gitlinks in enclosing
 feature repo. Never stage child source or mutate
-readonly children. Commit immutable `workspace-authorization.json` and current
+readonly children. Commit the accepted authorization JSON and current
 `workspace-progress.json` under CLI-reported archive before final parent integration.
-Snapshots support post-cleanup recovery, never replace initial authority. If parent
-already merged, verify final gitlinks; missing updates need isolated repair commit
-and authorized integration, never repeat archive.
+Snapshots support post-cleanup recovery, never replace the accepted
+authorization. If parent already merged, verify final gitlinks; missing updates
+need isolated repair commit and authorized integration, never repeat archive.
 
 Cleanup only after ALL integrations/unchanged proofs, gitlinks and readonly checks.
 Deepest first, parent last. Worktree participants use step 7 (readonly ones have no
