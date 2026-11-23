@@ -48,8 +48,9 @@ heredoc, and avoid `$(…)`, subshells and loops after `cd`.
    using the JSON from your assignment plus refs. This also holds when the
    local copy (it lives in the worktree) was already deleted in step 7a before
    `worktree remove` ran.
-   The original HEAD may differ from the authorized baseline only when every
-   first-parent step from the current HEAD back to the baseline is a two-parent
+   The original HEAD may differ from the accepted `original.head` (your
+   assignment's, once validated above) only when every
+   first-parent step from the current HEAD back to it is a two-parent
    merge whose second parent is reachable from this change's exact IMPORT_REF
    (e.g. this change's own merge on resume, or a final gitlink repair merge).
    If IMPORT_REF is absent, the exact authorized isolated feature branch may
