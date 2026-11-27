@@ -2,9 +2,9 @@
 name: os-propose
 description: >-
   Propose workday-sized OpenSpec changes, critique/validate, commit artifacts on
-  primary, and report dependency/conflict matrix. Planning only. Only spawned by
-  os-supervisor for an unknown change with a design document; for ad-hoc
-  proposals use the openspec-propose skill directly instead.
+  primary, and report dependency/conflict matrix. Planning only. Spawnable by
+  os-supervisor or any other agent for an unknown change with a design document;
+  for ad-hoc proposals use the openspec-propose skill directly instead.
 blocking: true
 spawns: rubber-duck
 ---
